@@ -1,5 +1,13 @@
 # Art pipeline — how new art gets into the game
 
+## Current animation milestone (Session 12)
+
+ROOK now uses one purpose-drawn eight-piece atlas, not separately generated movement frames or the old rectangle-cut arm. Source, exact built-in imagegen prompt and rebuild notes: `art/source/rigs/README.md`. Rebuild with `python -B tools/process_rook_rig.py`; geometry lives in `src/data/rigs.ts`. The source is immutable. VIPER/TITAN keep intact full-body frames, with the legacy arm cutter disabled, until the owner reviews ROOK (HANDOFF Session 11).
+
+All live main and expansion hostile sprites now have near-black outlines. Operators have a muted cool rim. Rebuilds use shared outline constants in `tools/process_assets.py`; `tools/integrate_expansion.py` imports them. ROOK's parts use the same contrast lift as other live sprites. No palette unification or enemy rigs have been completed yet.
+
+`npm.cmd run smoke -- rook-rig` saves gameplay and eight-position cycle screenshots. `python -B tools/preview_rook_rig.py` creates `art/preview/rook-run.gif` and `rook-review.png` for review. Movement, hitboxes and combat balance are unchanged by this milestone.
+
 ## For the owner (no coding needed)
 
 **Species library (parked during the city-quality content freeze):** `art/library/species/README.md` catalogs twelve species, two nonhuman operator sheets and two boss forms (72 transparent frames). Exact originals/prompts: `art/source/species/manifest.json`; rebuild: `python -B tools/process_species.py`. Optional typed bestiary/content proposals: `src/data/speciesPack.ts`. Nothing is live; follow HANDOFF Session 8's city-polish priority before integration. Session 9 documents this requested library.

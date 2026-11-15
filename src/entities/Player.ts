@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { DEPTH } from '../config';
 import { ART_MUZZLES } from '../data/artMuzzles';
 import { ARMS, buildArmRig } from '../systems/ArmRig';
+import { CharacterRig } from '../systems/CharacterRig';
 import { run } from '../systems/Run';
 import { audio } from '../systems/Audio';
 import type { Controls } from '../systems/Controls';
@@ -36,6 +37,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private baseTint: number;
   private aura: Phaser.GameObjects.Image;
   arm: Phaser.GameObjects.Image | null = null;
+  rig: CharacterRig | null = null;
   armAng = 0;       // current (smoothed) world angle of the gun arm
   private shotAng = 0;      // keyboard/gamepad: angle of the last shot, held briefly
   private shotUntil = 0;
@@ -58,6 +60,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.body.setMaxVelocityY(900);
     this.aura = gs.add.image(x, y, 'glow').setBlendMode(Phaser.BlendModes.ADD).setTint(0xffc040).setDepth(DEPTH.player - 1).setVisible(false);
 
+    if (op.rig && CharacterRig.available(gs, op.rig)) {
+      this.rig = new CharacterRig(gs, op.rig);
+      this.setVisible(false); // the intact fallback sprite remains the physics actor
+      this.rig.update(this, 0, false);
+    }
+
     if (rigged) {
       this.arm = gs.add.image(x, y, `${baseArt}_a_idle`).setDepth(DEPTH.player + 0.1).setTint(this.baseTint);
     }
@@ -79,6 +87,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   /** World position of the gun muzzle for the current pose. */
   muzzle() {
+    if (this.rig) return this.rig.muzzle();
     const g = ARMS[this.texture.key];
     if (g && this.arm) {
       const p = this.pivot(g);
@@ -100,6 +109,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   /** Called by the scene when a shot is fired so the arm snaps to the shot direction (keyboard/gamepad). */
   noteShot(angle: number) {
     this.shotAng = angle; this.shotUntil = this.gs.time.now + 320; this.recoil = 1;
+    this.rig?.noteShot(angle);
   }
 
   /** Keep the arm sprite glued to the body and pointed at the aim target. */
@@ -229,6 +239,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // --- blink while invulnerable after a hit ---
     this.setAlpha(this.invuln > 0 && this.sliding <= 0 ? (Math.floor(this.gs.time.now / 50) % 2 ? 0.35 : 1) : 1);
 
+    this.rig?.update(this, dt, lowPose);
+
     if (c.held('fire') && this.fireCd <= 0) this.gs.playerFire();
     if (c.pressed('overdrive')) this.gs.tryOverdrive();
   }
@@ -243,17 +255,20 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private ghost() {
     if (this.gs.time.now < this.ghostT) return;
     this.ghostT = this.gs.time.now + 40;
+    if (this.rig) { this.rig.ghost(); return; }
     const g = this.gs.add.image(this.x, this.y, this.texture.key).setOrigin(0.5, 1).setFlipX(this.flipX).setTintFill(0x40d0ff).setAlpha(0.5).setDepth(DEPTH.player - 1);
     this.gs.tweens.add({ targets: g, alpha: 0, duration: 220, onComplete: () => g.destroy() });
   }
 
   flashWhite() {
+    this.rig?.flash();
     this.setTintFill(0xffffff); this.arm?.setTintFill(0xffffff);
     this.gs.time.delayedCall(70, () => { if (!this.dead) { this.setTint(this.baseTint); this.arm?.setTint(this.baseTint); } });
   }
 
   die() {
     this.dead = true;
+    this.rig?.die();
     this.aura.setVisible(false);
     this.overdrive = 0;
     this.anims.stop();
@@ -262,5 +277,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.body.setVelocity(-this.dir * 160, -320);
     this.body.setAccelerationX(0);
     this.body.setDragX(300);
+  }
+
+  destroy(fromScene?: boolean) {
+    this.rig?.destroy();
+    this.rig = null;
+    this.arm?.destroy();
+    this.aura?.destroy();
+    super.destroy(fromScene);
   }
 }

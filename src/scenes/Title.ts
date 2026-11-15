@@ -4,12 +4,14 @@ import { OPERATORS } from '../data/operators';
 import { newRun, save, persist } from '../systems/Run';
 import { audio } from '../systems/Audio';
 import { Controls } from '../systems/Controls';
+import { CharacterRig } from '../systems/CharacterRig';
 
 export class TitleScene extends Phaser.Scene {
   private bg!: Phaser.GameObjects.TileSprite;
   private controls!: Controls;
   private sel = 0;
   private hero!: Phaser.GameObjects.Image;
+  private rig: CharacterRig | null = null;
   private info!: Phaser.GameObjects.Text[];
   private started = false;
 
@@ -20,6 +22,7 @@ export class TitleScene extends Phaser.Scene {
   }
 
   create() {
+    this.rig = null;
     this.started = false;
     this.sel = Phaser.Math.Clamp(save.op, 0, OPERATORS.length - 1);
     audio.setMuted(save.muted);
@@ -52,12 +55,17 @@ export class TitleScene extends Phaser.Scene {
     const op = OPERATORS[this.sel];
     const has = this.textures.exists(`${op.art}_idle`);
     this.hero.setTexture(has ? `${op.art}_idle` : 'hero_idle').setTint(has ? 0xffffff : op.tint);
+    this.rig?.destroy();
+    this.rig = op.rig && CharacterRig.available(this, op.rig) ? new CharacterRig(this, op.rig) : null;
+    this.hero.setVisible(!this.rig);
+    this.updateRig(0);
     this.info[0].setText(op.name);
     this.info[1].setText(`${op.role}   ARMOR ${op.hp}   SPEED ${op.speed}`);
     this.info[2].setText(op.blurb);
   }
 
   update(_t: number, dt: number) {
+    this.updateRig(dt);
     this.bg.tilePositionX += dt * 0.012;
     const c = this.controls;
     c.poll();
@@ -83,5 +91,10 @@ export class TitleScene extends Phaser.Scene {
       this.cameras.main.fadeOut(350);
       this.time.delayedCall(360, () => this.scene.start('Game'));
     }
+  }
+
+  private updateRig(dt: number) {
+    this.rig?.update({ x: W / 2, y: 250, dir: 1, scaleX: 2, scaleY: 2, alpha: 1,
+      body: { velocity: { x: 0, y: 0 } }, onGround: true, sliding: 0 }, dt, false);
   }
 }

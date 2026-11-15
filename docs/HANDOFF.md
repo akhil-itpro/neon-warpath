@@ -2,13 +2,27 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
-## Session 12 - 2026-11-15 (Codex, ROOK visual milestone in progress)
+## Session 12 - 2026-11-15 (Codex, A1-A3 visual milestone)
 
-- Read the full story bible and current handoff; following Session 11's A1-A3 review milestone before expanding the campaign.
-- A1: muted the gameplay backdrop with a 32% ink overlay; rebuilt all live main/expansion sprites with near-black hostile outlines and a muted cool hero rim. Sources are unchanged.
-- Verified A1: `npm.cmd run check`, `npm.cmd run smoke -- city` (city + gunship), and inspected the new city and boss screenshots against the earlier versions. The red sticker edge is gone. Combat balance remains unverified.
-- A2: the old rectangle-cut arm rig is behind `ARM_RIG = false`; all operators use intact body frames and existing muzzle offsets. Updated the legacy rig regression and operator pose expectations. Check plus arm-rig, art-viper, art-titan and mouse-aim smoke pass; inspected ROOK/VIPER/TITAN screenshots.
-- In progress: integrate one new separated-parts ROOK rig. Story systems and five new stages have not been built yet.
+### Completed
+- Read CLAUDE.md, the current handoff, the full STORY.md, GDD and art pipeline. Followed Session 11's A1-A3 milestone; no new campaign content has gone live.
+- **A1:** muted every gameplay backdrop with a 32% ink overlay behind actors/telegraphs. Rebuilt all live main/expansion sprites with near-black hostile outlines and a muted cool operator rim. Both pipelines share outline constants. Original source images remain unchanged.
+- **A2:** the legacy rectangle-cut arm rig is retained behind `ARM_RIG = false`. VIPER/TITAN use intact full-body frames and existing muzzle offsets; missing new rig parts also fall back to intact frames.
+- **A3 (ROOK only):** generated ONE purpose-drawn eight-piece atlas with built-in image_gen, saved with the exact prompt in `art/source/rigs/`. New `src/data/rigs.ts` holds pivots, leg lengths, barrel point and eight foot positions. `CharacterRig.ts` renders connected limbs, bending knees, distance-driven forward/backward running, breathing, jump/fall poses, crouch/slide, aim/recoil, hurt flinch and procedural no-gore death pieces. It also renders ROOK on Title. Player movement constants, hitbox sizes and slide invulnerability remain unchanged.
+- Added ROOK smoke coverage for real-input poses/aim, hitbox sizes, slide invulnerability, immediate white flash during hit-stop, death/retry cleanup and pause. The final eight screenshots deliberately pause the scene to render a stable cycle review (the final diagnostic listing only Hud is expected).
+
+### Verification and artifacts
+- A1 check + city/gunship smoke passed; A2 check + arm-rig, art-viper, art-titan and mouse-aim smoke passed. Inspected before/after city and gunship images plus all three operator views.
+- A3 focused ROOK/mouse-aim/legacy-arm/title smoke passed; typecheck and production build passed. Full **33/33 smoke scenarios pass with no browser errors**, including all seven stage/boss scenes, pickups/weapons, ROOK, fallback operators, death/retry, pause, perks and credits back to Title.
+- Inspected the generated atlas, processed parts, close-up run/aim/crouch/slide/hurt/death screenshots, Title, and representative campaign/boss screenshots. `python -B tools/preview_rook_rig.py` generates the reviewed `art/preview/rook-review.png` and eight-position `rook-run.gif`.
+- Rebuild parts: `python -B tools/process_rook_rig.py`. Runtime part PNGs + manifest are committed; preview/shots remain ignored. Source/prompt/rebuild details: `art/source/rigs/README.md`; art docs updated.
+- Production output: `dist/`; ready-to-upload archive: `tools/shots/neon-warpath-build.zip`. Local dev preview was started at `http://127.0.0.1:5173/` for owner review.
+
+### Unverified and next
+- **Owner review is next:** Session 11 explicitly says "After A1-A3, stop and get the owner's opinion on the new ROOK before redoing every character." Judge animation feel in motion, not only the contact sheet. This is a first cut-out rig, not a claim of final hand-polished art.
+- Normal-health balance, human completion of a stage, gamepad feel and audio listening remain unverified. God-mode/forced-death smoke checks do not establish difficulty or beatability.
+- Still **7 stages**. The 12-stage story, briefings/comms, choices, shards, allies and endings in STORY.md are a design, not implemented gameplay. No five new stages, enemy/boss rigs, new parallax layers or shared palette have been added.
+- After ROOK feedback: refine this rig if needed, then continue A4-A6 and B story systems in Session 11's order; stage gimmicks and the five new stages follow. Keep content data-driven and add focused smoke coverage per feature.
 
 ## Session 11 - 2026-11-15 (Claude Code, honest audit + 12-stage story campaign plan) — CODEX: START HERE
 

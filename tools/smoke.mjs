@@ -102,15 +102,48 @@ const SCENARIOS = [
   ] },
   // Mouse aim: shots follow the crosshair, the hero faces it, and releasing the button stops the gun.
   // Legacy arm cutter is disabled; whole-body poses and free-aim shooting remain intact.
-  { name: 'arm-rig', url: '?stage=city&god=1&weapon=smg', steps: [
+  { name: 'arm-rig', url: '?stage=city&god=1&weapon=smg&op=1', steps: [
     ['wait', 2800],
     ['eval', `var g = window.__game.scene.getScene('Game'); for (const e of g.enemies) g.removeEnemy(e); g.player.x = 300; g.player.body.setVelocity(0, 0);`],
-    ['assert', `var p = window.__game.scene.getScene('Game').player; p.texture.key === 'hero_idle' && p.arm === null`],
+    ['assert', `var p = window.__game.scene.getScene('Game').player; p.texture.key === 'viper_idle' && p.arm === null && p.rig === null`],
     ['mouse', [1100, 120]], ['wait', 200], ['shot'],
     ['mouse', [200, 380]], ['wait', 200], ['shot'],
-    ['assert', `var p = window.__game.scene.getScene('Game').player; p.dir === -1 && p.texture.key === 'hero_idle' && p.arm === null`],
+    ['assert', `var p = window.__game.scene.getScene('Game').player; p.dir === -1 && p.texture.key === 'viper_idle' && p.arm === null`],
     ['down', 'KeyS'], ['wait', 200], ['shot'], ['up', 'KeyS'],
-    ['assert', `window.__game.scene.getScene('Game').player.texture.key === 'hero_crouch'`],
+    ['assert', `window.__game.scene.getScene('Game').player.texture.key === 'viper_crouch'`],
+  ] },
+  { name: 'rook-rig', url: '?stage=city&god=1&weapon=smg', steps: [
+    ['wait', 3000],
+    ['eval', `var g = window.__game.scene.getScene('Game'); for (const e of g.enemies) g.removeEnemy(e); g.player.body.reset(300, 320);`],
+    ['wait', 400], ['shot'],
+    ['assert', `var p = window.__game.scene.getScene('Game').player; p.rig && !p.visible && p.rig.root.visible && p.rig.root.list.length === 8 && p.body.width === 18 && p.body.height === 56`],
+    ['mouse', [1100, 120]], ['wait', 400], ['shot'],
+    ['assert', `window.__game.scene.getScene('Game').player.rig.parts.arm.rotation < -0.5`],
+    ['mdown'], ['wait', 300], ['mup'],
+    ['mouse', [200, 100]], ['wait', 400], ['shot'],
+    ['assert', `var p = window.__game.scene.getScene('Game').player; p.dir === -1 && p.rig.muzzle().x < p.x && p.rig.muzzle().y < p.centerY`],
+    ['tap', 'KeyJ'], ['down', 'KeyD'],
+    ...Array.from({ length: 8 }, () => [['wait', 70], ['shot']]).flat(),
+    ['up', 'KeyD'], ['tap', 'Space'], ['wait', 80], ['shot'], ['wait', 200], ['shot'],
+    ['wait', 1000], ['down', 'KeyS'], ['wait', 160], ['shot'],
+    ['assert', `var p = window.__game.scene.getScene('Game').player; p.low && p.rig.parts.head.y > -35 && p.body.height === 32`],
+    ['up', 'KeyS'], ['tap', 'ShiftLeft'], ['wait', 30],
+    ['assert', `var p = window.__game.scene.getScene('Game').player; p.sliding > 0 && p.invuln > 0`],
+    ['shot'], ['wait', 450],
+    ['eval', `var g = window.__game.scene.getScene('Game'); g.player.flashWhite(); g.fx.hitstop(100)`],
+    ['assert', `Object.values(window.__game.scene.getScene('Game').player.rig.parts).every(p => p.tintFill)`], ['wait', 25], ['shot'],
+    ['eval', `var p = window.__game.scene.getScene('Game').player; window.__oldRig = p.rig.root; p.invuln = 0; window.__game.scene.getScene('Game').hurtPlayer(10000, p.x - 20)`],
+    ['wait', 120], ['shot'],
+    ['assert', `!window.__game.scene.getScene('Game').player.rig.root.visible`],
+    ['until', `window.__game.scene.getScene('Game').canRetry`], ['tap', 'Enter'], ['wait', 800], ['shot'],
+    ['assert', `var g = window.__game.scene.getScene('Game'); g.state === 'play' && g.player.rig.root.active && !window.__oldRig.active`],
+    ['tap', 'Escape'], ['eval', `window.__rigPhase = window.__game.scene.getScene('Game').player.rig.phase`], ['wait', 350],
+    ['assert', `window.__game.scene.getScene('Game').player.rig.phase === window.__rigPhase`], ['tap', 'Escape'],
+    // A stable eight-position review loop rendered by the real rig; gameplay assertions are above.
+    ['wait', 400], ['eval', `var g = window.__game.scene.getScene('Game'); g.scene.pause(); g.aim = null; g.player.dir = 1; g.player.body.setVelocity(170, 0);`],
+    ...Array.from({ length: 8 }, (_, i) => [
+      ['eval', `var p = window.__game.scene.getScene('Game').player; p.rig.phase = ${i} / 8; p.rig.update(p, 0, false)`], ['shot'],
+    ]).flat(),
   ] },
   { name: 'mouse-aim', url: '?stage=city&god=1&weapon=smg', steps: [
     ['wait', 2800],
@@ -183,7 +216,19 @@ for (const sc of SCENARIOS.filter((s) => s.name.includes(filter))) {
     else if (op === 'eval') await page.evaluate(arg);
     else if (op === 'until') await page.waitForFunction(arg, null, { timeout: 20000 });
     else if (op === 'assert' && !await page.evaluate(arg)) throw new Error(`Assertion failed: ${arg}`);
-    else if (op === 'shot') await page.screenshot({ path: `tools/shots/${sc.name}-${n++}.png` });
+    else if (op === 'shot') {
+      await page.screenshot({ path: `tools/shots/${sc.name}-${n++}.png` });
+      if (sc.name === 'rook-rig') {
+        const clip = await page.evaluate(() => {
+          const g = window.__game.scene.getScene('Game'), p = g.player;
+          const rect = window.__game.canvas.getBoundingClientRect();
+          const x = rect.x + (p.x - g.cameras.main.scrollX) * rect.width / 640;
+          const y = rect.y + (p.y - g.cameras.main.scrollY) * rect.height / 360;
+          return { x: Math.max(0, Math.min(innerWidth - 220, x - 110)), y: Math.max(0, Math.min(innerHeight - 200, y - 170)), width: 220, height: 200 };
+        });
+        await page.screenshot({ path: `tools/shots/${sc.name}-pose-${n - 1}.png`, clip });
+      }
+    }
   }
   } catch (e) {
     errors.push(String(e));
