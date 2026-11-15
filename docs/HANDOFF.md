@@ -23,7 +23,7 @@ Update this file at the end of every working session (any AI agent). Newest sess
 - Smoke: `title` now goes through Briefing; `flow-stage-*` taps through Briefing; new `story-comms`, `story-ledger`, `story-leak`, `story-nest`, `story-end`, `archive`; new step op `['press', [key, cond]]`.
 
 ### Verified
-- `npm run check` passes. Focused smoke passed: all `story-*`, `title`, `archive`. Screenshots looked at: comms panel in city, shard counter, briefing with VIPER, ledger choice cards, 4-card perk screen with Patch's new line, ARCHIVE, DAWN results screen. Full-suite result: see the line below (updated at commit time).
+- `npm run check` passes. Focused smoke passed: all `story-*`, `title`, `archive`. Screenshots looked at: comms panel in city, shard counter, briefing with VIPER, ledger choice cards, 4-card perk screen with Patch's new line, ARCHIVE, DAWN results screen. **Full suite: 39/39 smoke scenarios pass, no browser errors** (exit 0), including all 7 flow-stage runs through the new Briefing, credits back to Title.
 
 ### NOT verified
 - How the story pacing feels to a human (line timings, whether comms distract during fights). Normal-health balance is still untested, as are gamepad on the Briefing and Archive screens and the audio of the new sfx.
