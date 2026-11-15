@@ -1,0 +1,570 @@
+[
+  {
+    "key": "arc_caster",
+    "kind": "weapon",
+    "source": "art/source/expansion/arsenal.png",
+    "master": "masters/arc_caster.png",
+    "image": "sprites/arc_caster.png",
+    "size": [
+      48,
+      28
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "cryo_projector",
+    "kind": "weapon",
+    "source": "art/source/expansion/arsenal.png",
+    "master": "masters/cryo_projector.png",
+    "image": "sprites/cryo_projector.png",
+    "size": [
+      48,
+      28
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "scrap_cannon",
+    "kind": "weapon",
+    "source": "art/source/expansion/arsenal.png",
+    "master": "masters/scrap_cannon.png",
+    "image": "sprites/scrap_cannon.png",
+    "size": [
+      48,
+      28
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "sunlance",
+    "kind": "weapon",
+    "source": "art/source/expansion/arsenal.png",
+    "master": "masters/sunlance.png",
+    "image": "sprites/sunlance.png",
+    "size": [
+      48,
+      28
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "buzzsaw_launcher",
+    "kind": "weapon",
+    "source": "art/source/expansion/arsenal.png",
+    "master": "masters/buzzsaw_launcher.png",
+    "image": "sprites/buzzsaw_launcher.png",
+    "size": [
+      48,
+      28
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "spore_sprayer",
+    "kind": "weapon",
+    "source": "art/source/expansion/arsenal.png",
+    "master": "masters/spore_sprayer.png",
+    "image": "sprites/spore_sprayer.png",
+    "size": [
+      48,
+      28
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "gravity_mortar",
+    "kind": "weapon",
+    "source": "art/source/expansion/arsenal.png",
+    "master": "masters/gravity_mortar.png",
+    "image": "sprites/gravity_mortar.png",
+    "size": [
+      48,
+      28
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "tesla_crossbow",
+    "kind": "weapon",
+    "source": "art/source/expansion/arsenal.png",
+    "master": "masters/tesla_crossbow.png",
+    "image": "sprites/tesla_crossbow.png",
+    "size": [
+      48,
+      28
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "nova",
+    "kind": "character",
+    "source": "art/source/expansion/operators.png",
+    "master": "masters/nova.png",
+    "image": "sprites/nova.png",
+    "size": [
+      112,
+      80
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "mako",
+    "kind": "character",
+    "source": "art/source/expansion/operators.png",
+    "master": "masters/mako.png",
+    "image": "sprites/mako.png",
+    "size": [
+      112,
+      80
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "vesper",
+    "kind": "character",
+    "source": "art/source/expansion/operators.png",
+    "master": "masters/vesper.png",
+    "image": "sprites/vesper.png",
+    "size": [
+      112,
+      80
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "flint",
+    "kind": "character",
+    "source": "art/source/expansion/operators.png",
+    "master": "masters/flint.png",
+    "image": "sprites/flint.png",
+    "size": [
+      112,
+      80
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "echo",
+    "kind": "character",
+    "source": "art/source/expansion/operators.png",
+    "master": "masters/echo.png",
+    "image": "sprites/echo.png",
+    "size": [
+      112,
+      80
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "patch",
+    "kind": "character",
+    "source": "art/source/expansion/operators.png",
+    "master": "masters/patch.png",
+    "image": "sprites/patch.png",
+    "size": [
+      112,
+      80
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "riot_bastion",
+    "kind": "enemy",
+    "source": "art/source/expansion/machines.png",
+    "master": "masters/riot_bastion.png",
+    "image": "sprites/riot_bastion.png",
+    "size": [
+      128,
+      96
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "coil_sniper",
+    "kind": "enemy",
+    "source": "art/source/expansion/machines.png",
+    "master": "masters/coil_sniper.png",
+    "image": "sprites/coil_sniper.png",
+    "size": [
+      128,
+      96
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "welder_hound",
+    "kind": "enemy",
+    "source": "art/source/expansion/machines.png",
+    "master": "masters/welder_hound.png",
+    "image": "sprites/welder_hound.png",
+    "size": [
+      128,
+      96
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "saw_crab",
+    "kind": "enemy",
+    "source": "art/source/expansion/machines.png",
+    "master": "masters/saw_crab.png",
+    "image": "sprites/saw_crab.png",
+    "size": [
+      128,
+      96
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "bell_drone",
+    "kind": "enemy",
+    "source": "art/source/expansion/machines.png",
+    "master": "masters/bell_drone.png",
+    "image": "sprites/bell_drone.png",
+    "size": [
+      128,
+      96
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "scrap_mantis",
+    "kind": "enemy",
+    "source": "art/source/expansion/machines.png",
+    "master": "masters/scrap_mantis.png",
+    "image": "sprites/scrap_mantis.png",
+    "size": [
+      128,
+      96
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "sporeback",
+    "kind": "enemy",
+    "source": "art/source/expansion/mutants.png",
+    "master": "masters/sporeback.png",
+    "image": "sprites/sporeback.png",
+    "size": [
+      128,
+      96
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "acid_bellower",
+    "kind": "enemy",
+    "source": "art/source/expansion/mutants.png",
+    "master": "masters/acid_bellower.png",
+    "image": "sprites/acid_bellower.png",
+    "size": [
+      128,
+      96
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "glass_widow",
+    "kind": "enemy",
+    "source": "art/source/expansion/mutants.png",
+    "master": "masters/glass_widow.png",
+    "image": "sprites/glass_widow.png",
+    "size": [
+      128,
+      96
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "cinder_knight",
+    "kind": "enemy",
+    "source": "art/source/expansion/mutants.png",
+    "master": "masters/cinder_knight.png",
+    "image": "sprites/cinder_knight.png",
+    "size": [
+      128,
+      96
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "deepjaw",
+    "kind": "enemy",
+    "source": "art/source/expansion/mutants.png",
+    "master": "masters/deepjaw.png",
+    "image": "sprites/deepjaw.png",
+    "size": [
+      128,
+      96
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "lantern_moth",
+    "kind": "enemy",
+    "source": "art/source/expansion/mutants.png",
+    "master": "masters/lantern_moth.png",
+    "image": "sprites/lantern_moth.png",
+    "size": [
+      128,
+      96
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "vendotron",
+    "kind": "enemy",
+    "source": "art/source/expansion/oddities.png",
+    "master": "masters/vendotron.png",
+    "image": "sprites/vendotron.png",
+    "size": [
+      128,
+      96
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "crt_oracle",
+    "kind": "enemy",
+    "source": "art/source/expansion/oddities.png",
+    "master": "masters/crt_oracle.png",
+    "image": "sprites/crt_oracle.png",
+    "size": [
+      128,
+      96
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "teacup_tyrant",
+    "kind": "enemy",
+    "source": "art/source/expansion/oddities.png",
+    "master": "masters/teacup_tyrant.png",
+    "image": "sprites/teacup_tyrant.png",
+    "size": [
+      128,
+      96
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "umbrella_jelly",
+    "kind": "enemy",
+    "source": "art/source/expansion/oddities.png",
+    "master": "masters/umbrella_jelly.png",
+    "image": "sprites/umbrella_jelly.png",
+    "size": [
+      128,
+      96
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "traffic_totem",
+    "kind": "enemy",
+    "source": "art/source/expansion/oddities.png",
+    "master": "masters/traffic_totem.png",
+    "image": "sprites/traffic_totem.png",
+    "size": [
+      128,
+      96
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "disco_slug",
+    "kind": "enemy",
+    "source": "art/source/expansion/oddities.png",
+    "master": "masters/disco_slug.png",
+    "image": "sprites/disco_slug.png",
+    "size": [
+      128,
+      96
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "power_cell",
+    "kind": "prop",
+    "source": "art/source/expansion/props.png",
+    "master": "masters/power_cell.png",
+    "image": "sprites/power_cell.png",
+    "size": [
+      96,
+      80
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "ammo_locker",
+    "kind": "prop",
+    "source": "art/source/expansion/props.png",
+    "master": "masters/ammo_locker.png",
+    "image": "sprites/ammo_locker.png",
+    "size": [
+      96,
+      80
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "med_station",
+    "kind": "prop",
+    "source": "art/source/expansion/props.png",
+    "master": "masters/med_station.png",
+    "image": "sprites/med_station.png",
+    "size": [
+      96,
+      80
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "toxic_barrel",
+    "kind": "prop",
+    "source": "art/source/expansion/props.png",
+    "master": "masters/toxic_barrel.png",
+    "image": "sprites/toxic_barrel.png",
+    "size": [
+      96,
+      80
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "alien_egg",
+    "kind": "prop",
+    "source": "art/source/expansion/props.png",
+    "master": "masters/alien_egg.png",
+    "image": "sprites/alien_egg.png",
+    "size": [
+      96,
+      80
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "rift_anchor",
+    "kind": "prop",
+    "source": "art/source/expansion/props.png",
+    "master": "masters/rift_anchor.png",
+    "image": "sprites/rift_anchor.png",
+    "size": [
+      96,
+      80
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "street_terminal",
+    "kind": "prop",
+    "source": "art/source/expansion/props.png",
+    "master": "masters/street_terminal.png",
+    "image": "sprites/street_terminal.png",
+    "size": [
+      96,
+      80
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "scrap_barricade",
+    "kind": "prop",
+    "source": "art/source/expansion/props.png",
+    "master": "masters/scrap_barricade.png",
+    "image": "sprites/scrap_barricade.png",
+    "size": [
+      96,
+      80
+    ],
+    "frames": 1,
+    "status": "staged art; not wired to gameplay"
+  },
+  {
+    "key": "bg_neon_casino",
+    "kind": "world",
+    "source": "art/source/expansion/world_neon_casino.png",
+    "image": "worlds/bg_neon_casino.png",
+    "strip": "worlds/bg_neon_casino_strip.png",
+    "size": [
+      640,
+      360
+    ],
+    "status": "flattened backdrop; mirrored strip, not separate parallax layers"
+  },
+  {
+    "key": "bg_fungal_depths",
+    "kind": "world",
+    "source": "art/source/expansion/world_fungal_depths.png",
+    "image": "worlds/bg_fungal_depths.png",
+    "strip": "worlds/bg_fungal_depths_strip.png",
+    "size": [
+      640,
+      360
+    ],
+    "status": "flattened backdrop; mirrored strip, not separate parallax layers"
+  },
+  {
+    "key": "bg_abyss_station",
+    "kind": "world",
+    "source": "art/source/expansion/world_abyss_station.png",
+    "image": "worlds/bg_abyss_station.png",
+    "strip": "worlds/bg_abyss_station_strip.png",
+    "size": [
+      640,
+      360
+    ],
+    "status": "flattened backdrop; mirrored strip, not separate parallax layers"
+  },
+  {
+    "key": "bg_orbital_garden",
+    "kind": "world",
+    "source": "art/source/expansion/world_orbital_garden.png",
+    "image": "worlds/bg_orbital_garden.png",
+    "strip": "worlds/bg_orbital_garden_strip.png",
+    "size": [
+      640,
+      360
+    ],
+    "status": "flattened backdrop; mirrored strip, not separate parallax layers"
+  }
+]

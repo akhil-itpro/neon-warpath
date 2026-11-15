@@ -1,6 +1,9 @@
 # Art pipeline — how new art gets into the game
 
 ## For the owner (no coding needed)
+
+**New expansion library:** 44 staged designs are available at `art/library/expansion/README.md`, with previews, transparent cutouts, game-sized sprites and world backgrounds. Originals and exact prompts are in `art/source/expansion/`. Rebuild with `python tools/process_expansion.py`. This library is separate from the live game manifest; Claude should select assets and integrate them deliberately. Character/enemy concepts contain one pose each, not full animations.
+
 1. Generate a sheet in ChatGPT using a prompt below.
 2. Save the PNG into `art/source/` with the suggested file name.
 3. Tell the AI agent: "new art in art/source, add it to the game". The agent adds a `MANIFEST` entry in `tools/process_assets.py`, runs `npm run assets`, and checks `art/preview/contact.png`.

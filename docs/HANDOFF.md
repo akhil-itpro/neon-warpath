@@ -2,6 +2,29 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
+## Session 5 - 2026-11-15 (Codex, expansion asset library for Claude)
+
+### Owner direction — read this first
+- Owner explicitly requested less testing and more asset creation: lots of weapons, characters, worlds, enemies and weird characters, staged so Claude can pick them up. This session prioritizes that request over earlier gameplay-first priority notes. Avoid repeating the full smoke suite just for this art-only library.
+
+### Completed
+- Generated **44 original designs across 10 source images** with built-in image_gen: 8 weapons, 6 character concepts, 6 machines, 6 mutants, 6 weird enemies, 8 props and 4 worlds.
+- Start at **`art/library/expansion/README.md`** for the complete inventory, seven labeled preview boards, integration caveats and suggested world/character combinations. Machine-readable paths and dimensions: `art/library/expansion/inventory.json`.
+- Original sources and exact prompts: `art/source/expansion/` and its `manifest.json`. Do not regenerate or overwrite these unnecessarily.
+- Prepared 40 separate transparent source-resolution cutouts in `masters/`, 40 outlined game-sized PNGs in `sprites/`, and 4 world backgrounds (640x360) plus mirrored strips (1280x360) in `worlds/`, all under `art/library/expansion/`.
+- Added reproducible extraction/catalog script: `python tools/process_expansion.py`. It does not modify live assets or their loader manifest.
+- Highlights: arc/frost/gravity/spore weapons; Nova, Mako, Vesper, Flint, Echo and Patch; riot robot, welding hound, crystal spider, shark diver; vending-machine walker, CRT oracle, teacup tyrant, umbrella jellyfish, traffic-light robot, disco slug. Worlds: Neon Casino, Fungal Depths, Abyss Station, Orbital Garden.
+
+### Verified / limits
+- Visually inspected all source images and all seven processed boards. Extraction produced all 44 designs. `npm.cmd run check` passes. No smoke suite was run for this batch, per owner direction.
+- **These are staged art assets, not implemented game content.** Characters/enemies each have ONE pose. They are not animation-ready replacements for the existing operator sheets. No weapon mechanics, enemy behavior or new stages were added.
+- Character canvases 112x80; enemies 128x96; weapons 48x28; props 96x80. Explicit collision sizes, sprite origins, scale and muzzle points are needed during integration. Some weird enemies are front/three-quarter views. Backgrounds are flattened and mirrored, not layered parallax or level geometry.
+
+### Next for Claude
+- Browse the README/boards, choose assets, then copy selected runtime PNGs into `public/assets/` and add data/manifest entries. Keep content definitions in `src/data/*`.
+- Generate matching animation poses only for chosen playable characters/enemies; use original sources as visual references. Decide display sizes for small characters and flying creatures.
+- If the owner continues requesting art, expand this library without spending the session on campaign tests. When actually changing gameplay, use focused verification appropriate to the change.
+
 ## Session 4 - 2026-11-15 (Codex, weapon pickup assets)
 
 ### Completed

@@ -1,0 +1,128 @@
+[
+  {
+    "key": "arsenal",
+    "cols": 4,
+    "rows": 2,
+    "names": [
+      "arc_caster",
+      "cryo_projector",
+      "scrap_cannon",
+      "sunlance",
+      "buzzsaw_launcher",
+      "spore_sprayer",
+      "gravity_mortar",
+      "tesla_crossbow"
+    ],
+    "kind": "weapon",
+    "prompt": "Original NEON WARPATH game assets. Detailed 16-bit pixel art, dark sci-fi action, crisp hard pixel edges, limited palette, bright silver rim highlights, readable strong silhouettes. Flat solid magenta #FF00FF background, no shadows, no glow haze, no text or labels, no grid lines, no scenery. Generous empty margins in each equal grid cell. Absolutely no overlap or cropping. Each object is a single connected silhouette. Weapon pickup sprite sheet, exactly EIGHT distinct weapons, strict side view pointing RIGHT, 4 columns x 2 rows. Row 1 left to right: compact electric arc caster with blue forked prongs; frost projector with pale turquoise coolant tank; chunky industrial scrap cannon with yellow hazard panels; elegant white-gold solar beam rifle. Row 2: orange circular buzzsaw launcher with one toothed disc embedded in barrel; green organic spore sprayer with mushroom-like reservoir; heavy purple gravity mortar with circular chamber; red-black tesla crossbow with metal limbs and bright blue wire. No hands, characters or loose ammunition. Similar visual width, unmistakable silhouette differences."
+  },
+  {
+    "key": "operators",
+    "cols": 3,
+    "rows": 2,
+    "names": [
+      "nova",
+      "mako",
+      "vesper",
+      "flint",
+      "echo",
+      "patch"
+    ],
+    "kind": "character",
+    "prompt": "Original NEON WARPATH game assets. Detailed 16-bit pixel art, dark sci-fi action, crisp hard pixel edges, limited palette, bright silver rim highlights, readable strong silhouettes. Flat solid magenta #FF00FF background, no shadows, no glow haze, no text or labels, no grid lines, no scenery. Generous empty margins in each equal grid cell. Absolutely no overlap or cropping. Each object is a single connected silhouette. Exactly SIX full-body adult hero character concepts in 3 columns x 2 rows, all strict side view facing RIGHT in standing ready-to-fire pose, feet visible. Same scale. Row 1: NOVA athletic Black woman with short white afro, navy armor, orange scarf and compact energy pistol; MAKO stocky male deep-sea salvage trooper in teal pressure suit with round brass helmet and harpoon rifle; VESPER athletic woman in violet long coat, short silver hair and sleek rail rifle. Row 2: FLINT older bearded male demolition veteran with yellow armored vest, mechanical left arm and compact grenade launcher; ECHO slender gender-neutral android with smooth white porcelain faceplate, blue armor panels and energy carbine; PATCH small adult raccoon-like alien mechanic standing on two legs, patched red utility suit, goggles and oversized wrench-shaped blaster. Original designs, practical combat clothing, no resemblance to franchise characters. One single standing pose each, NOT animation."
+  },
+  {
+    "key": "machines",
+    "cols": 3,
+    "rows": 2,
+    "names": [
+      "riot_bastion",
+      "coil_sniper",
+      "welder_hound",
+      "saw_crab",
+      "bell_drone",
+      "scrap_mantis"
+    ],
+    "kind": "enemy",
+    "prompt": "Original NEON WARPATH game assets. Detailed 16-bit pixel art, dark sci-fi action, crisp hard pixel edges, limited palette, bright silver rim highlights, readable strong silhouettes. Flat solid magenta #FF00FF background, no shadows, no glow haze, no text or labels, no grid lines, no scenery. Generous empty margins in each equal grid cell. Absolutely no overlap or cropping. Each object is a single connected silhouette. Exactly SIX distinct machine enemies in a 3 columns x 2 rows sheet, full body strict side view facing LEFT. Row 1: heavy riot robot with broad navy rectangular shield and red visor; tall thin ivory robot sniper with long electric coil rifle; low quadrupedal welding hound with industrial orange armor and torch muzzle. Row 2: squat rusty saw-crab robot with two mechanical claws and circular saw embedded in back; floating bronze bell-shaped surveillance drone with red central eye and three short connected antennae; angular lime-green scrap mantis robot with two long scythe arms and bent legs. Single idle combat pose each, all limbs visible, each confined within its cell. Mechanically plausible original silhouettes, no humans."
+  },
+  {
+    "key": "mutants",
+    "cols": 3,
+    "rows": 2,
+    "names": [
+      "sporeback",
+      "acid_bellower",
+      "glass_widow",
+      "cinder_knight",
+      "deepjaw",
+      "lantern_moth"
+    ],
+    "kind": "enemy",
+    "prompt": "Original NEON WARPATH game assets. Detailed 16-bit pixel art, dark sci-fi action, crisp hard pixel edges, limited palette, bright silver rim highlights, readable strong silhouettes. Flat solid magenta #FF00FF background, no shadows, no glow haze, no text or labels, no grid lines, no scenery. Generous empty margins in each equal grid cell. Absolutely no overlap or cropping. Each object is a single connected silhouette. Exactly SIX distinct mutant and supernatural enemies in 3 columns x 2 rows, strict side view facing LEFT, full body. Row 1: hunched moss-green fungal humanoid with orange shelf mushrooms growing from its back, thick arms and boots; bloated purple amphibian mutant with inflated lime throat sac, bipedal legs and clawed hands; pale crystalline spider creature with six angular glass legs and blue armored abdomen. Row 2: imposing black iron demon knight with glowing orange cracks, swept horns and heavy cleaver; shark-headed bipedal deep-sea mutant in torn brass diving armor with two powerful legs; enormous teal moth creature with curled wings and a yellow lantern-like abdomen, hovering. Single ready pose each, connected silhouettes, no loose particles, no gore."
+  },
+  {
+    "key": "oddities",
+    "cols": 3,
+    "rows": 2,
+    "names": [
+      "vendotron",
+      "crt_oracle",
+      "teacup_tyrant",
+      "umbrella_jelly",
+      "traffic_totem",
+      "disco_slug"
+    ],
+    "kind": "enemy",
+    "prompt": "Original NEON WARPATH game assets. Detailed 16-bit pixel art, dark sci-fi action, crisp hard pixel edges, limited palette, bright silver rim highlights, readable strong silhouettes. Flat solid magenta #FF00FF background, no shadows, no glow haze, no text or labels, no grid lines, no scenery. Generous empty margins in each equal grid cell. Absolutely no overlap or cropping. Each object is a single connected silhouette. Exactly SIX wonderfully weird original sci-fi enemy characters, 3 columns x 2 rows, full-body single poses facing LEFT where directional. Row 1: battered turquoise snack vending machine walking on two heavy mechanical legs with tiny metal arms, blank colorful snack slots and angry red display eyes; floating CRT television-headed oracle wearing a tattered purple robe with connected cable tentacles instead of legs and green abstract screen face; cracked ivory teacup piloted by a tiny red alien visible above the rim, mounted on four brass spider legs with one spoon lance pointing left. Row 2: translucent blue jellyfish creature whose bell is a torn yellow umbrella, with thick connected purple tentacles; hunched three-eyed traffic-light totem robot with red amber green lenses, striped road barrier torso and two spring legs; chunky emerald slug with mirrored disco-ball shell, pink headphones and tiny toothy mouth facing left. Quirky menacing arcade enemies, no real brands, no text, avoid loose disconnected pieces. No gore."
+  },
+  {
+    "key": "props",
+    "cols": 4,
+    "rows": 2,
+    "names": [
+      "power_cell",
+      "ammo_locker",
+      "med_station",
+      "toxic_barrel",
+      "alien_egg",
+      "rift_anchor",
+      "street_terminal",
+      "scrap_barricade"
+    ],
+    "kind": "prop",
+    "prompt": "Original NEON WARPATH game assets. Detailed 16-bit pixel art, dark sci-fi action, crisp hard pixel edges, limited palette, bright silver rim highlights, readable strong silhouettes. Flat solid magenta #FF00FF background, no shadows, no glow haze, no text or labels, no grid lines, no scenery. Generous empty margins in each equal grid cell. Absolutely no overlap or cropping. Each object is a single connected silhouette. Exactly EIGHT isolated environmental props for a side-scrolling sci-fi action game, clean 4 columns by 2 rows grid, straight-on side elevation, each complete object fills its own cell, no perspective floor. Row 1: compact cyan power-cell canister in armored cage; tall yellow ammo locker with closed ribbed door and abstract bullet symbol; white and green wall-mounted medical station with simple green cross; rusty toxic barrel with bright acid-green band and three black hazard triangles. Row 2: purple alien egg in rootlike base with turquoise cracks; small dark stone rift-anchor obelisk with orange rune-like abstract geometry; battered blue street computer terminal with green screen on pedestal; low heap barricade of steel plates, orange traffic panels and two tires joined as one prop. No words or letters, strong silhouettes, generous empty space between props."
+  },
+  {
+    "key": "world_neon_casino",
+    "kind": "world",
+    "names": [
+      "bg_neon_casino"
+    ],
+    "prompt": "Original NEON WARPATH side-scrolling game world background. Wide 16:9 landscape. Detailed 16-bit pixel art, hard pixel edges, limited palette, dark science fiction arcade atmosphere. Strict horizontal side-scroller backdrop, NOT isometric, NOT a perspective road receding to a vanishing point. No characters, enemies, vehicles, text, letters, logos, HUD or border. Layered far and middle distance scenery. Lower third dark, quiet and low contrast with broad horizontal surfaces so gameplay sprites remain readable; no foreground pillars obscuring the play area. Upper two thirds hold most detail. A single cohesive world, not a collage. Abandoned luxurious orbital casino district at night: tall art-deco black-and-gold towers, magenta and cyan geometric neon trims, giant circular roulette-like architectural motif with no numbers, distant rain-slick elevated promenades, indigo sky and small moon. Sinister opulence, damaged neon, rich warm gold against deep violet."
+  },
+  {
+    "key": "world_fungal_depths",
+    "kind": "world",
+    "names": [
+      "bg_fungal_depths"
+    ],
+    "prompt": "Original NEON WARPATH side-scrolling game world background. Wide 16:9 landscape. Detailed 16-bit pixel art, hard pixel edges, limited palette, dark science fiction arcade atmosphere. Strict horizontal side-scroller backdrop, NOT isometric, NOT a perspective road receding to a vanishing point. No characters, enemies, vehicles, text, letters, logos, HUD or border. Layered far and middle distance scenery. Lower third dark, quiet and low contrast with broad horizontal surfaces so gameplay sprites remain readable; no foreground pillars obscuring the play area. Upper two thirds hold most detail. A single cohesive world, not a collage. Vast subterranean alien fungal biome inside a derelict industrial reservoir: enormous turquoise and jade luminous mushroom caps, violet roots wrapping rusted pipes, distant hanging spores and mist, black-blue rock strata. An alien organic cavern with clear depth and rich shapes, luminous details restricted primarily to upper and middle zones, bottom a quiet dark horizontal rock shelf."
+  },
+  {
+    "key": "world_abyss_station",
+    "kind": "world",
+    "names": [
+      "bg_abyss_station"
+    ],
+    "prompt": "Original NEON WARPATH side-scrolling game world background. Wide 16:9 landscape. Detailed 16-bit pixel art, hard pixel edges, limited palette, dark science fiction arcade atmosphere. Strict horizontal side-scroller backdrop, NOT isometric, NOT a perspective road receding to a vanishing point. No characters, enemies, vehicles, text, letters, logos, HUD or border. Layered far and middle distance scenery. Lower third dark, quiet and low contrast with broad horizontal surfaces so gameplay sprites remain readable; no foreground pillars obscuring the play area. Upper two thirds hold most detail. A single cohesive world, not a collage. Interior of an abandoned deep-sea research station. Broad panoramic glass windows show dark cobalt ocean, distant luminous coral and a huge faint sea-creature silhouette far away. Brass and teal industrial architecture, pressure pipes, broken laboratory consoles along rear wall, sparse amber emergency lights. Bottom third clear dark horizontal metal deck, no blocking foreground structures. Oppressive beautiful deep-ocean mystery."
+  },
+  {
+    "key": "world_orbital_garden",
+    "kind": "world",
+    "names": [
+      "bg_orbital_garden"
+    ],
+    "prompt": "Original NEON WARPATH side-scrolling game world background. Wide 16:9 landscape. Detailed 16-bit pixel art, hard pixel edges, limited palette, dark science fiction arcade atmosphere. Strict horizontal side-scroller backdrop, NOT isometric, NOT a perspective road receding to a vanishing point. No characters, enemies, vehicles, text, letters, logos, HUD or border. Layered far and middle distance scenery. Lower third dark, quiet and low contrast with broad horizontal surfaces so gameplay sprites remain readable; no foreground pillars obscuring the play area. Upper two thirds hold most detail. A single cohesive world, not a collage. Shattered orbital botanical station above a rust-red planet. A long side-view observation greenhouse with broken curved glass dome high overhead, silver structural ribs, crimson alien vines and pale blue bonsai-like trees in distant planters, giant red planet and starfield beyond. Purple and pale cyan accents. Lower third a quiet flat dark blue service deck. Eerie serene space ruins, no text, no characters."
+  }
+]
