@@ -72,6 +72,8 @@ export class GameScene extends Phaser.Scene {
     // ---- backdrop
     this.bg = this.add.tileSprite(0, 0, W, H, st.bg).setOrigin(0).setScrollFactor(0).setDepth(DEPTH.bg).setTint(st.bgTint);
     const shade = this.add.graphics().setScrollFactor(0).setDepth(DEPTH.bg + 1);
+    // Quiet the painted scenery without dimming actors, projectiles or telegraphs.
+    shade.fillStyle(0x0b0d14, 0.32).fillRect(0, 0, W, H);
     shade.fillGradientStyle(0, 0, 0, 0, 0, 0, 0.8, 0.8).fillRect(0, 150, W, H - 150);
     shade.fillGradientStyle(0, 0, 0, 0, 0.5, 0.5, 0, 0).fillRect(0, 0, W, 70);
 

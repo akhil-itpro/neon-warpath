@@ -10,30 +10,30 @@ import json
 from pathlib import Path
 import numpy as np
 from PIL import Image
-from process_assets import shrink, outline
+from process_assets import shrink, outline, ENEMY_OUTLINE, HERO_OUTLINE
 
 ROOT = Path(__file__).resolve().parents[1]
 LIB = ROOT / 'art/library/expansion'
 OUT = ROOT / 'public/assets'
 
-RED, CYAN, GREY = (255, 86, 56), (150, 232, 255), (130, 155, 180)
+INK, CYAN, GREY = ENEMY_OUTLINE, HERO_OUTLINE, (130, 155, 180)
 
 # output key -> (master name, art height in game pixels, max width, outline colour)
 JOBS = {
     # enemies (a standing trooper is ~64px tall)
-    'riot_bastion': ('riot_bastion', 66, 90, RED), 'coil_sniper': ('coil_sniper', 64, 90, RED),
-    'welder_hound': ('welder_hound', 44, 96, RED), 'saw_crab': ('saw_crab', 48, 90, RED),
-    'bell_drone': ('bell_drone', 44, 60, RED), 'scrap_mantis': ('scrap_mantis', 60, 90, RED),
-    'sporeback': ('sporeback', 64, 90, RED), 'acid_bellower': ('acid_bellower', 58, 90, RED),
-    'cinder_knight': ('cinder_knight', 70, 96, RED), 'deepjaw': ('deepjaw', 64, 90, RED),
-    'lantern_moth': ('lantern_moth', 46, 70, RED), 'vendotron': ('vendotron', 66, 90, RED),
-    'umbrella_jelly': ('umbrella_jelly', 50, 60, RED), 'traffic_totem': ('traffic_totem', 66, 90, RED),
-    'disco_slug': ('disco_slug', 48, 90, RED), 'glass_widow': ('glass_widow', 44, 80, RED),
+    'riot_bastion': ('riot_bastion', 66, 90, INK), 'coil_sniper': ('coil_sniper', 64, 90, INK),
+    'welder_hound': ('welder_hound', 44, 96, INK), 'saw_crab': ('saw_crab', 48, 90, INK),
+    'bell_drone': ('bell_drone', 44, 60, INK), 'scrap_mantis': ('scrap_mantis', 60, 90, INK),
+    'sporeback': ('sporeback', 64, 90, INK), 'acid_bellower': ('acid_bellower', 58, 90, INK),
+    'cinder_knight': ('cinder_knight', 70, 96, INK), 'deepjaw': ('deepjaw', 64, 90, INK),
+    'lantern_moth': ('lantern_moth', 46, 70, INK), 'vendotron': ('vendotron', 66, 90, INK),
+    'umbrella_jelly': ('umbrella_jelly', 50, 60, INK), 'traffic_totem': ('traffic_totem', 66, 90, INK),
+    'disco_slug': ('disco_slug', 48, 90, INK), 'glass_widow': ('glass_widow', 44, 80, INK),
     # bosses, cut large from the masters
-    'boss_tyrant': ('teacup_tyrant', 118, 190, RED), 'boss_widow': ('glass_widow', 104, 190, RED),
-    'boss_jelly': ('umbrella_jelly', 124, 160, RED), 'boss_oracle': ('crt_oracle', 116, 160, RED),
+    'boss_tyrant': ('teacup_tyrant', 118, 190, INK), 'boss_widow': ('glass_widow', 104, 190, INK),
+    'boss_jelly': ('umbrella_jelly', 124, 160, INK), 'boss_oracle': ('crt_oracle', 116, 160, INK),
     # props at believable physical sizes
-    'toxic_barrel': ('toxic_barrel', 34, 60, GREY), 'alien_egg': ('alien_egg', 40, 60, RED),
+    'toxic_barrel': ('toxic_barrel', 34, 60, GREY), 'alien_egg': ('alien_egg', 40, 60, INK),
     'ammo_locker': ('ammo_locker', 44, 60, GREY), 'med_station': ('med_station', 38, 60, GREY),
     'power_cell': ('power_cell', 40, 60, GREY), 'rift_anchor': ('rift_anchor', 58, 60, GREY),
     'street_terminal': ('street_terminal', 46, 60, GREY), 'scrap_barricade': ('scrap_barricade', 30, 80, GREY),

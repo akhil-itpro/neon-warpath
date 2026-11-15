@@ -2,6 +2,13 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
+## Session 12 - 2026-11-15 (Codex, ROOK visual milestone in progress)
+
+- Read the full story bible and current handoff; following Session 11's A1-A3 review milestone before expanding the campaign.
+- A1: muted the gameplay backdrop with a 32% ink overlay; rebuilt all live main/expansion sprites with near-black hostile outlines and a muted cool hero rim. Sources are unchanged.
+- Verified A1: `npm.cmd run check`, `npm.cmd run smoke -- city` (city + gunship), and inspected the new city and boss screenshots against the earlier versions. The red sticker edge is gone. Combat balance remains unverified.
+- In progress: disable the old rectangle-cut arm rig, then integrate one new separated-parts ROOK rig. Story systems and five new stages have not been built yet.
+
 ## Session 11 - 2026-11-15 (Claude Code, honest audit + 12-stage story campaign plan) — CODEX: START HERE
 
 ### Owner said

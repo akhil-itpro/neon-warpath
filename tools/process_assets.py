@@ -9,7 +9,7 @@ How it works
      Otherwise we fall back to the `rembg` neural matting model (needed for the original dark/glow sheets).
   2. Connected components -> one bounding box per sprite, sorted row-major (top-left to bottom-right).
   3. Each sprite is downscaled to its target pixel height, alpha is hardened (pixel art has no soft edges),
-     and a 1px outline is baked in (cool for heroes, hot for enemies) so sprites read on busy backgrounds.
+     and a 1px ink outline is baked in (a muted cool rim for heroes).
   4. Frames of an animated character share one canvas size and are anchored feet-bottom / torso-centre.
 
 To add art: drop the PNG in art/source/, add an entry to MANIFEST below, run the script,
@@ -25,8 +25,8 @@ SRC = os.path.join(ROOT, "art", "source")
 OUT = os.path.join(ROOT, "public", "assets")
 PREVIEW = os.path.join(ROOT, "art", "preview")
 
-HERO_OUTLINE = (150, 232, 255)
-ENEMY_OUTLINE = (255, 86, 56)
+HERO_OUTLINE = (83, 125, 145)
+ENEMY_OUTLINE = (11, 13, 20)
 
 # sheet -> list of sprites in row-major order. h = target height in game pixels (game is 640x360).
 # canvas = shared (w, h) frame for animated characters (feet anchored bottom-centre).
