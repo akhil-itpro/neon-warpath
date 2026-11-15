@@ -29,7 +29,7 @@ export class EndScene extends Phaser.Scene {
     t(206, `KILLS  ${run.kills}     BEST COMBO  ${run.maxCombo}     DEATHS  ${run.deaths}`);
     const rank = run.deaths === 0 ? 'S' : run.deaths <= 2 ? 'A' : run.deaths <= 5 ? 'B' : 'C';
     t(246, `RANK ${rank}`, 32, rank === 'S' ? '#ffd040' : '#ffffff');
-    const press = t(320, 'PRESS FIRE TO RETURN TO BASE');
+    const press = t(320, 'PRESS FIRE FOR THE CREDITS');
     this.tweens.add({ targets: press, alpha: 0.2, duration: 500, yoyo: true, repeat: -1 });
     this.cameras.main.fadeIn(500);
     audio.sfx('clear');
@@ -38,6 +38,6 @@ export class EndScene extends Phaser.Scene {
 
   update() {
     this.controls.poll();
-    if (this.ready && (this.controls.pressed('fire') || this.controls.pressed('jump'))) this.scene.start('Title');
+    if (this.ready && (this.controls.pressed('fire') || this.controls.pressed('jump'))) this.scene.start('Credits');
   }
 }

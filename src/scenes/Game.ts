@@ -44,6 +44,7 @@ export class GameScene extends Phaser.Scene {
   private hazards!: Phaser.Physics.Arcade.StaticGroup;
   private bg!: Phaser.GameObjects.TileSprite;
   private flows: Phaser.GameObjects.TileSprite[] = [];
+  private fogs: Phaser.GameObjects.TileSprite[] = [];
   private encounters: (Encounter & { boss?: boolean })[] = [];
   private encIndex = 0;
   private locked = false;
@@ -57,7 +58,7 @@ export class GameScene extends Phaser.Scene {
 
   create() {
     const st = (this.stage = STAGES[run.stage]);
-    this.enemies = []; this.pickups = []; this.flows = [];
+    this.enemies = []; this.pickups = []; this.flows = []; this.fogs = [];
     this.state = 'play'; this.combo = 0; this.comboT = 0; this.mult = 1;
     this.aim = null;
     this.boss = null; this.bossActive = false; this.locked = false; this.canRetry = false;
@@ -81,11 +82,11 @@ export class GameScene extends Phaser.Scene {
     const floor = this.add.zone(st.width / 2, GROUND_Y + 20, st.width + 1600, 40);
     this.physics.add.existing(floor, true);
     this.solids.add(floor);
-    this.add.tileSprite(st.width / 2, GROUND_Y + 20, st.width + 1600, 40, 'ground').setDepth(DEPTH.world);
+    this.add.tileSprite(st.width / 2, GROUND_Y + 20, st.width + 1600, 40, `ground_${st.id}`).setDepth(DEPTH.world);
     this.add.rectangle(st.width / 2, GROUND_Y + 1, st.width + 1600, 1, st.accent, 0.35).setDepth(DEPTH.world + 1).setBlendMode(Phaser.BlendModes.ADD);
 
     for (const [x, y, n] of st.platforms) {
-      const p = this.add.tileSprite(x + n * 16, y + 6, n * 32, 12, 'plat').setDepth(DEPTH.world);
+      const p = this.add.tileSprite(x + n * 16, y + 6, n * 32, 12, `plat_${st.id}`).setDepth(DEPTH.world);
       this.physics.add.existing(p, true);
       const b = p.body as Phaser.Physics.Arcade.StaticBody;
       b.checkCollision.down = b.checkCollision.left = b.checkCollision.right = false; // jump up through, land on top
@@ -107,6 +108,20 @@ export class GameScene extends Phaser.Scene {
     for (const [key, x] of st.decor ?? []) {
       if (this.textures.exists(key)) this.add.image(x, GROUND_Y + 1, key).setOrigin(0.5, 1).setDepth(DEPTH.world - 1).setTint(0xa8b0c8);
     }
+    // light spilling onto the floor and under girders (additive glow in the stage colour)
+    this.add.image(st.width / 2, GROUND_Y + 2, 'glow').setDisplaySize(st.width + 1600, 46).setTint(st.accent).setAlpha(0.2).setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH.world + 1);
+    for (const [x, y, n] of st.platforms) this.add.image(x + n * 16, y + 22, 'glow').setDisplaySize(n * 36 + 30, 38).setTint(st.accent).setAlpha(0.28).setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH.world - 1);
+    // street lamps with a flickering light cone (city only)
+    if (st.id === 'city') {
+      for (let x = 260; x < st.width; x += R.Between(520, 760)) {
+        this.add.image(x, GROUND_Y + 1, 'lamp').setOrigin(0.5, 1).setDepth(DEPTH.world - 1).setTint(0xb0b8d0);
+        const cone = this.add.image(x - 10, GROUND_Y - 112, 'cone').setOrigin(0.5, 0).setTint(0xfff0c0).setAlpha(0.22).setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH.world - 1);
+        this.add.image(x - 10, GROUND_Y - 112, 'glow').setScale(0.9).setTint(0xfff0c0).setAlpha(0.5).setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH.world - 1);
+        this.tweens.add({ targets: cone, alpha: { from: 0.22, to: 0.12 }, duration: R.Between(900, 2400), yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+      }
+    }
+    // two drifting fog layers at different speeds, in front of the backdrop and behind the action
+    this.fogs = [0.35, 0.6].map((sf, i) => this.add.tileSprite(0, H - 150 + i * 20, W, 96, 'fog').setOrigin(0).setScrollFactor(0).setTint(st.accent).setAlpha(0.13 + i * 0.05).setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH.bg + 2 + i));
     // foreground silhouettes scroll faster than the world for depth
     for (let x = 500; x < st.width * 1.6; x += R.Between(620, 980)) {
       this.add.image(x, 0, 'pillar').setOrigin(0.5, 0).setScrollFactor(1.6, 1).setDepth(DEPTH.front).setAlpha(0.4); // see-through so it never hides a threat
@@ -185,6 +200,7 @@ export class GameScene extends Phaser.Scene {
 
     this.bg.tilePositionX = cam.scrollX * 0.22;
     for (const f of this.flows) f.tilePositionX += dt * 0.03;
+    this.fogs.forEach((f, i) => { f.tilePositionX = cam.scrollX * (0.35 + i * 0.25) + this.time.now * (0.012 + i * 0.01); });
 
     // sweep things that died during the physics step
     for (let i = this.enemies.length - 1; i >= 0; i--) if (this.enemies[i].dead && !this.enemies[i].def.boss) { this.enemies[i].destroy(); this.enemies.splice(i, 1); }
@@ -487,6 +503,7 @@ export class GameScene extends Phaser.Scene {
     if (e.dead) return;
     const d = e.def;
     if (d.boss) return this.bossDeath(e);
+    this.corpse(e, byPlayer);
     this.removeEnemy(e);
     const x = e.x, y = e.cy;
     this.fx.explosion(x, y, Math.min(46, 20 * e.scale + d.hp * 0.08), d.faction === 'undead' || d.faction === 'mutant' ? 0x80e040 : d.faction === 'alien' ? 0xb070ff : 0xff9a30);
@@ -524,6 +541,21 @@ export class GameScene extends Phaser.Scene {
     if (Math.random() < (low ? 0.2 : 0.06)) this.dropPickup('health', x, y);
     if ((d.id === 'elite' || d.id === 'brute' || d.id === 'bastion' || d.id === 'slug') && Math.random() < 0.4) this.dropPickup('weapon', x, y);
     if (s.blast) this.time.delayedCall(90, () => this.blastEnemies(x, y, s.blast, 26));
+  }
+
+  /** Death animation: the sprite flashes white, is thrown away from the player, tumbles and fades. */
+  private corpse(e: Enemy, byPlayer: boolean) {
+    const d = e.def;
+    if (d.ai === 'crate' || d.ai === 'barrel' || d.faction === 'prop' || !byPlayer) return;
+    const dir = e.x >= this.player.x ? 1 : -1;
+    const c = this.add.image(e.x, e.y, e.texture.key, e.frame.name).setOrigin(e.originX, e.originY).setScale(e.scaleX, e.scaleY).setFlipX(e.flipX).setDepth(DEPTH.enemy + 1).setTintFill(0xffffff);
+    const heavy = d.heavy ? 0.6 : 1;
+    const air = !!d.flying;
+    const dist = (air ? 40 : 70) * heavy, rise = (air ? 10 : 34) * heavy;
+    this.time.delayedCall(60, () => c.clearTint());
+    this.tweens.add({ targets: c, x: c.x + dir * dist, angle: dir * (air ? 200 : 80) * heavy, duration: 520, ease: 'Quad.out' });
+    this.tweens.add({ targets: c, y: { value: c.y - rise, duration: 190, ease: 'Quad.out' } });
+    this.tweens.add({ targets: c, y: { value: air ? c.y + 90 : GROUND_Y + 2, duration: 330, delay: 190, ease: 'Quad.in' }, alpha: { value: 0, duration: 260, delay: 260 }, onComplete: () => c.destroy() });
   }
 
   addScore(n: number, x: number, y: number, label = '') {

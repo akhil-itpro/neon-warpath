@@ -2,6 +2,28 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
+## Session 10 - 2026-11-15 (Claude Code, aimable arm + world polish + credits = campaign complete)
+
+### Owner's definition of done
+"All levels are built and once the final boss is dead the credits roll - that is the end." **This is now true in code:** 7 stages -> final boss ARCHON dies -> MISSION COMPLETE results -> **credits roll** (over a slideshow of every stage backdrop, lists each stage + boss defeated, run stats, tools, then THE END) -> Title.
+
+### Changed this session
+- **Aimable gun arm** (`src/systems/ArmRig.ts`, `Player.ts`). At boot each operator frame is cut into an armless body (`<art>_b_<pose>`) and a rotating arm+gun sprite (`<art>_a_<pose>`) with a shoulder pivot found by pixel analysis. The arm points at the mouse crosshair (or the last shot direction on keyboard/gamepad), has recoil kick, and the muzzle is computed from the arm tip, so shots leave the barrel. Works for ROOK, VIPER, TITAN with no new art. Texture keys changed: Player now shows `hero_b_idle` etc. (smoke asserts updated). Left-facing steep angles look slightly stubby - a proper redrawn gun arm would still be better.
+- **World:** per-stage floor + girder tiles (`ground_<id>`, `plat_<id>` in `Boot.makeStageTiles`), floor/girder light spill, two drifting fog layers, flickering street lamps in the city.
+- **Combat feel:** enemies now tumble, flash white and fade when killed (`GameScene.corpse`); hero squash/stretch on jump and landing.
+- **Credits scene** (`src/scenes/Credits.ts`, registered in `main.ts`; `End` now leads to it). Hold fire/jump to speed up. Put real names in the `CREATOR` array at the top of the file.
+- Smoke: new `arm-rig` scenario; `flow-stage-7` now runs through credits to Title. **Full suite: 32/32 pass.**
+
+### Still unverified / honest limits
+- No stage has been completed by a human at normal health; balance is a first guess (see Session 6 list). The only end-to-end run is the forced boss-kill flow. A bot that plays stage 1 without god mode would be the best next tool.
+- Still no shoot/hit/death animation frames for heroes and no parallax layers (backdrops are flat images). The species/Frontier/expansion art libraries are still parked per the Session 8 content freeze.
+- The credits text names no people (generic placeholder).
+
+### Next
+1. Owner plays stage 1 to the end and gives one sentence of feedback.
+2. Normal-health tuning of stage 1, then stages 2-7 (HP, fire rates, encounter sizes, boss fairness).
+3. Redraw ROOK gun arm / death frames when image generation is available; integrate a few species from `art/library/species` afterwards.
+
 ## Session 9 - 2026-11-15 (Codex, requested species library - parked)
 
 ### Scope and current priority

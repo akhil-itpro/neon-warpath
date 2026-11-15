@@ -41,6 +41,63 @@ export class BootScene extends Phaser.Scene {
     t.refresh();
   }
 
+  // Per-stage floor + girder tiles, so no two worlds share the same grey strip.
+  // [top highlight, lip, face, face dark, deep, detail, trim stripe]
+  private makeStageTiles(px: (c: CanvasRenderingContext2D, col: string, x: number, y: number, w?: number, h?: number) => void) {
+    const T: Record<string, string[]> = {
+      city:      ['#7a86a4', '#3a4460', '#1a1e2c', '#10131d', '#0a0c14', '#2c3550', '#f0b020'],
+      casino:    ['#ffb0e0', '#a02870', '#3a1030', '#240a20', '#14061a', '#6a2058', '#ffd060'],
+      furnace:   ['#ffb060', '#8a4a28', '#3a2018', '#241410', '#120a08', '#5a3020', '#ff6a20'],
+      fungal:    ['#80ffc0', '#2a8a70', '#14362c', '#0c2420', '#06120f', '#1c5a48', '#a0ff60'],
+      abyss:     ['#80d0ff', '#2a6a9a', '#10304a', '#0a2036', '#050f1c', '#1a4a70', '#40e0ff'],
+      orbital:   ['#e0f0ff', '#8a9ab8', '#38465c', '#26303f', '#141a24', '#566680', '#60ff90'],
+      cathedral: ['#ff9080', '#8a2a38', '#2e1018', '#1c0a10', '#0e0508', '#561a28', '#ffc040'],
+    };
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+    for (const st of STAGES) {
+      const [hi, lip, face, dark, deep, det, trim] = T[st.id] ?? T.city;
+      this.canvas(`ground_${st.id}`, 32, 40, (c) => {
+        px(c, deep, 0, 0, 32, 40); px(c, dark, 0, 7, 32, 14); px(c, face, 0, 2, 32, 6);
+        px(c, lip, 0, 1, 32, 1); px(c, hi, 0, 0, 32, 1);
+        px(c, hi, 3, 0, 7, 1); px(c, '#ffffff', 5, 0, 2, 1);
+        px(c, deep, 15, 8, 1, 13); px(c, det, 16, 8, 1, 13);                     // panel seam
+        for (let i = 0; i < 34; i++) px(c, rnd() < 0.5 ? det : dark, Math.floor(rnd() * 32), 9 + Math.floor(rnd() * 30), 1 + Math.floor(rnd() * 2), 1);
+        px(c, det, 2, 11, 2, 2); px(c, det, 27, 11, 2, 2);                      // rivets
+        px(c, trim, 20, 4, 6, 1);                                                // trim light
+        px(c, dark, 0, 21, 32, 1); px(c, deep, 0, 26, 32, 14);
+      });
+      this.canvas(`plat_${st.id}`, 32, 12, (c) => {
+        px(c, deep, 0, 0, 32, 12); px(c, hi, 0, 0, 32, 1); px(c, lip, 0, 1, 32, 1); px(c, face, 0, 2, 32, 4); px(c, dark, 0, 6, 32, 6);
+        c.strokeStyle = det; c.lineWidth = 1; c.beginPath(); c.moveTo(0.5, 6); c.lineTo(15.5, 11.5); c.lineTo(31.5, 6); c.stroke();
+        px(c, trim, 0, 2, 4, 1); px(c, trim, 16, 2, 4, 1); px(c, hi, 8, 3, 1, 1); px(c, hi, 24, 3, 1, 1);
+      });
+    }
+  }
+
+  private makeAtmosphere() {
+    // soft fog band (tiles horizontally), street lamp, light cone
+    this.canvas('fog', 256, 96, (c) => {
+      for (let i = 0; i < 26; i++) {
+        const x = (i * 97) % 256, y = 20 + ((i * 53) % 56), r = 26 + ((i * 31) % 30);
+        for (const dx of [-256, 0, 256]) {
+          const g = c.createRadialGradient(x + dx, y, 0, x + dx, y, r);
+          g.addColorStop(0, 'rgba(255,255,255,0.22)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+          c.fillStyle = g; c.fillRect(x + dx - r, y - r, r * 2, r * 2);
+        }
+      }
+    });
+    this.canvas('lamp', 20, 120, (c) => {
+      c.fillStyle = '#05070c'; c.fillRect(8, 14, 3, 106); c.fillRect(6, 112, 7, 8); c.fillRect(8, 8, 12, 3); c.fillRect(2, 4, 8, 5);
+      c.fillStyle = '#1a2030'; c.fillRect(8, 14, 1, 104); c.fillStyle = '#fff6d0'; c.fillRect(3, 8, 6, 2);
+    });
+    this.canvas('cone', 96, 150, (c) => {
+      const g = c.createLinearGradient(0, 0, 0, 150);
+      g.addColorStop(0, 'rgba(255,255,255,0.55)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+      c.fillStyle = g; c.beginPath(); c.moveTo(44, 0); c.lineTo(52, 0); c.lineTo(96, 150); c.lineTo(0, 150); c.closePath(); c.fill();
+    });
+  }
+
   private makeTextures() {
     const px = (c: CanvasRenderingContext2D, col: string, x: number, y: number, w = 1, h = 1) => { c.fillStyle = col; c.fillRect(x, y, w, h); };
 
@@ -98,6 +155,8 @@ export class BootScene extends Phaser.Scene {
       c.beginPath(); c.moveTo(0.5, 6); c.lineTo(15.5, 11.5); c.lineTo(31.5, 6); c.stroke();
       px(c, '#f0b020', 0, 2, 4, 1); px(c, '#f0b020', 16, 2, 4, 1); px(c, '#8a96aa', 7, 3, 1, 1); px(c, '#8a96aa', 24, 3, 1, 1);
     });
+    this.makeStageTiles(px);
+    this.makeAtmosphere();
     this.canvas('lava', 32, 10, (c) => {
       px(c, '#fff0a0', 0, 0, 32, 2); px(c, '#ffb020', 0, 2, 32, 3); px(c, '#ff5a10', 0, 5, 32, 3); px(c, '#a01808', 0, 8, 32, 2);
       px(c, '#ffffff', 4, 0, 5, 1); px(c, '#ffffff', 19, 1, 6, 1); px(c, '#ffd040', 10, 4, 4, 1); px(c, '#ffd040', 25, 5, 4, 1);

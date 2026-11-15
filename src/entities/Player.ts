@@ -38,6 +38,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private shotAng = 0;      // keyboard/gamepad: angle of the last shot, held briefly
   private shotUntil = 0;
   private recoil = 0;       // 0..1 kick, decays
+  private squash = 0;      // + = stretched tall (jump), - = squashed (landing); decays to 0
 
   constructor(private gs: GameScene, x: number, y: number) {
     const op = run.op;
@@ -91,7 +92,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   /** World position of the shoulder pivot for the current frame. */
   private pivot(g: { px: number; py: number }) {
-    return { x: this.x + this.dir * (g.px - FRAME_W / 2), y: this.y + (g.py - FRAME_H) };
+    return { x: this.x + this.dir * (g.px - FRAME_W / 2) * this.scaleX, y: this.y + (g.py - FRAME_H) * this.scaleY };
   }
 
   /** Called by the scene when a shot is fired so the arm snaps to the shot direction (keyboard/gamepad). */
@@ -131,6 +132,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       .setFlipX(this.dir < 0)
       .setPosition(piv.x - Math.cos(this.armAng) * kick * 2.5, piv.y - Math.sin(this.armAng) * kick * 2.5)
       .setRotation(this.dir > 0 ? a : a - Math.PI)
+      .setScale(this.scaleX, this.scaleY)
       .setAlpha(this.alpha);
   }
 
@@ -147,7 +149,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     const ground = this.onGround;
     if (ground) { this.coyote = COYOTE; this.airJumps = s.airJumps; } else this.coyote -= dt;
-    if (ground && !this.wasGround) { this.gs.fx.dustPuff(this.x, this.y, 5); audio.sfx('land'); }
+    if (ground && !this.wasGround) { this.gs.fx.dustPuff(this.x, this.y, 5); audio.sfx('land'); this.squash = -1; }
     this.wasGround = ground;
 
     const axis = c.axis;
@@ -197,7 +199,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         if (this.coyote <= 0) { this.airJumps--; this.gs.fx.ring(this.x, this.y, 0x80e0ff, 0.6, 200); }
         body.setVelocityY(-s.jump);
         this.coyote = 0; this.buffer = 0; this.sliding = Math.min(this.sliding, 0);
-        audio.sfx('jump');
+        audio.sfx('jump'); this.squash = 1;
         this.gs.fx.dustPuff(this.x, this.y, 4);
       }
     }
@@ -216,6 +218,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       if (this.anims.inReverse !== backwards) this.anims.reverse();
     }
     else this.pose('idle');
+
+    // --- squash & stretch (decays back to 1:1) ---
+    this.squash *= Math.pow(0.0025, dt / 1000);
+    if (Math.abs(this.squash) < 0.02) this.squash = 0;
+    this.setScale(1 - this.squash * 0.07, 1 + this.squash * 0.1);
 
     // --- blink while invulnerable after a hit ---
     this.setAlpha(this.invuln > 0 && this.sliding <= 0 ? (Math.floor(this.gs.time.now / 50) % 2 ? 0.35 : 1) : 1);

@@ -137,8 +137,12 @@ const SCENARIOS = [
     ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp, g.player.x)'],
     ['until', `window.__game.scene.isActive("${stage === 7 ? 'End' : 'Perk'}")`], ['wait', 1300], ['shot'],
     ['assert', `window.__run.stage === ${stage}`], ['tap', 'Enter'],
-    ['until', `window.__game.scene.isActive("${stage === 7 ? 'Title' : 'Game'}")`], ['wait', 700], ['shot'],
-    ...(stage < 7 ? [['assert', 'window.__run.perks.length === 1']] : []),
+    ['until', `window.__game.scene.isActive("${stage === 7 ? 'Credits' : 'Game'}")`], ['wait', 700], ['shot'],
+    ...(stage < 7 ? [['assert', 'window.__run.perks.length === 1']] : [
+      ['wait', 6000], ['shot'], // mid-roll
+      ['down', 'KeyJ'], ['until', 'window.__game.scene.getScene("Credits").done'], ['up', 'KeyJ'], ['wait', 2200], ['shot'], // THE END
+      ['tap', 'Enter'], ['until', 'window.__game.scene.isActive("Title")'], ['wait', 600], ['shot'],
+    ]),
   ] })),
   { name: 'flow-retry', url: '?stage=1', steps: [
     ['wait', 800], ['eval', 'window.__run.score = 1000; var g = window.__game.scene.getScene("Game"); g.player.invuln = 0; g.hurtPlayer(10000, g.player.x - 20)'],
