@@ -8,6 +8,31 @@ import { mkdirSync } from 'node:fs';
 
 const filter = process.argv[2] ?? '';
 const SCENARIOS = [
+  ...['viper', 'titan'].map((operator, index) => ({ name: `art-${operator}`, url: `?stage=1&god=1&op=${index + 1}`, steps: [
+    ['wait', 2800], ['assert', `window.__game.scene.getScene("Game").player.texture.key === "${operator}_idle"`], ['shot'],
+    ['down', 'KeyJ'], ['down', 'KeyD'], ['wait', 400], ['assert', `window.__game.scene.getScene("Game").player.texture.key.startsWith("${operator}_run")`], ['shot'],
+    ['up', 'KeyD'], ['tap', 'Space'], ['wait', 120], ['assert', `window.__game.scene.getScene("Game").player.texture.key === "${operator}_jump"`], ['shot'],
+    ['wait', 1000], ['down', 'KeyS'], ['wait', 200], ['assert', `window.__game.scene.getScene("Game").player.texture.key === "${operator}_crouch"`], ['shot'],
+    ['up', 'KeyS'], ['tap', 'ShiftLeft'], ['wait', 30], ['assert', `window.__game.scene.getScene("Game").player.texture.key === "${operator}_slide"`], ['shot'],
+    ['up', 'KeyJ'], ['wait', 500], ['down', 'KeyA'], ['wait', 180], ['up', 'KeyA'], ['wait', 300],
+    ['assert', 'window.__game.scene.getScene("Game").player.flipX'], ['shot'],
+  ] })),
+  { name: 'art-enemies', url: '?stage=2&god=1', steps: [
+    ['wait', 2800],
+    ['eval', `var g = window.__game.scene.getScene('Game');
+      for (const e of g.enemies) g.removeEnemy(e);
+      window.__artEnemies = ['zombie', 'brute', 'alien', 'demon'].map((id, i) => {
+        const e = g.spawnEnemy(id, 240 + i * 90, i < 2 ? g.player.y : 190, 'add');
+        e.awake = true; return e;
+      });
+      window.__artFrames = window.__artEnemies.map(() => new Set());
+      window.__artTimer = g.time.addEvent({ delay: 30, loop: true, callback: () => window.__artEnemies.forEach((e, i) => window.__artFrames[i].add(e.texture.key)) });`],
+    ['wait', 800], ['shot'],
+    ['assert', 'window.__artEnemies.every(e => e.texture.key.startsWith(e.def.art + "_"))'],
+    ['assert', 'window.__artFrames.every(frames => frames.size >= 2)'],
+    ['assert', 'window.__artEnemies.every(e => Math.abs(e.scaleX - (e.def.fallback.scale ?? 1)) < 0.001)'],
+    ['eval', 'window.__artTimer.remove()'],
+  ] },
   { name: 'title', url: '', steps: [['wait', 1200], ['shot'], ['tap', 'ArrowRight'], ['wait', 300], ['shot'], ['tap', 'Enter'], ['wait', 1500], ['shot']] },
   { name: 'city', url: '?stage=1&god=1', steps: [['wait', 800], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 3000], ['shot'], ['tap', 'Space'], ['wait', 400], ['tap', 'ShiftLeft'], ['wait', 5000], ['shot'], ['wait', 9000], ['shot']] },
   { name: 'city-boss', url: '?stage=1&boss=1&god=1&weapon=smg', steps: [['wait', 500], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 6000], ['shot'], ['up', 'KeyD'], ['wait', 9000], ['shot'], ['wait', 30000], ['shot']] },

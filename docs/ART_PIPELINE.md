@@ -41,14 +41,39 @@ Style line to paste into every prompt:
 ## Licensing note
 Keep the original prompts and outputs in `art/source/`. Before selling the game, check the current terms of the image tool used and the disclosure rules of the store (Steam requires declaring AI-generated content).
 
-## First-time guide: your next asset
+## First-time guide: making an asset variant
 
 You do not need to write code or pay for an API key for this workflow. This session generated and integrated the gangster directly with the built-in image tool.
 
-If you want to make the next sheet yourself, send ChatGPT this entire message:
+The zombie base sheet is now integrated. To practice making a variant yourself, send ChatGPT this entire message:
 
 > Create a sprite sheet for my original side-scrolling game. Exactly four full-body poses in one horizontal row: a walk cycle of the same factory-worker zombie in torn overalls, glowing green eyes, arms reaching LEFT. Every pose faces LEFT. Same outfit and proportions in every frame, alternating leg strides, generous empty space around each character. 16-bit detailed pixel art, strict side view, hard pixel edges, limited palette, no anti-aliasing blur. Flat solid magenta #FF00FF background, no glow, no shadows, no floor, no text, no grid lines. Nothing cropped or overlapping.
 
-Save the resulting image as `zombie_sheet.png` in `D:\Game1\art\source`, then tell the coding agent: "Add zombie_sheet.png to the game and test it." You can also attach the image to the coding conversation. The agent handles background removal, sizing, animation, and checks. Do not just rename a JPEG to PNG; keep the downloaded original and let the agent convert it if needed.
+Save the resulting image as `zombie_sheet_v2.png` in `D:\Game1\art\source`, then tell the coding agent: "Review zombie_sheet_v2.png as an alternative and test it if it is an improvement." Keep the existing original sheet. You can also attach the image to the coding conversation. The agent handles background removal, sizing, animation, and checks. Do not just rename a JPEG to PNG; keep the downloaded original and let the agent convert it if needed.
 
 For agents: `npm.cmd run assets -- --only gangster_sheet.png` rebuilds just that sheet and preserves other outputs. The preview in this mode shows only the rebuilt sheet. Omit `--only` for a full rebuild. On Windows PowerShell use `npm.cmd` if `npm` is blocked by execution policy.
+
+
+## Integrated campaign batch - 2026-11-15
+
+The nine previously missing designs are now generated and integrated. These are usable first-pass game assets; future animation polish can improve repeated strides.
+
+| Source in art/source | Runtime keys | Frames |
+|---|---|---|
+| viper_sheet.png | viper_run0..3, viper_idle/jump/slide/crouch | 8 |
+| titan_sheet.png | titan_run0..3, titan_idle/jump/slide/crouch | 8 |
+| zombie_sheet.png | zombie_0..3 | 4 |
+| brute_sheet.png | brute_0..3 | 4 |
+| alien_sheet.png | alien_0..3 | 4 |
+| demon_sheet.png | demon_0..3 | 4 |
+| vulture.png | vulture | 1 |
+| warden.png | warden | 1 |
+| archon.png | archon | 1 |
+
+35 runtime images total in this batch, in addition to the earlier gangster frames. Exact prompts are in `art/source/campaign_prompts.md`. All nine sources used the built-in image_gen tool. Source images are immutable; processed images live in `public/assets/` and load via its manifest.
+
+Rebuild one with `npm.cmd run assets -- --only viper_sheet.png` (substitute any source filename above). Flyers use shared centered canvases; walkers/operators use feet anchoring. All animation frames use a common source scale, so flapping wings do not change body size. The gunship has a width cap to fit the existing arena. WARDEN retains its existing 2.3 display scale, so its source is processed at 62 pixels tall.
+
+`artScale` in `src/data/enemies.ts` preserves the previous zombie/brute/alien/demon collision scale when loading animated art. Alien and demon AI now advance their hover/wingbeat frames. `src/data/artMuzzles.ts` contains the measured barrel tips for the new operator frames; revisit those coordinates if their art is replaced. ROOK retains his existing muzzle calculation.
+
+Run `npm.cmd run smoke -- art` to inspect both operators in idle, run, jump, crouch, slide and left-facing poses, plus all four enemy cycles. Full smoke includes all boss scenes. The batch does not add boss attack/death animation sheets or change combat balance. Suggested next art: death/boss-breakup animation, richer machine variants, props, and weapon pickup icons after gameplay priorities are handled.

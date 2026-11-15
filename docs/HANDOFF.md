@@ -4,13 +4,43 @@ Update this file at the end of every working session (any AI agent). Newest sess
 
 ## Resume here - handback to Claude Code (2026-11-15)
 
-- Owner is switching back to Claude Code. Read `CLAUDE.md`, then Session 2 below; Session 1 is historical and its unverified/missing-art notes are superseded where Session 2 says otherwise.
-- Completed commits: `98aa234` (gangster art and asset guide), `d257dbe` (campaign transition tests and HUD fixes). No unfinished code changes were left from that work.
-- Start with normal-health stage-1 combat and boss playtesting, then strengthen input-driven encounter tests. Do not mistake forced boss-death transition tests for proof that the campaign can be beaten normally.
-- Commands on this machine: `npm.cmd run dev`, `npm.cmd run check`, `npm.cmd run smoke`, `npm.cmd run smoke -- flow`, `npm.cmd run build`. Screenshots are in `tools/shots/` and must be inspected after gameplay changes.
-- New art is already integrated; do not regenerate the gangster unnecessarily. Its original sheet and exact generation prompt are in `art/source/`. Rebuild it alone with `npm.cmd run assets -- --only gangster_sheet.png`.
-- Owner welcomes new assets and is new to coding. Make routine implementation decisions, integrate and verify assets for them, and explain results plainly. If image generation is unavailable in your session, use the ready-to-paste prompts in `docs/ART_PIPELINE.md`; do not assume Codex's image tool is available to Claude.
-- This handback adds documentation only; no gameplay or asset changes. Existing verification and remaining limitations are recorded below.
+- Read `CLAUDE.md`, then **Session 3** below. Earlier missing-art notes are historical: VIPER, TITAN, zombie, brute, alien, demon and all three bosses now have dedicated art, in addition to the gangster.
+- Latest asset/engine commit: `68703e1`. Previous work: `98aa234` (gangster), `d257dbe` (HUD and transition coverage), `9b00201` (earlier handback).
+- Do not regenerate this batch unnecessarily. Sources and exact prompts are in `art/source/`; runtime outputs are in `public/assets/`; visual catalog is `art/campaign-roster.png`.
+- Next priority remains normal-health combat/encounter/boss playtesting. Forced boss-death tests verify transitions, not campaign difficulty or beatability.
+- Windows commands: use `npm.cmd run ...` because PowerShell blocks npm.ps1. Run `npm.cmd run smoke -- art` for the new art checks; full `npm.cmd run smoke` also covers the campaign. Inspect screenshots in `tools/shots/`.
+- Owner wants agents to create and integrate assets, not merely provide prompts. If your session lacks image generation, explain that limitation and use the prompts in ART_PIPELINE. Do not assume Codex's image tool exists in Claude.
+
+## Session 3 - 2026-11-15 (Codex, campaign art batch)
+
+### Completed
+- Generated nine original source images with built-in image_gen: two eight-pose operator sheets, four four-frame enemy sheets, and three single-sprite bosses. All original PNGs and exact prompts retained in `art/source/campaign_prompts.md` and neighboring files.
+- Processed/integrated **35 runtime PNGs**: VIPER 8, TITAN 8, zombie 4, brute 4, alien 4, demon 4, VULTURE 1, WARDEN 1, ARCHON 1. No new stages or enemies were invented; this replaces the planned stand-ins.
+- Added manifest specs, centered flyer canvases, and a gunship width cap in the asset processor. Animated frames keep one common scale rather than resizing each pose independently.
+- Added optional `artScale` in enemy data to preserve the existing world collision sizes of zombie (.95), brute (1.35), alien (.95), and demon (1.2). WARDEN retains the existing static-art display scale of 2.3; its processed height is 64 including outline. ARCHON is 96x96; VULTURE is 170x56 including outline.
+- Enabled frame cycling in blinker/lobber AI (alien/demon); before this those behaviors never advanced an animation.
+- Added measured per-frame operator muzzle offsets in `src/data/artMuzzles.ts`, consumed by `Player.muzzle()`. VIPER/TITAN shots now originate at their new weapon barrels. If replacing their art, remeasure these values. ROOK still uses the original logic.
+- Added `art-viper`, `art-titan`, and `art-enemies` smoke scenarios. Operator cases assert idle/run/jump/crouch/slide textures and facing left. Enemy case asserts each faction is using its own frames, at least two animation frames advance, and prior entity scale is retained. Test explicitly wakes preview enemies so distance-based sleeping cannot cause false animation failures.
+- Added a labeled catalog `art/campaign-roster.png`, reproducible with `python tools/preview_campaign.py`. Updated GDD art status and ART_PIPELINE inventory/rebuild instructions.
+
+### Verification
+- `npm.cmd run check` and `npm.cmd run build` pass.
+- All three targeted art scenarios pass. Reviewed all nine processed contact sheets, the catalog, operator screenshots for every pose, and the combined enemy scene.
+- Full **15-scenario** `npm.cmd run smoke` run passed with no browser errors, including the three new art scenarios, all stage/boss scenes, perk/victory transitions, death/retry and pause/resume. Reviewed all 40 screenshots from the successful suite via contact sheets and full-size boss views.
+
+### Limits and next work
+- This is usable first-pass art, not hand-polished animation. Some run-cycle contact poses are similar; operator running silhouettes are a little shorter than idle. Review animation continuity during a real play session before further polish.
+- Bosses have one dedicated static sprite each; movement, rotation, damage flashes, and breakup effects remain procedural. No attack/death sprite animations were added.
+- Normal-health combat, controller feel, audio listening, complete input-driven arena progression, and boss balance remain unverified. Existing boss tests hold fire and often do not defeat bosses; transition tests deliberately deal lethal damage.
+- Foreground pillars still obscure some sprites. Prioritize normal playtesting/readability before creating more stages. Boss muzzle/attack port alignment can be refined when adding boss attack poses (WARDEN's existing high/low firing rows are intentionally independent of its static barrel).
+- Next art after gameplay verification: operator/enemy death frames, boss attack/breakup frames, dedicated machine variants, environmental props and weapon pickup icons. All previously listed missing faction/operator base sheets are now present.
+
+### Rebuild and review
+- One source: `npm.cmd run assets -- --only viper_sheet.png` (substitute any source from the ART_PIPELINE inventory).
+- Entire existing pipeline: `npm.cmd run assets` (rematting the original dark source sheets can be slow).
+- Catalog: `python tools/preview_campaign.py`.
+- Tests: `npm.cmd run check`, `npm.cmd run smoke -- art`, `npm.cmd run smoke`, `npm.cmd run build`.
+- `art/preview/` and `tools/shots/` remain ignored by git; source PNGs, prompts, runtime art, and the catalog are committed.
 
 ## Session 2 - 2026-11-15 (Codex)
 

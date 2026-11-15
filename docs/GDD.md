@@ -47,11 +47,13 @@ Female characters are leads and rivals with their own strength and style (confid
 |---|---|---|---|
 | Machine Legion | Trooper, Enforcer, Seeker Drone, Burner Drone, Sentry Cannon, Razor Jet | ranged, bursts, dive-bombs, strafing runs | done |
 | Syndicate (gangsters) | Gunman | fast, close-range bursts | four-frame walk sheet integrated |
-| Undead | Furnace Ghoul, Ghoul Brute | rush and lunge in packs | stand-in |
-| Aliens | Void Stalker | teleports, 3-way plasma | stand-in |
-| Underworld (demons) | Ash Imp | lobs arcing fireballs | stand-in |
+| Undead | Furnace Ghoul, Ghoul Brute | rush and lunge in packs | four-frame walk sheets integrated |
+| Aliens | Void Stalker | teleports, 3-way plasma | four-frame hover sheet integrated |
+| Underworld (demons) | Ash Imp | lobs arcing fireballs | four-frame wingbeat sheet integrated |
 
 Planned: Syndicate biker and femme-fatale lieutenant (mini-boss), zombie spitter, alien brood-mother, demon knight, underworld and alien-hive stages.
+
+All three bosses now have dedicated processed sprites (VULTURE, WARDEN, ARCHON). Their attack patterns remain the existing implementation.
 
 ## Stages
 1. **NEON MIDNIGHT** — rooftops in the rain; gangsters + machines. Boss: VULTURE GUNSHIP (gun strafes, bullet fans, low pass you must duck).
