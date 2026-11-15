@@ -2,6 +2,60 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
+## Session 11 - 2026-11-15 (Claude Code, honest audit + 12-stage story campaign plan) — CODEX: START HERE
+
+### Owner said
+"The game is not good and the animations are bad. It needs at least 12 levels, with a storyline and a more interactive story." This session made **no code changes**. It is an audit plus a plan. The story, 12-stage structure, choices and endings are in **`docs/STORY.md`** (new; read it fully). This section is the engineering handoff for Codex.
+
+**This replaces Session 8's content freeze.** The owner now asks for 12 stages. But the order below matters: fix the shared look/animation pipeline first (it improves every stage at once), then the story system (code only, cheap, big impact), then make each stage play differently, then add the 5 new stages.
+
+### Honest audit: why it is not good (looked at code + screenshots in tools/shots/)
+1. **Animations look bad because each frame is generated as a separate AI image.** The AI redraws the character every frame, so proportions, gun, face and outline drift between frames, and the 4-frame runs skip the key poses (contact, passing). Example: `art/library/frontier/previews/kestrel_sheet.png`, where run1 and run3 are hops, not strides. Every pack (hero, VIPER, TITAN, Frontier, species) has the same problem. **Making more frames this way will not fix it.**
+2. **The arm rig made ROOK worse.** `ArmRig.ts` cuts the arm out of a picture that was never drawn to be cut. In `tools/shots/arm-rig-0.png` / `arm-rig-2.png` ROOK holds the gun at his face and his torso looks chewed. Players notice this more than a gun that only points forward.
+3. **The characters get lost against the background.** The backdrops are big, detailed, high-contrast paintings at full brightness. The ~64px characters are dull and have a thin outline. Enemies and bosses have a **red** 1px outline (the gunship in `city-boss-1.png` looks like a sticker). Only one backdrop layer, no parallax, no foreground.
+4. **No two stages play differently.** All 7 stages in `src/data/stages.ts` use one template: flat 5,000px strip, ~10 floating girders, 3 arena locks, a boss. Only the backdrop, enemy list and floor colour change. 12 stages built this way would be boring; only gimmicks make 12 work.
+5. **No story at all** beyond one tagline per stage and a boss banner. The GDD listed story as out of scope.
+6. **Still nobody has finished one stage at normal health.** Balance is untested. Bosses in god mode die in under 30s.
+7. Unused art: ~380 PNGs in `art/library/` (expansion, frontier, species). Most of it can be used in the 12-stage plan (STORY.md sections 3 and 6), once fixed by step A.
+
+### Codex work plan, in order. Commit after each numbered task. Each must end with `npm.cmd run check`, the relevant `npm.cmd run smoke -- <name>`, and screenshots you looked at.
+
+**A. Fix the look (all stages benefit)**
+- A1. **Readability pass, code only, do this first (about an hour).** In `GameScene` darken and slightly desaturate the backdrop (darker `bgTint`, or a dark overlay at alpha ~0.3) so characters pop. In `tools/process_assets.py` / `integrate_expansion.py` change the baked outline from team red/blue to a near-black outline (e.g. #0b0d14) for every enemy and boss; keep a faint coloured rim only on the hero. Rebuild assets. Compare before/after screenshots.
+- A2. **Turn the arm rig off by default** (keep the code behind a flag `ARM_RIG = false` in `Player.ts`) until a real separately drawn arm exists. Restore whole-body frames + `ART_MUZZLES`. Update the `arm-rig` smoke scenario to match.
+- A3. **New animation method: cut-out rigs, not frame-by-frame AI images.** For each character, generate ONE clean master in a neutral pose with separable parts (torso, head, upper arm + gun, thighs, shins), or generate the parts as separate pieces on one sheet using the master as reference. Assemble in Phaser as a `Container` of part sprites and animate in code: run cycle by rotating thigh/shin parts (8 positions), breathing idle (1px torso bob), recoil, hurt flinch, death (parts fly off with gravity), jump-up and fall poses. Consistent by construction, and the gun arm rotates naturally to the aim (this replaces A2's flag). Rig data (part pivots) in `src/data/rigs.ts`. Start with **ROOK only**, show the owner, then VIPER and TITAN. If you prefer frame sheets instead, the minimum bar: generate the whole 8-frame run in ONE image from the master, then in the pipeline pin hip x and the feet baseline across frames and reject frames whose height differs by more than 6%.
+- A4. **Enemies and bosses:** same cut-out approach for bosses (body + moving parts: rotor, claws, wings, cannon, glowing weak point). Small enemies: a 2-part rig (body + legs/wings) plus squash/stretch is enough. This replaces the "single still that rocks" code (`src/entities/Enemy.ts` around line 107). Add a procedural death for every enemy: split the sprite into 4-6 pieces that fly with gravity, plus the existing flash.
+- A5. **Parallax:** generate each backdrop as 3 layers (sky, far, near) + a foreground silhouette strip at ~25% alpha; scroll factors about 0.1 / 0.3 / 0.6 / 1.2. City first. Backgrounds stay darker than characters (A1).
+- A6. **Unify art:** in the pipeline, quantize every sprite to one shared palette (32-48 colours, stored as `art/palette.png`) so packs made in different batches match.
+
+**B. Story system (code + data; design in STORY.md section 4)**
+- B1. `src/data/story.ts`: per stage `briefing`, `comms` (triggers: x position, encounter start/end, boss HP %, first death, first shard), `bossIntro` / `bossMid` / `bossDefeat`, `choices`, and operator overrides `[V]` / `[T]`. Lines can have a flag condition. Suggested types: `Line { who: Speaker; text: string; op?: 'viper' | 'titan'; if?: Cond }` and `Choice { id; prompt: Line[]; options: { label; hint; set: Partial<Flags>; reply: Line[]; requires?: Cond }[]; timerMs?; defaultIndex? }`.
+- B2. `run.flags` and `run.shards` in `src/systems/Run.ts` (reset on a new run, survive scene restarts). `save` keeps unlocked operators, endings seen and archive entries.
+- B3. **Comms overlay** in `HudScene`: 48x48 portrait + text box bottom-left, typewriter, never pauses the game, queues lines; ARCHON lines get static/glitch.
+- B4. **Briefing scene** `src/scenes/Briefing.ts` between stages, before `Perk`: two portraits, typewriter, hold to skip, choice cards (mouse, keys, gamepad). Flow becomes `Game` → `Briefing` → `Perk` → next `Game`. Stage 1 also gets an opening briefing after Title.
+- B5. **In-level choice overlay**: slow motion (time and physics at 0.2), 8 s timer, default = the less merciful option, triggered from stage data. Plus choice-by-action counters (eggs shot in stage 6, cage opened in stage 9).
+- B6. **Data shards**: 3 per stage, placed in stage data (`shards: [x, y, loreId][]`), HUD counter, ARCHIVE screen on Title for the lore.
+- B7. **Consequences as data**: `StageDef.variants?: { if: Cond; roamers?; encounters?; allies? }[]`; friendly NPC gunners (enemy defs with `ally: true` that target enemies); a collar ring drawn in code on hostile species, removed (blue outline) on allies.
+- B8. **Endings**: `End` picks ASHES / DAWN / OPEN DOOR from flags; the results screen lists the choices made; `Credits` shows ending-specific epilogue slides; secret scene at 30+ shards. Unlock SERRIK / QUILL as operators when earned (their art must go through A3 first).
+- B9. **Portraits** (64x64 busts, one consistent style): ROOK, VIPER, TITAN, JUNO, PATCH, THE CROUPIER, HALCYON, SERRIK, QUILL, TIDE SOVEREIGN, STATIC ORACLE. ARCHON's portrait is a red glyph drawn in code.
+
+**C. Make each existing stage play differently** (gimmick per stage in STORY.md section 3)
+New engine features, each a `StageDef` data field with its own smoke scenario: moving/swinging platforms; auto-scroll (horizontal for the train, vertical for lava and the Spire); rising hazard level (lava, water) with an optional cycle (tide); water zones (slow movement, floaty jumps, oxygen bar); gravity zones (low gravity; timed flip with a siren telegraph); darkness with a light radius (render-texture mask); beat-timed platforms; crystals that reflect beams; destroyable enemy spawners (slot machines). Give stages height too: shards on high platforms, alternate upper routes.
+
+**D. Five new stages**: 3 Stormbreak Railyard, 5 Underworld Engine, 8 Tidal Vault, 10 Prism Wastes, 11 Lattice Spire. Railyard and Underworld Engine worlds and their bosses already exist in `art/library/frontier`; TIDE SOVEREIGN and PRISM REGENT boss art in `art/library/species`. New art needed: Tidal Vault, Prism Wastes and Lattice Spire backdrops (as parallax layers) and HALCYON (a rival operator, built with the A3 rig). Each new boss gets one signature attack (STORY.md). Bring every character through A3/A4 before it goes live. Insert the stages in the order of STORY.md section 3 and add `x-<id>` + `x-<id>-boss` smoke scenarios; update the `flow-stage-*` scenarios to 12.
+
+**E. Final boss phase 3 + balance**
+ARCHON phase 3 with the ally-help moments from STORY.md stage 12. Then write a simple bot that plays a stage without god mode (move right, shoot the nearest enemy, slide when a telegraph is close) and reports deaths per stage. Tune with it, then ask the owner to play stages 1-3 and give one sentence of feedback.
+
+### Rules
+- One agent at a time; update this file and commit at the end of every session.
+- After A1-A3, stop and get the owner's opinion on the new ROOK before redoing every character.
+- Content stays data (`src/data/*`). Every enemy attack still needs `telegraph()`. The slide stays invulnerable.
+- Do not recreate existing games. The story in STORY.md is original; keep it that way.
+
+### Verified this session
+- Read the code, all stage data, the latest screenshots (`city-1`, `city-boss-1`, `arm-rig-0`, `arm-rig-2`, `flow-stage-4-0`) and the Frontier/species preview boards. No code changed, so no tests were run.
+
 ## Session 10 - 2026-11-15 (Claude Code, aimable arm + world polish + credits = campaign complete)
 
 ### Owner's definition of done

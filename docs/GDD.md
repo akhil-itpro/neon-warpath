@@ -56,6 +56,8 @@ Planned: Syndicate biker and femme-fatale lieutenant (mini-boss), zombie spitter
 All three bosses now have dedicated processed sprites (VULTURE, WARDEN, ARCHON). Their attack patterns remain the existing implementation.
 
 ## Stages
+**Superseded (Session 11): the campaign is now 12 stages in 4 acts with an interactive story, choices and three endings. See `docs/STORY.md`. The list below is the original 3-stage plan.**
+
 1. **NEON MIDNIGHT** — rooftops in the rain; gangsters + machines. Boss: VULTURE GUNSHIP (gun strafes, bullet fans, low pass you must duck).
 2. **FURNACE DISTRICT** — lava floors; zombies + demons. Boss: FURNACE WARDEN (high/low shot rows, mortars, zombie waves).
 3. **SERVER CATHEDRAL** — electric floors; aliens + elites. Boss: ARCHON CORE (rings, spirals, aimed bursts, reinforcements).
@@ -66,4 +68,4 @@ Planned stages 4-6: Syndicate Casino, The Underworld, Alien Hive / orbital final
 Dark steel, neon rim light, rain, embers. Heavy weapons, big explosions, short one-liners. No gore beyond sparks and coloured splatter. Internal resolution 640x360; characters about 66px tall.
 
 ## Out of scope (for now)
-Multiplayer, story cutscenes, mobile touch controls, monetisation.
+Multiplayer, full animated cutscenes (story is told through comms, briefings and choices, see STORY.md), mobile touch controls, monetisation.
