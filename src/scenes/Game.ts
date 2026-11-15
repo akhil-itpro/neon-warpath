@@ -538,7 +538,14 @@ export class GameScene extends Phaser.Scene {
     if (kind === 'chip') pk.setTint(this.stage.accent);
     if (kind === 'weapon') {
       pk.wid = R.RND.pick(DROP_WEAPONS.filter((w) => w !== run.weapon));
-      pk.setTint(WEAPONS[pk.wid!].color);
+      const weapon = WEAPONS[pk.wid!];
+      if (weapon.pickupArt && this.textures.exists(weapon.pickupArt)) {
+        // Keep the original crate's collision footprint while showing the wider weapon.
+        const body = pk.body as Phaser.Physics.Arcade.Body;
+        const { width, height } = body;
+        pk.setTexture(weapon.pickupArt);
+        body.setSize(width, height, true);
+      } else pk.setTint(weapon.color);
     }
     if (kind !== 'chip') pk.glow = this.add.image(x, y, 'glow').setBlendMode(Phaser.BlendModes.ADD).setTint(kind === 'health' ? 0x60ff90 : WEAPONS[pk.wid!].color).setScale(0.7).setAlpha(0.6).setDepth(DEPTH.shot - 1);
     this.pickups.push(pk);

@@ -8,6 +8,29 @@ import { mkdirSync } from 'node:fs';
 
 const filter = process.argv[2] ?? '';
 const SCENARIOS = [
+  { name: 'art-pickups', url: '?stage=1&god=1', steps: [
+    ['wait', 2800],
+    ['eval', `var g = window.__game.scene.getScene('Game');
+      for (const e of g.enemies) g.removeEnemy(e);
+      window.__weaponDrops = [];
+      const seen = new Set();
+      for (let i = 0; i < 200 && seen.size < 4; i++) {
+        g.dropPickup('weapon', 220 + seen.size * 65, 240);
+        const pk = g.pickups.at(-1);
+        if (seen.has(pk.wid)) { pk.taken = true; continue; }
+        seen.add(pk.wid); window.__weaponDrops.push(pk);
+        pk.setVelocity(0, 0); pk.body.setAllowGravity(false);
+      }`],
+    ['wait', 200], ['shot'],
+    ['assert', 'window.__weaponDrops.length === 4 && window.__weaponDrops.every(p => p.texture.key === "pickup_" + p.wid && p.body.width === 16 && p.body.height === 12)'],
+    // Real physics overlap, one weapon at a time; verify equipped identity and ammunition.
+    ...[0, 1, 2, 3].flatMap(i => [
+      ['eval', `var g = window.__game.scene.getScene('Game'); var pk = window.__weaponDrops[${i}]; pk.body.reset(g.player.x, g.player.centerY);`],
+      ['wait', 100],
+      ['assert', `window.__weaponDrops[${i}].taken && window.__run.weapon === window.__weaponDrops[${i}].wid && window.__run.ammo > 0`],
+    ]),
+    ['shot'],
+  ] },
   ...['viper', 'titan'].map((operator, index) => ({ name: `art-${operator}`, url: `?stage=1&god=1&op=${index + 1}`, steps: [
     ['wait', 2800], ['assert', `window.__game.scene.getScene("Game").player.texture.key === "${operator}_idle"`], ['shot'],
     ['down', 'KeyJ'], ['down', 'KeyD'], ['wait', 400], ['assert', `window.__game.scene.getScene("Game").player.texture.key.startsWith("${operator}_run")`], ['shot'],

@@ -1,0 +1,5 @@
+# Weapon pickup sheet — 2026-11-15
+
+Generated with the built-in image_gen tool. Original output: weapon_pickups.png.
+
+Use case: stylized-concept. Asset type: original NEON WARPATH pixel-art weapon pickup sprite sheet. Create exactly FOUR isolated weapon sprites in a clean 2 columns by 2 rows grid with equal cells and large empty margins. Top left: RIPPER, compact chunky submachine gun with cyan accent magazine. Top right: BREACHER, broad pump shotgun with orange foregrip and twin muzzle. Bottom left: RAILSPIKE, long slender electromagnetic rifle with violet coils. Bottom right: HELLFIRE, thick shoulder rocket launcher with red-orange fins and large open tube. All point RIGHT, strict side profile, no hands or characters. Each weapon one connected silhouette, similar visual width; unmistakably different silhouettes readable at 36 pixels wide. Dark gunmetal with bright silver upper edges, colored accents, detailed 16-bit pixel art, hard pixel edges, limited palette. Flat solid magenta #FF00FF background, no glow, no shadow, no floor, no labels, no text, no borders, no cropping. These are game sprites, not realistic weapon diagrams.

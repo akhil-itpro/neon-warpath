@@ -31,6 +31,12 @@ ENEMY_OUTLINE = (255, 86, 56)
 # sheet -> list of sprites in row-major order. h = target height in game pixels (game is 640x360).
 # canvas = shared (w, h) frame for animated characters (feet anchored bottom-centre).
 MANIFEST = {
+    "weapon_pickups.png": {
+        "outline": HERO_OUTLINE, "grid": (2, 2), "max_width": 34,
+        "canvas": (38, 22), "anchor": "center",
+        "sprites": [{"name": f"pickup_{key}", "h": 18}
+                    for key in ["smg", "shotgun", "rail", "rocket"]],
+    },
     **{f"{key}_sheet.png": {
         "outline": HERO_OUTLINE, "grid": (4, 2),
         "scale_ref": {"index": 4, "h": 66}, "canvas": (96, 72),

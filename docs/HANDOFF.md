@@ -2,7 +2,20 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
-## Resume here - handback to Claude Code (2026-11-15)
+## Session 4 - 2026-11-15 (Codex, weapon pickup assets)
+
+### Completed
+- Continued asset work at the owner's request. Created four original weapon pickup sprites with built-in image_gen: RIPPER, BREACHER, RAILSPIKE and HELLFIRE. Source and exact prompt: `art/source/weapon_pickups.png` and `weapon_pickups_prompt.md`.
+- Added targeted pipeline support; output keys are `pickup_smg`, `pickup_shotgun`, `pickup_rail`, `pickup_rocket` (38x22 centered canvases). Rebuild: `npm.cmd run assets -- --only weapon_pickups.png`.
+- Connected pickup art through `src/data/weapons.ts`. Weapon drops keep their 16x12 collision body, colored glow, existing random selection, lifetime and ammo behavior. Missing art retains the tinted crate fallback. The sidearm is not a drop and needs no pickup sprite.
+- Added `art-pickups` smoke coverage for all four loaded textures, preserved hitboxes, and real physics-overlap collection that verifies the matching weapon/ammo. Reviewed the processed contact sheet and both targeted screenshots.
+
+### Verification and next work
+- Typecheck, targeted pickup smoke and production build pass. Full 16-scenario campaign smoke passes without browser errors. Reviewed all 42 screenshots via contact sheets, plus the new pickup views at full size.
+- This is a visual asset addition; combat balance, normal-health campaign completion, controller feel and audio listening remain unverified.
+- Next asset candidates: dedicated machine variants, environmental props, death/boss attack animations. Normal-health combat/readability playtesting remains the overall project priority. Foreground pillars still obscure objects in places.
+
+## Previous resume notes - handback to Claude Code (2026-11-15)
 
 - Read `CLAUDE.md`, then **Session 3** below. Earlier missing-art notes are historical: VIPER, TITAN, zombie, brute, alien, demon and all three bosses now have dedicated art, in addition to the gangster.
 - Latest asset/engine commit: `68703e1`. Previous work: `98aa234` (gangster), `d257dbe` (HUD and transition coverage), `9b00201` (earlier handback).

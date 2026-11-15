@@ -56,6 +56,12 @@ For agents: `npm.cmd run assets -- --only gangster_sheet.png` rebuilds just that
 
 ## Integrated campaign batch - 2026-11-15
 
+### Weapon pickups (follow-up batch)
+
+`art/source/weapon_pickups.png` contains four original weapon silhouettes generated with built-in image_gen; the exact prompt is in `art/source/weapon_pickups_prompt.md`. Outputs are `pickup_smg`, `pickup_shotgun`, `pickup_rail`, and `pickup_rocket`, each on a centered 38x22 canvas with a cyan-white outline. Rebuild with `npm.cmd run assets -- --only weapon_pickups.png`.
+
+Weapon data selects these via `pickupArt`. Drops retain their original 16x12 collision body, colored glow, lifetime and collection behavior; missing art falls back to the tinted crate. `npm.cmd run smoke -- art-pickups` checks all four textures, collision dimensions, and actual overlap collection/equipping. The sidearm has no pickup because it is the default infinite-ammo weapon.
+
 The nine previously missing designs are now generated and integrated. These are usable first-pass game assets; future animation polish can improve repeated strides.
 
 | Source in art/source | Runtime keys | Frames |
