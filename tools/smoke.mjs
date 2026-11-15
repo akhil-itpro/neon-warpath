@@ -56,7 +56,53 @@ const SCENARIOS = [
     ['assert', 'window.__artEnemies.every(e => Math.abs(e.scaleX - (e.def.fallback.scale ?? 1)) < 0.001)'],
     ['eval', 'window.__artTimer.remove()'],
   ] },
-  { name: 'title', url: '', steps: [['wait', 1200], ['shot'], ['tap', 'ArrowRight'], ['wait', 300], ['shot'], ['tap', 'Enter'], ['wait', 1500], ['shot']] },
+  { name: 'title', url: '', steps: [['wait', 1200], ['shot'], ['tap', 'ArrowRight'], ['wait', 300], ['shot'], ['tap', 'Enter'],
+    ['until', 'window.__game.scene.isActive("Briefing")'], ['wait', 1500], ['shot'],
+    ['assert', 'window.__run.op.id === "viper" /* VIPER-only briefing lines */'],
+    ['down', 'KeyJ'], ['until', 'window.__game.scene.isActive("Game")'], ['up', 'KeyJ'], ['wait', 1500], ['shot']] },
+  // ---- story system (docs/STORY.md): comms, shards, choices and consequences, archive, endings
+  { name: 'story-comms', url: '?stage=1&god=1', steps: [
+    ['until', 'window.__game.scene.getScene("Hud").commsBusy'], ['wait', 1600], ['shot'], // 'start' has no line in stage 1; first line is the gangster sighting
+    ['assert', 'window.__run.heard.length >= 1 && window.__game.scene.getScene("Hud").comm.x > 0'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); g.player.body.reset(1360, 250)'], ['wait', 600], // walks onto shard 2
+    ['assert', 'window.__run.shards.includes("city-2") && JSON.parse(localStorage.getItem("neon-warpath-save-v1")).archive.includes("city-2")'], ['wait', 300], ['shot'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); g.player.invuln = 0; g.hurtPlayer(10000, g.player.x - 20)'],
+    ['until', 'window.__game.scene.getScene("Game").canRetry'], ['tap', 'Enter'], ['wait', 2600], ['shot'],
+    ['assert', 'window.__run.heard.includes("city:death") && window.__game.scene.getScene("Game").shards.every(s => s.id !== "city-2") /* shard stays collected */'],
+  ] },
+  { name: 'story-ledger', url: '?stage=casino&boss=1&god=1', steps: [
+    ['down', 'KeyD'], ['until', '!!window.__game.scene.getScene("Game").boss'], ['up', 'KeyD'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp, g.player.x)'],
+    ['until', 'window.__game.scene.isActive("Briefing")'],
+    ['press', ['Enter', '!!window.__game.scene.getScene("Briefing").choice']], ['wait', 500], ['shot'],
+    ['tap', 'ArrowRight'], ['wait', 200], ['shot'], ['tap', 'Enter'], ['wait', 300],
+    ['assert', 'window.__run.flags.ledger === "sell" && window.__run.bonusCards === 3 && window.__run.choices.length === 1'],
+    ['press', ['Enter', 'window.__game.scene.isActive("Perk")']], ['wait', 900], ['shot'],
+    ['assert', 'window.__game.scene.getScene("Perk").cards.length === 4'],
+  ] },
+  { name: 'story-leak', url: '?stage=furnace&god=1', steps: [
+    ['eval', 'window.__run.flags.ledger = "leak"; window.__game.scene.getScene("Game").scene.restart()'], ['wait', 1200],
+    ['assert', 'var g = window.__game.scene.getScene("Game"); g.encounters[0].waves.length === 4 && g.enemies.filter(e => e.def.id === "gangster").length === 2'],
+  ] },
+  { name: 'story-nest', url: '?stage=fungal&boss=1&god=1', steps: [
+    ['eval', 'window.__run.eggsShot = 3; window.__game.scene.getScene("Game").scene.restart()'], ['wait', 300],
+    ['down', 'KeyD'], ['until', '!!window.__game.scene.getScene("Game").boss'], ['up', 'KeyD'], ['wait', 300],
+    ['assert', 'window.__run.flags.nest_truce === false && window.__game.scene.getScene("Game").countAlive("spiderling") >= 4'], ['shot'],
+  ] },
+  { name: 'story-end', url: '?stage=cathedral&boss=1&god=1', steps: [
+    ['eval', 'Object.assign(window.__run.flags, { heard_oracle: true }); window.__run.choices.push("YOU HEARD THE TRUTH ABOUT HALCYON.")'],
+    ['down', 'KeyD'], ['until', '!!window.__game.scene.getScene("Game").boss'], ['up', 'KeyD'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp * 0.55, g.player.x)'], ['wait', 1500], ['shot'],
+    ['assert', 'window.__run.heard.includes("cathedral:boss50")'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp, g.player.x)'],
+    ['until', 'window.__game.scene.isActive("End")'], ['wait', 1500], ['shot'],
+  ] },
+  { name: 'archive', url: '', steps: [
+    ['eval', 'localStorage.setItem("neon-warpath-save-v1", JSON.stringify({ archive: ["city-1", "orbital-3"] })); location.reload()'],
+    ['until', 'window.__game && window.__game.scene.isActive("Title")'], ['wait', 600], ['tap', 'Tab'],
+    ['until', 'window.__game.scene.isActive("Archive")'], ['wait', 500], ['shot'],
+    ['tap', 'KeyS'], ['wait', 200], ['shot'], ['tap', 'Escape'], ['until', 'window.__game.scene.isActive("Title")'],
+  ] },
   { name: 'city', url: '?stage=1&god=1', steps: [['wait', 800], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 3000], ['shot'], ['tap', 'Space'], ['wait', 400], ['tap', 'ShiftLeft'], ['wait', 5000], ['shot'], ['wait', 9000], ['shot']] },
   { name: 'city-boss', url: '?stage=1&boss=1&god=1&weapon=smg', steps: [['wait', 500], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 6000], ['shot'], ['up', 'KeyD'], ['wait', 9000], ['shot'], ['wait', 30000], ['shot']] },
   { name: 'furnace', url: '?stage=furnace&god=1&weapon=shotgun', steps: [['wait', 800], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 5000], ['shot'], ['wait', 9000], ['shot']] },
@@ -165,6 +211,7 @@ const SCENARIOS = [
   ...[1, 2, 3, 4, 5, 6, 7].map((stage) => ({ name: `flow-stage-${stage}`, url: `?stage=${stage}&boss=1&god=1`, steps: [
     ['down', 'KeyD'], ['until', '!!window.__game.scene.getScene("Game").boss'], ['up', 'KeyD'],
     ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp, g.player.x)'],
+    ...(stage < 7 ? [['until', 'window.__game.scene.isActive("Briefing")'], ['wait', 900], ['shot'], ['press', ['Enter', 'window.__game.scene.isActive("Perk")']]] : []),
     ['until', `window.__game.scene.isActive("${stage === 7 ? 'End' : 'Perk'}")`], ['wait', 1300], ['shot'],
     ['assert', `window.__run.stage === ${stage}`], ['tap', 'Enter'],
     ['until', `window.__game.scene.isActive("${stage === 7 ? 'Credits' : 'Game'}")`], ['wait', 700], ['shot'],
@@ -215,6 +262,10 @@ for (const sc of SCENARIOS.filter((s) => s.name.includes(filter))) {
     else if (op === 'mup') await page.mouse.up();
     else if (op === 'eval') await page.evaluate(arg);
     else if (op === 'until') await page.waitForFunction(arg, null, { timeout: 20000 });
+    else if (op === 'press') { // tap a key every 250 ms until a condition holds (dialogue, menus)
+      const [key, cond] = arg, end = Date.now() + 30000;
+      while (!await page.evaluate(cond)) { if (Date.now() > end) throw new Error(`press timed out: ${cond}`); await page.keyboard.press(key, { delay: 40 }); await page.waitForTimeout(250); }
+    }
     else if (op === 'assert' && !await page.evaluate(arg)) throw new Error(`Assertion failed: ${arg}`);
     else if (op === 'shot') {
       await page.screenshot({ path: `tools/shots/${sc.name}-${n++}.png` });

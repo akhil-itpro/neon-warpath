@@ -53,6 +53,13 @@ export interface RunState {
   deaths: number;
   checkpoint: number; // index of first encounter not yet cleared in current stage
   checkpointX: number;
+  // ---- story (docs/STORY.md): reset on a new run, survive stage restarts
+  flags: Record<string, string | boolean>;
+  shards: string[];        // lore ids collected this run
+  eggsShot: number;        // brood eggs destroyed in the current stage (FUNGAL nest choice-by-action)
+  bonusCards: number;      // perk screens left that show a 4th card (ledger = sell)
+  heard: string[];         // comms already played this run ('<stage>:<trigger>')
+  choices: string[];       // plain-language record of choices, for the results screen
 }
 
 export let run: RunState;
@@ -63,17 +70,20 @@ export function newRun(opIndex: number) {
     op, stage: 0, score: 0, hp: op.hp, weapon: op.weapon, ammo: 0, od: 0, perks: [],
     stats: { maxHp: op.hp, dmg: op.dmg, rate: op.rate, speed: op.speed, jump: op.jump, airJumps: 0, lifesteal: 0, slideCd: 650, odGain: 1, blast: 0, ammo: 1, magnet: 90, armor: 1 },
     kills: 0, maxCombo: 0, deaths: 0, checkpoint: 0, checkpointX: 80,
+    flags: {}, shards: [], eggsShot: 0, bonusCards: 0, heard: [], choices: [],
   };
   (window as any).__run = run; // debugging / smoke-test handle
 }
 
 // ---- persistent save (localStorage) ----
-interface SaveData { best: number; cleared: number; muted: boolean; op: number }
+interface SaveData { best: number; cleared: number; muted: boolean; op: number; archive: string[]; endings: string[] }
 const KEY = 'neon-warpath-save-v1';
 
 export const save: SaveData = (() => {
-  const d: SaveData = { best: 0, cleared: 0, muted: false, op: 0 };
+  const d: SaveData = { best: 0, cleared: 0, muted: false, op: 0, archive: [], endings: [] };
   try { Object.assign(d, JSON.parse(localStorage.getItem(KEY) ?? '{}')); } catch { /* corrupt or blocked: use defaults */ }
+  if (!Array.isArray(d.archive)) d.archive = [];
+  if (!Array.isArray(d.endings)) d.endings = [];
   return d;
 })();
 

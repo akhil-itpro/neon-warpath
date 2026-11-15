@@ -4,8 +4,11 @@ import { run } from '../systems/Run';
 import { WEAPONS } from '../data/weapons';
 import { audio } from '../systems/Audio';
 import { Controls } from '../systems/Controls';
+import type { Line } from '../data/story';
+import { portraitKey, speakerColor, speakerName } from '../systems/Story';
 import type { GameScene } from './Game';
 
+const gsStage = (s: Phaser.Scene) => (s.scene.get('Game') as GameScene).stage;
 const RANKS = ['', 'ROOKIE', 'DEADLY', 'SAVAGE', 'BRUTAL', 'WARLORD', 'UNSTOPPABLE', 'GODLIKE', 'LEGEND'];
 
 // Runs on top of GameScene with its own camera, so the HUD stays crisp (no bloom, no shake).
@@ -27,6 +30,17 @@ export class HudScene extends Phaser.Scene {
   private shownScore = 0;
   private hpLag = 0;
   private cross!: Phaser.GameObjects.Image;
+  // comms (radio chatter): queued story lines with a portrait and typewriter text; never pauses the game
+  private comm!: Phaser.GameObjects.Container;
+  private commPic!: Phaser.GameObjects.Image;
+  private commName!: Phaser.GameObjects.Text;
+  private commText!: Phaser.GameObjects.Text;
+  private commQ: Line[] = [];
+  private commLine: Line | null = null;
+  private commShown = 0;  // characters typed so far
+  private commHold = 0;   // ms left before the next line
+  private shardTxt!: Phaser.GameObjects.Text;
+  private shardIcon!: Phaser.GameObjects.Image;
 
   constructor() { super('Hud'); }
 
@@ -54,6 +68,22 @@ export class HudScene extends Phaser.Scene {
     this.goTxt = this.txt(W - 16, H / 2 - 30, 'GO >', 16, '#80ffb0').setOrigin(1, 0.5).setVisible(false);
     this.overlay = this.add.container(0, 0).setDepth(100).setVisible(false);
     this.cross = this.add.image(0, 0, 'crosshair').setDepth(200).setVisible(false);
+    // comms panel, bottom-left above the boss bar
+    this.commQ = []; this.commLine = null; this.commShown = 0; this.commHold = 0;
+    const cy = H - 102;
+    const box = this.add.graphics();
+    box.fillStyle(0x05060a, 0.86).fillRect(0, 0, 316, 58);
+    box.lineStyle(1, 0x40e0ff, 0.7).strokeRect(0.5, 0.5, 315, 57);
+    box.fillStyle(0x40e0ff, 0.15).fillRect(1, 1, 314, 2);
+    this.commPic = this.add.image(5, 5, 'portrait_juno').setOrigin(0);
+    this.commName = this.txt(60, 6, '', 8, '#9fe8ff');
+    this.commText = this.add.text(60, 20, '', { fontFamily: FONT, fontSize: '8px', color: '#ffffff', stroke: '#000000', strokeThickness: 2, wordWrap: { width: 250 }, lineSpacing: 4 });
+    this.comm = this.add.container(-330, cy, [box, this.commPic, this.commName, this.commText]).setDepth(50);
+    // data shards found in this stage
+    const st = gsStage(this);
+    this.shardIcon = this.add.image(16, 72, 'shard').setScale(0.75).setVisible(!!st?.shards?.length);
+    this.shardTxt = this.txt(26, 68, '', 8, '#ff90e0').setVisible(!!st?.shards?.length);
+    this.shardGot(false);
     this.events.once('shutdown', () => this.input.setDefaultCursor('default'));
   }
 
@@ -114,6 +144,55 @@ export class HudScene extends Phaser.Scene {
     } else this.bossTxt.setText('');
 
     if (this.goTxt.visible) this.goTxt.setAlpha(Math.floor(this.time.now / 220) % 2 ? 1 : 0.2);
+    this.tickComms(delta);
+  }
+
+  // ---- comms
+  comms(lines: Line[]) {
+    this.commQ.push(...lines);
+    if (!this.commLine) this.nextComm();
+  }
+
+  get commsBusy() { return !!this.commLine || this.commQ.length > 0; }
+
+  private nextComm() {
+    const l = this.commQ.shift();
+    this.commLine = l ?? null;
+    this.tweens.killTweensOf(this.comm);
+    if (!l) { this.tweens.add({ targets: this.comm, x: -330, duration: 220, ease: 'Quad.in' }); return; }
+    this.commShown = 0;
+    this.commHold = 1700 + l.text.length * 35;
+    this.commPic.setTexture(portraitKey(l.who));
+    this.commName.setText(speakerName(l.who)).setColor(speakerColor(l.who));
+    this.commText.setText('').setColor(l.who === 'archon' ? '#ffb0b8' : l.who === 'myrrhkin' || l.who === 'oracle' ? '#e0c8ff' : '#ffffff');
+    this.tweens.add({ targets: this.comm, x: 6, duration: 200, ease: 'Quad.out' });
+    audio.sfx(l.who === 'archon' ? 'static' : 'radio');
+  }
+
+  private tickComms(delta: number) {
+    const l = this.commLine;
+    if (!l) return;
+    if (this.commShown < l.text.length) {
+      const before = Math.floor(this.commShown);
+      this.commShown = Math.min(l.text.length, this.commShown + delta / 28);
+      if (Math.floor(this.commShown) !== before) {
+        this.commText.setText(l.text.slice(0, Math.floor(this.commShown)));
+        if (before % 3 === 0) audio.sfx('type');
+      }
+    } else if ((this.commHold -= delta) <= 0) this.nextComm();
+    // ARCHON breaks into the channel: the portrait jitters and flickers like a bad signal
+    if (l.who === 'archon') {
+      const glitch = Math.random() < 0.12;
+      this.commPic.setPosition(5 + (glitch ? Phaser.Math.Between(-2, 2) : 0), 5).setAlpha(glitch ? 0.55 : 1);
+    } else this.commPic.setPosition(5, 5).setAlpha(1);
+  }
+
+  shardGot(pop = true) {
+    const st = gsStage(this);
+    const all = st?.shards ?? [];
+    const got = all.filter(([id]) => run.shards.includes(id)).length;
+    this.shardTxt.setText(`${got}/${all.length}`);
+    if (pop) this.tweens.add({ targets: this.shardTxt, scale: { from: 1.8, to: 1 }, duration: 260, ease: 'Back.out' });
   }
 
   // ---- called by GameScene (all optional-chained there because this scene starts a frame later)

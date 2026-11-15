@@ -2,6 +2,52 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
+## Session 13 - 2026-11-15 (Claude Code, story system B1-B4 + B6 + partial B7/B8) — NEXT AGENT START HERE
+
+### Owner said
+"Codex has done some work, you continue the rest." Then: "update the handoff; if you need more artwork from Codex, put it here." Session 12 asked for owner review of the new ROOK rig before redoing other characters. The owner chose to continue, so this session did the **code-only story work (B)**, which needs no new art. **The owner has still not given an opinion on ROOK.** Ask again when they next play.
+
+### Built this session (all live in the 7-stage game)
+- **`src/data/story.ts`** holds briefings, comms, choices and 21 lore entries for the 7 live stages. They map to STORY.md stages 1, 2, 4, 6, 7, 9 and 12. Lines that pointed at unbuilt stages (railyard, tidal vault, prism, spire) were bridged with small rewrites; restore the originals when those stages exist. Types: `Line { who, text, op?, notOp?, if? }`, `Choice`, `ChoiceOption { set, record, bonusCards?, requires?, locked? }`. Comms trigger keys are documented at the top of the file (`start`, `x:<n>`, `enc:<i>`, `clear:<i>`, `see:<enemyId>`, `boss`, `boss50`, `bossdown`, `death`, `shard`).
+- **`src/systems/Story.ts`** has the helpers: `condOk`, `lineOk` (operator overrides plus flag conditions), and portrait and speaker lookups.
+- **Run state (`Run.ts`):** `flags`, `shards`, `eggsShot`, `bonusCards`, `heard` (each comm plays once per run), `choices` (result-screen text). Save: `archive` (lore ids, persistent) and `endings`.
+- **Comms overlay (HUD):** a portrait plus typewriter text bottom-left, above the boss bar. It queues lines and never pauses. ARCHON gets a static sound and a glitching portrait. A 'death' comm plays after the first retry in a stage (Game is restarted with `{ retry: true }`).
+- **Briefing scene (`src/scenes/Briefing.ts`):** flow is now Title → **Briefing** → Game, and Game → **Briefing** → Perk → Game. It shows the previous stage's `after` choice, then the next stage's briefing. Fire advances; holding fire skips to the next choice. After a pick, the button must be released so the replies are not skipped. Choice cards work with keys, mouse and gamepad.
+- **Choices live now:** C1 THE LEDGER (after casino). `sell` gives a 4th "NEW STOCK" perk card for 3 perk screens. `leak` adds an extra gangster wave plus 2 roamers in FURNACE and Juno comments on it. C3 THE NEST (by action in FUNGAL): shooting 3 or more brood eggs sets `nest_truce=false`, and 4 extra spiderlings join the GLASS WIDOW fight. The comms change too. C5 THE ORACLE (after orbital) changes the cathedral briefing, ARCHON's mid-fight lines and Patch's lines.
+- **`StageDef.variants`** (B7, first cut): `{ if, waves?: [encIndex, ids][], roamers? }` adds content when flags match. Ally NPCs and collars are not built yet.
+- **Data shards (B6):** 3 per stage (`StageDef.shards`), 21 total. Each gives +1000 score, a HUD counter, the persistent ARCHIVE unlock and the first-shard comm. **Reachability was tested in the real game:** all 12 high-platform shards can be reached with a plain running jump from the neighbouring lower platform (city-3 and orbital-2 were moved after failing). Mid shards sit on 245/250 girders; low ones need a jump from the floor.
+- **ARCHIVE scene** (Title: Tab or click top-left) lists the lore; locked entries show their stage name.
+- **Endings (B8, partial):** the results screen shows ENDING ASHES or DAWN, shard count and "YOUR CHOICES". OPEN DOOR needs stages 8 and 11, which are not built. Credits are not ending-specific yet.
+- **Portraits:** procedural 48x48 pixel busts drawn in `Boot.makePortraits` (ROOK, VIPER, TITAN, JUNO, PATCH, CROUPIER, ORACLE, ARCHON glyph, MYRRHKIN). They are stand-ins, see the art requests below.
+- New sfx `radio`, `static`, `type`, `shard`. Perk and choice cards are no longer shrunk when unselected; the shrinking garbled the pixel font ("FTFID SURGEON").
+- Smoke: `title` now goes through Briefing; `flow-stage-*` taps through Briefing; new `story-comms`, `story-ledger`, `story-leak`, `story-nest`, `story-end`, `archive`; new step op `['press', [key, cond]]`.
+
+### Verified
+- `npm run check` passes. Focused smoke passed: all `story-*`, `title`, `archive`. Screenshots looked at: comms panel in city, shard counter, briefing with VIPER, ledger choice cards, 4-card perk screen with Patch's new line, ARCHIVE, DAWN results screen. Full-suite result: see the line below (updated at commit time).
+
+### NOT verified
+- How the story pacing feels to a human (line timings, whether comms distract during fights). Normal-health balance is still untested, as are gamepad on the Briefing and Archive screens and the audio of the new sfx.
+
+### ART REQUESTS FOR CODEX (do these next; they unblock the rest of the plan)
+Put sources in `art/source/`, keep exact prompts as before, and process into `public/assets`. Code already falls back gracefully.
+1. **Portraits, 64x64 busts, one consistent painted-pixel style** (the procedural busts are placeholders). Keys: `portrait_rook`, `portrait_viper`, `portrait_titan`, `portrait_juno`, `portrait_patch`, `portrait_croupier`, `portrait_oracle`, `portrait_myrrhkin`, plus later `portrait_halcyon`, `portrait_serrik`, `portrait_quill`, `portrait_sovereign`. ARCHON stays a code glyph. To swap: delete the matching `bust(...)`/`canvas(...)` call in `Boot.makePortraits`, or skip it when `this.textures.exists(key)`. The HUD draws portraits at 48x48 and Briefing at 2x; if they are 64px, set the display size to 48 / 96.
+2. **A3 rigs for VIPER and TITAN**, the same eight-part method as ROOK (`art/source/rigs/`, `src/data/rigs.ts`). Wait for the owner's ROOK verdict first if possible.
+3. **A4 boss part-rigs** (rotor, claws, cannon, weak point) and 2-part rigs for small enemies; the procedural split-into-pieces death can be code (Claude can do that).
+4. **A5 parallax layers** (sky / far / near + a foreground silhouette strip), CITY first, then one per stage. Keep them darker than the actors.
+5. **New-stage art for D:** Tidal Vault, Prism Wastes and Lattice Spire backdrops as parallax layers; the **HALCYON** rival operator rig (A3 method); and a **QUILL cage** prop plus a **Varkesh collar ring** overlay if drawn rather than coded.
+
+### Next code tasks (Claude or Codex)
+- B5 in-level slow-motion choice overlay (needed for C2 on the railyard train).
+- B7 ally NPC gunners (`ally: true` enemy defs that target enemies) and collar rings.
+- B8 ending-specific credits epilogue and the 30+ shard secret scene.
+- C stage gimmicks (moving platforms, lava rise, darkness, water, low gravity). This is the biggest "every stage plays the same" fix.
+- D: the 5 new stages, re-inserting the original STORY.md lines for them; E: a balance bot.
+
+## Session 13 - 2026-11-15 (Codex, browser launch)
+
+- Confirmed the existing Vite server serves NEON WARPATH at http://127.0.0.1:5173/. Browser automation and launching a browser were unavailable in this session; open the link to play.
+- Existing uncommitted story-related changes were left untouched. `npm.cmd run check` fails because `HudScene` lacks `comms` and `shardGot`, referenced by `Game.ts`; this appears to be ongoing work. No gameplay changes or playtesting were performed. Owner review of ROOK remains next.
+
 ## Session 12 - 2026-11-15 (Codex, A1-A3 visual milestone)
 
 ### Completed
@@ -24,7 +70,7 @@ Update this file at the end of every working session (any AI agent). Newest sess
 - Still **7 stages**. The 12-stage story, briefings/comms, choices, shards, allies and endings in STORY.md are a design, not implemented gameplay. No five new stages, enemy/boss rigs, new parallax layers or shared palette have been added.
 - After ROOK feedback: refine this rig if needed, then continue A4-A6 and B story systems in Session 11's order; stage gimmicks and the five new stages follow. Keep content data-driven and add focused smoke coverage per feature.
 
-## Session 11 - 2026-11-15 (Claude Code, honest audit + 12-stage story campaign plan) — CODEX: START HERE
+## Session 11 - 2026-11-15 (Claude Code, honest audit + 12-stage story campaign plan) Ã¢â‚¬â€ CODEX: START HERE
 
 ### Owner said
 "The game is not good and the animations are bad. It needs at least 12 levels, with a storyline and a more interactive story." This session made **no code changes**. It is an audit plus a plan. The story, 12-stage structure, choices and endings are in **`docs/STORY.md`** (new; read it fully). This section is the engineering handoff for Codex.
@@ -54,7 +100,7 @@ Update this file at the end of every working session (any AI agent). Newest sess
 - B1. `src/data/story.ts`: per stage `briefing`, `comms` (triggers: x position, encounter start/end, boss HP %, first death, first shard), `bossIntro` / `bossMid` / `bossDefeat`, `choices`, and operator overrides `[V]` / `[T]`. Lines can have a flag condition. Suggested types: `Line { who: Speaker; text: string; op?: 'viper' | 'titan'; if?: Cond }` and `Choice { id; prompt: Line[]; options: { label; hint; set: Partial<Flags>; reply: Line[]; requires?: Cond }[]; timerMs?; defaultIndex? }`.
 - B2. `run.flags` and `run.shards` in `src/systems/Run.ts` (reset on a new run, survive scene restarts). `save` keeps unlocked operators, endings seen and archive entries.
 - B3. **Comms overlay** in `HudScene`: 48x48 portrait + text box bottom-left, typewriter, never pauses the game, queues lines; ARCHON lines get static/glitch.
-- B4. **Briefing scene** `src/scenes/Briefing.ts` between stages, before `Perk`: two portraits, typewriter, hold to skip, choice cards (mouse, keys, gamepad). Flow becomes `Game` → `Briefing` → `Perk` → next `Game`. Stage 1 also gets an opening briefing after Title.
+- B4. **Briefing scene** `src/scenes/Briefing.ts` between stages, before `Perk`: two portraits, typewriter, hold to skip, choice cards (mouse, keys, gamepad). Flow becomes `Game` Ã¢â€ â€™ `Briefing` Ã¢â€ â€™ `Perk` Ã¢â€ â€™ next `Game`. Stage 1 also gets an opening briefing after Title.
 - B5. **In-level choice overlay**: slow motion (time and physics at 0.2), 8 s timer, default = the less merciful option, triggered from stage data. Plus choice-by-action counters (eggs shot in stage 6, cage opened in stage 9).
 - B6. **Data shards**: 3 per stage, placed in stage data (`shards: [x, y, loreId][]`), HUD counter, ARCHIVE screen on Title for the lore.
 - B7. **Consequences as data**: `StageDef.variants?: { if: Cond; roamers?; encounters?; allies? }[]`; friendly NPC gunners (enemy defs with `ally: true` that target enemies); a collar ring drawn in code on hostile species, removed (blue outline) on allies.
@@ -121,7 +167,7 @@ ARCHON phase 3 with the ally-help moments from STORY.md stage 12. Then write a s
 ### Next
 - Follow **Session 8**, starting with the ROOK body/separate-arm rebuild and city-only polish. Keep the species library parked for later, then select a few coherent species rather than adding the entire roster at once. The library README contains the future integration sequence and focused verification needs.
 
-## Session 8 - 2026-11-15 (Claude Code, owner playtest feedback + quality audit) — READ THIS FIRST
+## Session 8 - 2026-11-15 (Claude Code, owner playtest feedback + quality audit) Ã¢â‚¬â€ READ THIS FIRST
 
 ### Owner feedback (first real human playtest)
 The owner played and said, in short: no mouse pointer to shoot enemies, "the fire is stuck", graphics and animation look bad, wants a professional result, and allowed a tech-stack change if needed. **This overrides the "more assets" direction of Sessions 5-7.** The owner does not want more content; they want what exists to look and feel good.
@@ -141,7 +187,7 @@ The owner played and said, in short: no mouse pointer to shoot enemies, "the fir
 2. **The gun does not point where the shots go.** The art only aims forward, so aimed shots leave a sideways gun. Now that the mouse aims, this is the most visible flaw. Standard fix: draw the hero without the gun arm and add a separate arm+gun sprite that rotates to the aim angle (shoulder pivot per pose, replacing `ART_MUZZLES`).
 3. **Flat worlds.** Each stage is one flattened picture scrolling at one speed, plus the same grey steel floor strip and the same platform tile in all 7 stages (drawn in code in `Boot.ts`). No parallax layers, no per-stage ground, props do nothing.
 4. **Inconsistent art.** ~30 AI sheets made in separate batches: different proportions, palettes and pixel sizes, then shrunk to fit. Heroes are low-contrast against busy backgrounds; the baked outline is the only thing separating them.
-5. **Breadth before quality.** 7 stages, 28+ enemies, 13 weapons, 7 bosses, plus two unused packs (Frontier, 26 designs; `art/source/species/`, untracked, origin unknown to this session) — and no stage has ever been completed at normal health. `docs/ROADMAP.md` Milestone 1 ("stage 1 only, perfect") was skipped.
+5. **Breadth before quality.** 7 stages, 28+ enemies, 13 weapons, 7 bosses, plus two unused packs (Frontier, 26 designs; `art/source/species/`, untracked, origin unknown to this session) Ã¢â‚¬â€ and no stage has ever been completed at normal health. `docs/ROADMAP.md` Milestone 1 ("stage 1 only, perfect") was skipped.
 6. All sound is synthesised. Acceptable for now; revisit after the visuals.
 
 ### Tech stack decision: keep it
@@ -154,7 +200,7 @@ Phaser 3 + TypeScript + Vite is not what makes the game look bad, and it is not 
 - Every session ends with something the owner can play and judge at `npm run dev`. Ask them for one sentence of feedback; it is the only real test this project has had.
 
 ### Next tasks, in order
-1. **Hero rebuild, ROOK only** (needs image generation — Codex has it, this Claude session did not): gun-arm-less body frames — idle x4, run x8, jump-up, fall, land, slide, crouch, hurt, death x6 — plus one separate arm+gun sprite pointing right. Then code: arm sprite child rotating to `GameScene.aim` (or the auto-aim angle), shoulder pivots per pose, muzzle derived from the arm, recoil kick on the arm.
+1. **Hero rebuild, ROOK only** (needs image generation Ã¢â‚¬â€ Codex has it, this Claude session did not): gun-arm-less body frames Ã¢â‚¬â€ idle x4, run x8, jump-up, fall, land, slide, crouch, hurt, death x6 Ã¢â‚¬â€ plus one separate arm+gun sprite pointing right. Then code: arm sprite child rotating to `GameScene.aim` (or the auto-aim angle), shoulder pivots per pose, muzzle derived from the arm, recoil kick on the arm.
 2. **Stage 1 world:** split the city backdrop into 3-4 parallax layers (sky, far skyline, near buildings, foreground), a city-specific ground and platform tileset, a few animated props (neon flicker, steam).
 3. **Stage 1 enemies** (trooper/robot, gangster, drone, turret, VULTURE boss): shooting frame, hit flinch, death animation each.
 4. Play stage 1 at normal health and tune it (Session 6's balance list still stands, but only for stage 1).
@@ -213,7 +259,7 @@ Phaser 3 + TypeScript + Vite is not what makes the game look bad, and it is not 
 
 ## Session 5 - 2026-11-15 (Codex, expansion asset library for Claude)
 
-### Owner direction — read this first
+### Owner direction Ã¢â‚¬â€ read this first
 - Owner explicitly requested less testing and more asset creation: lots of weapons, characters, worlds, enemies and weird characters, staged so Claude can pick them up. This session prioritizes that request over earlier gameplay-first priority notes. Avoid repeating the full smoke suite just for this art-only library.
 
 ### Completed
@@ -317,7 +363,7 @@ Phaser 3 + TypeScript + Vite is not what makes the game look bad, and it is not 
 - On this Windows setup, PowerShell blocks `npm.ps1`; use `npm.cmd run ...` without changing execution policy.
 - Generated preview/contact sheets and smoke screenshots are intentionally ignored by git. Original art, prompts, and runtime assets are committed.
 
-## Session 1 — 2026-11-15 (Claude Code)
+## Session 1 Ã¢â‚¬â€ 2026-11-15 (Claude Code)
 
 ### What exists
 - Full project scaffold: Vite + TypeScript + Phaser 3.90, git repo, docs.
@@ -332,13 +378,13 @@ Phaser 3 + TypeScript + Vite is not what makes the game look bad, and it is not 
 
 ### Verification status (be honest about this)
 - VERIFIED: `npm run check` passes. Game boots to title, operator select works, starts stage 1 at ~120 fps (smoke scenario `title`).
-- NOT YET VERIFIED: everything after the first seconds of stage 1 — encounters, all three bosses, perk screen, death/retry, victory. The code is written but has not been played or screenshotted. Expect bugs and balance problems.
+- NOT YET VERIFIED: everything after the first seconds of stage 1 Ã¢â‚¬â€ encounters, all three bosses, perk screen, death/retry, victory. The code is written but has not been played or screenshotted. Expect bugs and balance problems.
 - Known noise: two 404s logged on the title page (likely favicon + one more). Find and fix; the smoke test treats console errors as failures.
 
 ### Next tasks, in order
 1. Run `npm run smoke`, read every screenshot in `tools/shots/`, fix crashes and visual problems (sprite facing, muzzle position, HUD overlap, readability against backgrounds, bloom strength in `Game.ts` camera postFX).
 2. Play each boss with `?stage=N&boss=1` (without `god`) and tune fairness: every attack must be dodgeable by jump, crouch or slide.
-3. Balance pass on `src/data/*` (enemy hp, fire rates, encounter sizes) — target 4-6 minutes per stage, first clear of the game in under an hour for a new player.
+3. Balance pass on `src/data/*` (enemy hp, fire rates, encounter sizes) Ã¢â‚¬â€ target 4-6 minutes per stage, first clear of the game in under an hour for a new player.
 4. Real art for stand-in characters: gangster, zombie, brute, alien, demon, operators VIPER and TITAN, boss sheets. Prompts are in `docs/ART_PIPELINE.md`; the owner generates them in ChatGPT and drops them in `art/source/`.
 5. Then follow `docs/ROADMAP.md`.
 
@@ -347,4 +393,4 @@ Phaser 3 + TypeScript + Vite is not what makes the game look bad, and it is not 
 - Synthesised audio: zero licensing risk, zero files. Replaceable later with recorded tracks.
 - Hero art only aims forward, so shots auto-bend toward targets in a forward cone (`playerFire` in `Game.ts`) instead of 8-way aiming.
 - Baked 1px outlines (cyan for heroes, red for enemies) because the dark AI sprites vanished on dark backgrounds.
-- "Addictive" is pursued through game feel, combos, builds and fast retry — no dark patterns, no monetisation hooks.
+- "Addictive" is pursued through game feel, combos, builds and fast retry Ã¢â‚¬â€ no dark patterns, no monetisation hooks.

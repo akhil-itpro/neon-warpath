@@ -29,19 +29,27 @@ export class PerkScene extends Phaser.Scene {
     if (this.textures.exists('npc_patch')) {
       const patch = this.add.image(58, H - 2, 'npc_patch').setOrigin(0.5, 1);
       this.tweens.add({ targets: patch, scaleY: 1.03, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
-      const lines = ['PATCH: PICK ONE, HOTSHOT.', 'PATCH: ALL SALES FINAL.', 'PATCH: TRY NOT TO BREAK IT.', 'PATCH: I FIXED IT. MOSTLY.'];
+      // Patch's patter reacts to the story so far
+      const lines = run.bonusCards > 0 ? ['PATCH: NEW STOCK! SYNDICATE MONEY.', 'PATCH: FOUR CARDS. YOU EARNED IT.']
+        : run.flags.ledger === 'leak' && run.stage <= 3 ? ["PATCH: YOU'RE ON EVERY SCREEN.", 'PATCH: FAME IS BAD FOR BUSINESS.']
+        : run.flags.heard_oracle ? ['PATCH: GO GET HIM BACK.', 'PATCH: ON THE HOUSE. ...MOSTLY.']
+        : ['PATCH: PICK ONE, HOTSHOT.', 'PATCH: ALL SALES FINAL.', 'PATCH: TRY NOT TO BREAK IT.', 'PATCH: I FIXED IT. MOSTLY.'];
       this.txt(118, H - 46, Phaser.Utils.Array.GetRandom(lines), 8, '#ffd040').setOrigin(0, 0.5);
     }
     this.txt(W / 2, H - 22, `NEXT: STAGE ${run.stage + 1} - ${next.name}`, 8, '#9fe8ff');
 
-    this.picks = Phaser.Utils.Array.Shuffle(PERKS.filter((p) => !run.perks.includes(p.id))).slice(0, 3);
+    const count = run.bonusCards > 0 ? 4 : 3; // selling the ledger stocks Patch's van for three perk screens
+    this.picks = Phaser.Utils.Array.Shuffle(PERKS.filter((p) => !run.perks.includes(p.id))).slice(0, count);
+    const hw = count === 4 ? 66 : 82, gap = count === 4 ? 146 : 190;
+    this.sel = Math.floor((this.picks.length - 1) / 2);
     this.picks.forEach((p, i) => {
-      const x = W / 2 + (i - 1) * 190;
+      const x = W / 2 + (i - (this.picks.length - 1) / 2) * gap;
       const g = this.add.graphics();
-      g.fillStyle(0x0c1018, 0.92).fillRect(-82, -80, 164, 160);
-      g.lineStyle(2, 0x40e0ff).strokeRect(-82, -80, 164, 160);
-      g.fillStyle(0x40e0ff, 0.2).fillRect(-82, -80, 164, 30);
-      const card = this.add.container(x, 185, [g, this.txt(0, -64, `0${i + 1}`, 8, '#40e0ff'), this.txt(0, -20, p.name, 8, '#ffffff', 150), this.txt(0, 30, p.desc, 8, '#ffd040', 150)]);
+      const col = i === 3 ? 0xffd040 : 0x40e0ff;
+      g.fillStyle(0x0c1018, 0.92).fillRect(-hw, -80, hw * 2, 160);
+      g.lineStyle(2, col).strokeRect(-hw, -80, hw * 2, 160);
+      g.fillStyle(col, 0.2).fillRect(-hw, -80, hw * 2, 30);
+      const card = this.add.container(x, 185, [g, this.txt(0, -64, i === 3 ? 'NEW STOCK' : `0${i + 1}`, 8, i === 3 ? '#ffd040' : '#40e0ff'), this.txt(0, -20, p.name, 8, '#ffffff', hw * 2 - 14), this.txt(0, 30, p.desc, 8, '#ffd040', hw * 2 - 14)]);
       this.cards.push(card);
     });
     this.cameras.main.fadeIn(300);
@@ -49,7 +57,7 @@ export class PerkScene extends Phaser.Scene {
   }
 
   private highlight() {
-    this.cards.forEach((c, i) => { c.setScale(i === this.sel ? 1.08 : 0.94).setAlpha(i === this.sel ? 1 : 0.55); });
+    this.cards.forEach((c, i) => { c.setScale(i === this.sel ? 1.08 : 1).setAlpha(i === this.sel ? 1 : 0.55); });
   }
 
   update() {
@@ -61,7 +69,7 @@ export class PerkScene extends Phaser.Scene {
     // clicking a card picks that card
     const ptr = c.pointer;
     if (c.pressed('fire') && ptr.isDown) {
-      const hit = this.cards.findIndex((card) => Math.abs(ptr.x - card.x) < 88 && Math.abs(ptr.y - card.y) < 86);
+      const hit = this.cards.findIndex((card) => Math.abs(ptr.x - card.x) < (this.cards.length === 4 ? 70 : 88) && Math.abs(ptr.y - card.y) < 86);
       if (hit < 0) return;
       this.sel = hit; this.highlight();
     }
@@ -70,6 +78,7 @@ export class PerkScene extends Phaser.Scene {
       const p = this.picks[this.sel];
       p.apply(run.stats);
       run.perks.push(p.id);
+      if (run.bonusCards > 0) run.bonusCards--;
       if (p.id === 'plating') run.hp = run.stats.maxHp;
       audio.sfx('weapon');
       this.tweens.add({ targets: this.cards[this.sel], scale: 1.3, alpha: 0, duration: 350 });

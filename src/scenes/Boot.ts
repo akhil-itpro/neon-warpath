@@ -98,6 +98,82 @@ export class BootScene extends Phaser.Scene {
     });
   }
 
+  // 48x48 comms/briefing portraits, drawn in one consistent pixel style (no art files needed).
+  // Keys: portrait_<operator id> and portrait_<speaker> (see src/data/story.ts).
+  private makePortraits(px: (c: CanvasRenderingContext2D, col: string, x: number, y: number, w?: number, h?: number) => void) {
+    type Look = { bg: string; rim: string; skin: string; shade: string; suit: string; suitD: string; eye: string };
+    const bust = (key: string, k: Look, extra: (c: CanvasRenderingContext2D) => void, wide = 0) => this.canvas(key, 48, 48, (c) => {
+      px(c, k.bg, 0, 0, 48, 48);
+      for (let y = 0; y < 48; y += 3) px(c, 'rgba(255,255,255,0.03)', 0, y, 48, 1);
+      px(c, k.rim, 0, 46, 48, 2);
+      // shoulders + neck + head
+      px(c, k.suit, 6 - wide, 38, 36 + wide * 2, 10); px(c, k.suit, 9 - wide, 36, 30 + wide * 2, 2); px(c, k.suitD, 6 - wide, 44, 36 + wide * 2, 2);
+      px(c, k.shade, 20, 30, 8, 7);
+      px(c, k.skin, 16, 11, 16, 21); px(c, k.skin, 15, 13, 18, 16); px(c, k.shade, 30, 13, 3, 16); px(c, k.shade, 17, 31, 14, 1);
+      px(c, '#10121a', 19, 20, 3, 2); px(c, '#10121a', 26, 20, 3, 2); px(c, k.eye, 20, 20, 1, 1); px(c, k.eye, 27, 20, 1, 1);
+      px(c, k.shade, 23, 23, 2, 3); px(c, k.shade, 21, 27, 6, 1);
+      extra(c);
+      px(c, '#000000', 0, 0, 48, 1); px(c, '#000000', 0, 0, 1, 48); px(c, '#000000', 47, 0, 1, 48);
+    });
+    bust('portrait_rook', { bg: '#101a26', rim: '#40e0ff', skin: '#c8906a', shade: '#9a6648', suit: '#3a4a3a', suitD: '#243024', eye: '#9fe8ff' }, (c) => {
+      px(c, '#1c1a1a', 15, 8, 18, 5); px(c, '#1c1a1a', 14, 11, 3, 6); px(c, '#1c1a1a', 31, 11, 3, 6);
+      px(c, '#6a5040', 18, 28, 12, 3);                                 // stubble
+      px(c, '#40e0ff', 13, 15, 2, 9); px(c, '#40e0ff', 13, 23, 6, 1); // headset
+      px(c, '#1a1e1a', 10, 40, 4, 8); px(c, '#1a1e1a', 34, 40, 4, 8); // vest straps
+    });
+    bust('portrait_viper', { bg: '#1e0e1a', rim: '#ff50c8', skin: '#e0b090', shade: '#b07a60', suit: '#8a1a5a', suitD: '#5a0e3a', eye: '#ff9ad0' }, (c) => {
+      px(c, '#0e0a14', 14, 7, 20, 7); px(c, '#0e0a14', 12, 10, 5, 30); px(c, '#0e0a14', 31, 10, 5, 30);
+      px(c, '#ff50c8', 15, 9, 2, 30);                                  // pink streak
+      px(c, '#c03060', 21, 27, 6, 1);
+    });
+    bust('portrait_titan', { bg: '#1e160c', rim: '#ff9a30', skin: '#7a5038', shade: '#5a3826', suit: '#a05a1a', suitD: '#6a3a10', eye: '#ffc070' }, (c) => {
+      px(c, '#5a3826', 15, 9, 18, 3);                                  // buzz cut
+      px(c, '#2a1e18', 16, 26, 16, 7); px(c, '#2a1e18', 15, 22, 2, 6); px(c, '#2a1e18', 31, 22, 2, 6); // beard
+      px(c, '#d08030', 2, 37, 10, 4); px(c, '#d08030', 36, 37, 10, 4); // armour plates
+    }, 4);
+    bust('portrait_juno', { bg: '#0c1a1e', rim: '#40e0c0', skin: '#e8c0a0', shade: '#b88a70', suit: '#1a6a6a', suitD: '#0e4444', eye: '#406080' }, (c) => {
+      px(c, '#9a3a20', 14, 8, 20, 6); px(c, '#9a3a20', 13, 11, 4, 18); px(c, '#9a3a20', 31, 11, 4, 18); px(c, '#c05a30', 16, 9, 8, 2);
+      px(c, '#e0f0ff', 18, 19, 5, 4); px(c, '#e0f0ff', 25, 19, 5, 4); px(c, '#10121a', 23, 20, 2, 1); // glasses
+      px(c, '#10121a', 19, 20, 3, 2); px(c, '#10121a', 26, 20, 3, 2);
+      px(c, '#202830', 33, 16, 2, 10); px(c, '#202830', 27, 27, 7, 1); px(c, '#40e0c0', 26, 27, 2, 1); // headset mic
+    });
+    bust('portrait_patch', { bg: '#1a1a10', rim: '#ffd040', skin: '#8a8a90', shade: '#606068', suit: '#3a5a8a', suitD: '#243a5a', eye: '#ffd040' }, (c) => {
+      px(c, '#505058', 14, 4, 6, 9); px(c, '#505058', 28, 4, 6, 9); px(c, '#d0a0a0', 16, 6, 2, 5); px(c, '#d0a0a0', 30, 6, 2, 5); // ears
+      px(c, '#18181e', 16, 18, 16, 6);                                 // bandit mask
+      px(c, '#ffd040', 20, 20, 2, 2); px(c, '#ffd040', 26, 20, 2, 2);
+      px(c, '#e8e8e8', 19, 24, 10, 7); px(c, '#18181e', 23, 24, 2, 2); // muzzle + nose
+      px(c, '#c0a040', 12, 40, 3, 3); px(c, '#c0a040', 33, 40, 3, 3);  // overall buttons
+    });
+    bust('portrait_croupier', { bg: '#180c1e', rim: '#ff80d0', skin: '#f0d8c8', shade: '#c0a090', suit: '#4a1a6a', suitD: '#2a0e40', eye: '#ffd040' }, (c) => {
+      px(c, '#101014', 13, 10, 22, 2); px(c, '#101014', 17, 0, 14, 10); px(c, '#ff80d0', 17, 7, 14, 1); // top hat
+      px(c, '#101014', 19, 25, 10, 2);                                 // moustache
+      px(c, '#ffffff', 20, 36, 8, 4); px(c, '#ff3080', 21, 37, 6, 2); // shirt + bow tie
+    });
+    this.canvas('portrait_oracle', 48, 48, (c) => {
+      px(c, '#140e1e', 0, 0, 48, 48);
+      px(c, '#3a2a5a', 8, 6, 32, 30); px(c, '#0a0812', 11, 9, 26, 24);
+      for (let y = 10; y < 32; y += 2) for (let x = 12; x < 36; x += 3) if (((x * 7 + y * 13) % 5) < 2) px(c, '#6a5a8a', x, y, 2, 1);
+      px(c, '#d0a0ff', 18, 17, 12, 8); px(c, '#ffffff', 21, 18, 6, 6); px(c, '#140e1e', 23, 19, 2, 4);
+      px(c, '#3a2a5a', 22, 36, 4, 6); px(c, '#3a2a5a', 12, 42, 24, 6); px(c, '#d0a0ff', 0, 46, 48, 2);
+    });
+    this.canvas('portrait_archon', 48, 48, (c) => {
+      px(c, '#0a0306', 0, 0, 48, 48);
+      c.strokeStyle = '#ff4060'; c.lineWidth = 2; c.beginPath(); c.arc(24, 24, 17, 0, 7); c.stroke();
+      c.lineWidth = 1; c.beginPath(); c.arc(24, 24, 11, 0, 7); c.stroke();
+      for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2; px(c, '#ff4060', Math.round(24 + Math.cos(a) * 21) - 1, Math.round(24 + Math.sin(a) * 21) - 1, 2, 2); }
+      px(c, '#ff8a40', 19, 19, 10, 10); px(c, '#fff4c0', 22, 22, 4, 4); px(c, '#0a0306', 23, 17, 2, 14);
+      for (let y = 1; y < 48; y += 3) px(c, 'rgba(0,0,0,0.35)', 0, y, 48, 1);
+    });
+    this.canvas('portrait_myrrhkin', 48, 48, (c) => {
+      px(c, '#0c0a16', 0, 0, 48, 48);
+      px(c, '#5a2a8a', 8, 10, 32, 12); px(c, '#5a2a8a', 12, 6, 24, 4); px(c, '#3a1a5a', 8, 20, 32, 2);
+      for (const [x, y] of [[14, 9], [24, 7], [31, 12], [18, 15]]) px(c, '#c0ff80', x, y, 3, 2);
+      px(c, '#d8c8b0', 18, 22, 12, 22); px(c, '#a89880', 26, 22, 4, 22);
+      px(c, '#b080ff', 20, 27, 3, 3); px(c, '#b080ff', 25, 27, 3, 3);
+      px(c, '#b080ff', 0, 46, 48, 2);
+    });
+  }
+
   private makeTextures() {
     const px = (c: CanvasRenderingContext2D, col: string, x: number, y: number, w = 1, h = 1) => { c.fillStyle = col; c.fillRect(x, y, w, h); };
 
@@ -157,6 +233,13 @@ export class BootScene extends Phaser.Scene {
     });
     this.makeStageTiles(px);
     this.makeAtmosphere();
+    this.makePortraits(px);
+    // data shard: a glowing diamond memory crystal
+    this.canvas('shard', 12, 16, (c) => {
+      const rows = [[5, 2], [4, 4], [3, 6], [2, 8], [1, 10], [0, 12], [0, 12], [1, 10], [2, 8], [3, 6], [3, 6], [4, 4], [4, 4], [5, 2], [5, 2], [5, 2]];
+      rows.forEach(([x, w], y) => { px(c, '#2a1050', x, y, w, 1); if (w > 2) px(c, y < 7 ? '#ff80c0' : '#c040ff', x + 1, y, w - 2, 1); });
+      px(c, '#ffffff', 4, 3, 2, 4); px(c, '#ffe0f0', 6, 2, 1, 2);
+    });
     this.canvas('lava', 32, 10, (c) => {
       px(c, '#fff0a0', 0, 0, 32, 2); px(c, '#ffb020', 0, 2, 32, 3); px(c, '#ff5a10', 0, 5, 32, 3); px(c, '#a01808', 0, 8, 32, 2);
       px(c, '#ffffff', 4, 0, 5, 1); px(c, '#ffffff', 19, 1, 6, 1); px(c, '#ffd040', 10, 4, 4, 1); px(c, '#ffd040', 25, 5, 4, 1);

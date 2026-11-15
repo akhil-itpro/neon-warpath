@@ -4,8 +4,11 @@
 //   - roamers:   enemies placed in the world [enemyId, x] that wake when the player gets close
 //   - encounters: when the player crosses `x` the camera locks and `waves` spawn one after another
 //   - boss:      final locked arena at the right end of the stage
+//   - shards:    data-shard collectibles [loreId, x, y] (lore text in src/data/story.ts)
+//   - variants:  story consequences; when `if` matches run.flags, extra waves / roamers are added
 // Enemy ids come from src/data/enemies.ts.
 import type { TrackDef } from '../systems/Audio';
+import type { Cond } from './story';
 
 export interface Encounter { x: number; waves: string[][] }
 
@@ -26,6 +29,8 @@ export interface StageDef {
   encounters: Encounter[];
   boss: string;
   bossIntro: string;
+  shards?: [string, number, number][];
+  variants?: { if: Cond; waves?: [number, string[]][]; roamers?: [string, number][] }[];
   music: TrackDef;
 }
 
@@ -44,6 +49,7 @@ export const STAGES: StageDef[] = [
       { x: 3150, waves: [['drone', 'drone', 'drone', 'gangster'], ['elite', 'trooper', 'trooper', 'jet']] },
     ],
     boss: 'vulture', bossIntro: 'SYNDICATE AIR SUPPORT INBOUND',
+    shards: [['city-1', 590, 240], ['city-2', 1360, 222], ['city-3', 3808, 165]],
     music: { bpm: 128, root: 40, bass: [0, 0, 12, 0, 0, 0, 10, 0, 0, 0, 12, 0, 3, 3, 5, 7], lead: [12, N, 15, N, 19, N, 15, 12, N, 10, N, 12, N, 15, N, N], prog: [0, 0, -4, -2] },
   },
   {
@@ -59,6 +65,7 @@ export const STAGES: StageDef[] = [
       { x: 3250, waves: [['vendotron', 'totem', 'totem', 'bell'], ['bastion', 'slug', 'drone', 'drone'], ['elite', 'vendotron', 'jet']] },
     ],
     boss: 'tyrant', bossIntro: 'THE HOUSE SENDS ITS CHAMPION',
+    shards: [['casino-1', 1300, 240], ['casino-2', 1580, 222], ['casino-3', 1808, 165]],
     music: { bpm: 124, root: 43, bass: [0, 12, 0, 12, 3, 15, 0, 12, 5, 17, 0, 12, 7, 19, 10, 22], lead: [12, N, 12, 15, N, 12, 19, N, 17, N, 15, 12, N, 10, 12, N], prog: [0, 0, 5, 3] },
   },
   {
@@ -73,6 +80,8 @@ export const STAGES: StageDef[] = [
       { x: 4600, waves: [['zombie', 'zombie', 'zombie', 'zombie', 'zombie', 'zombie'], ['elite', 'demon', 'demon']] },
     ],
     boss: 'warden', bossIntro: 'THE FOUNDRY DEFENDS ITSELF',
+    shards: [['furnace-1', 948, 218], ['furnace-2', 1088, 160], ['furnace-3', 2728, 160]],
+    variants: [{ if: { ledger: 'leak' }, waves: [[0, ['gangster', 'gangster', 'gangster', 'elite']]], roamers: [['gangster', 2200], ['gangster', 2260]] }],
     music: { bpm: 140, root: 38, bass: [0, 0, 0, 12, 0, 0, 3, 0, 0, 0, 0, 12, 0, 7, 6, 3], lead: [12, 15, N, 12, 18, N, 15, N, 12, 15, N, 12, 19, N, 18, N], prog: [0, 0, 3, -2] },
   },
   {
@@ -88,6 +97,7 @@ export const STAGES: StageDef[] = [
       { x: 4620, waves: [['moth', 'moth', 'spiderling', 'spiderling', 'spiderling', 'spiderling'], ['bellower', 'sporeback', 'sporeback', 'moth']] },
     ],
     boss: 'widow', bossIntro: 'THE NEST IS AWAKE',
+    shards: [['fungal-1', 988, 218], ['fungal-2', 1138, 160], ['fungal-3', 2788, 160]],
     music: { bpm: 112, root: 36, bass: [0, N, 0, 3, N, 0, 7, N, 0, N, 0, 3, N, 6, 5, 3], lead: [N, 12, N, 15, 13, N, 12, N, N, 18, N, 15, 13, N, 12, N], prog: [0, 1, 0, -2] },
   },
   {
@@ -103,6 +113,7 @@ export const STAGES: StageDef[] = [
       { x: 4060, waves: [['deepjaw', 'deepjaw', 'deepjaw', 'bell', 'bell'], ['bastion', 'hound', 'hound', 'jelly', 'jelly'], ['sawcrab', 'deepjaw', 'deepjaw', 'jet']] },
     ],
     boss: 'queen', bossIntro: 'PRESSURE ALARM - SOMETHING IS INSIDE',
+    shards: [['abyss-1', 1000, 240], ['abyss-2', 1508, 165], ['abyss-3', 3604, 165]],
     music: { bpm: 118, root: 35, bass: [0, 0, N, 0, 0, N, 7, 0, 0, 0, N, 0, 8, N, 7, 5], lead: [12, N, N, 19, N, 15, N, 14, 12, N, N, 20, N, 19, 15, N], prog: [0, -4, -2, 0] },
   },
   {
@@ -118,6 +129,7 @@ export const STAGES: StageDef[] = [
       { x: 4060, waves: [['mantis', 'mantis', 'mantis', 'bell', 'alien'], ['knight', 'sniper', 'sniper', 'moth', 'jet'], ['knight', 'bastion', 'elite', 'kamikaze', 'kamikaze']] },
     ],
     boss: 'oracle', bossIntro: 'THE ORACLE HAS SEEN YOUR DEATH',
+    shards: [['orbital-1', 980, 240], ['orbital-2', 1468, 165], ['orbital-3', 3564, 165]],
     music: { bpm: 144, root: 39, bass: [0, 0, 12, 0, 7, 0, 12, 0, 0, 0, 12, 0, 8, 8, 7, 5], lead: [19, N, 15, N, 12, 15, N, 19, 20, N, 19, N, 15, 12, N, 14], prog: [0, -4, 3, -2] },
   },
   {
@@ -132,6 +144,7 @@ export const STAGES: StageDef[] = [
       { x: 4000, waves: [['elite', 'elite', 'drone', 'drone'], ['demon', 'demon', 'alien', 'alien', 'jet'], ['brute', 'elite', 'kamikaze', 'kamikaze', 'kamikaze']] },
     ],
     boss: 'archon', bossIntro: 'ARCHON IS AWAKE',
+    shards: [['cathedral-1', 980, 240], ['cathedral-2', 1448, 165], ['cathedral-3', 3544, 165]],
     music: { bpm: 150, root: 37, bass: [0, 12, 0, 12, 0, 12, 1, 13, 0, 12, 0, 12, 5, 17, 3, 15], lead: [12, N, 13, N, 12, N, 17, 15, N, 13, N, 12, N, 8, 10, N], prog: [0, 0, 1, -2] },
   },
 ];

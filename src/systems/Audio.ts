@@ -118,6 +118,10 @@ class AudioSys {
       case 'clear': [0, 4, 7, 12, 16].forEach((n, i) => this.tone('square', midi(64 + n), midi(64 + n), 0.2, 0.2, this.sfxBus, this.ctx!.currentTime + i * 0.09)); break;
       case 'combo': this.tone('triangle', 880 * r, 1760, 0.1, 0.2); break;
       case 'blink': this.tone('sine', 1500, 240, 0.16, 0.22); break;
+      case 'radio': this.noise(0.06, 0.18, 3000, 1500, 'bandpass'); this.tone('square', 1320, 1320, 0.05, 0.1); break;
+      case 'static': this.noise(0.28, 0.3, 6000, 800, 'bandpass'); this.tone('sawtooth', 90, 60, 0.2, 0.15); break;
+      case 'type': this.tone('square', 900 * r, 900 * r, 0.015, 0.05); break;
+      case 'shard': [0, 7, 12, 19].forEach((n, i) => this.tone('triangle', midi(76 + n), midi(76 + n), 0.18, 0.18, this.sfxBus, this.ctx!.currentTime + i * 0.06)); break;
     }
   }
 

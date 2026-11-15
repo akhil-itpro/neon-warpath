@@ -10,10 +10,13 @@ import { Fx } from '../systems/Fx';
 import { Player } from '../entities/Player';
 import { Enemy } from '../entities/Enemy';
 import { Shot } from '../entities/Shot';
+import { STORY, type Line } from '../data/story';
+import { condOk, filterLines } from '../systems/Story';
 import type { HudScene } from './Hud';
 
 const R = Phaser.Math;
 type Pickup = Phaser.Physics.Arcade.Image & { kind: string; wid?: string; age: number; taken?: boolean; glow?: Phaser.GameObjects.Image };
+type Shard = { id: string; img: Phaser.GameObjects.Image; glow: Phaser.GameObjects.Image; y0: number };
 type ShotOpts = { tex?: string; color?: number; gravity?: boolean; blast?: number; life?: number; scale?: number };
 
 // The whole stage: world building, combat rules, encounters, scoring.
@@ -50,15 +53,26 @@ export class GameScene extends Phaser.Scene {
   private locked = false;
   private wave = 0;
   private waveGap = 0;
+  private shards: Shard[] = [];
+  private xTriggers: number[] = [];
+  private seeIds = new Set<string>();
+  private seeT = 0;
+  private bossHalf = false;
 
   constructor() { super('Game'); }
 
   private get hud() { return this.scene.get('Hud') as HudScene; }
   banner(text: string, ms = 1600, color = '#ffffff') { this.hud.banner?.(text, ms, color); }
 
-  create() {
+  create(data?: { retry?: boolean }) {
     const st = (this.stage = STAGES[run.stage]);
-    this.enemies = []; this.pickups = []; this.flows = []; this.fogs = [];
+    this.enemies = []; this.pickups = []; this.flows = []; this.fogs = []; this.shards = [];
+    this.bossHalf = false; this.seeT = 0;
+    if (run.checkpoint === 0 && !data?.retry) run.eggsShot = 0;
+    if (st.id === 'fungal') run.flags.nest_truce = run.eggsShot < 3;
+    const comms = STORY[st.id]?.comms ?? [];
+    this.xTriggers = comms.filter((c) => c.on.startsWith('x:')).map((c) => Number(c.on.slice(2)));
+    this.seeIds = new Set(comms.filter((c) => c.on.startsWith('see:')).map((c) => c.on.slice(4)));
     this.state = 'play'; this.combo = 0; this.comboT = 0; this.mult = 1;
     this.aim = null;
     this.boss = null; this.bossActive = false; this.locked = false; this.canRetry = false;
@@ -136,11 +150,23 @@ export class GameScene extends Phaser.Scene {
     this.player = new Player(this, run.checkpointX, GROUND_Y - 1);
     this.bounds = { left: 0, right: st.width };
 
-    this.encounters = [...st.encounters, { x: st.width - 430, waves: [], boss: true }];
+    // story consequences (StageDef.variants) add waves / roamers when their flag condition holds
+    const variants = (st.variants ?? []).filter((v) => condOk(v.if));
+    const encs = st.encounters.map((e) => ({ ...e, waves: [...e.waves] }));
+    for (const v of variants) for (const [i, wave] of v.waves ?? []) encs[i]?.waves.unshift(wave);
+    this.encounters = [...encs, { x: st.width - 430, waves: [], boss: true }];
     this.encIndex = run.checkpoint;
-    for (const [id, x] of st.roamers) {
+    for (const [id, x] of [...st.roamers, ...variants.flatMap((v) => v.roamers ?? [])]) {
       if (x < run.checkpointX + 260 && run.checkpoint > 0) continue; // already fought on a previous attempt
       this.spawnEnemy(id, x, ENEMIES[id].flying ? 150 : GROUND_Y - (id === 'crate' ? 0 : 0), '');
+    }
+
+    // ---- data shards (collected ones stay collected through retries)
+    for (const [id, x, y] of st.shards ?? []) {
+      if (run.shards.includes(id)) continue;
+      const glow = this.add.image(x, y, 'glow').setBlendMode(Phaser.BlendModes.ADD).setTint(0xff60d0).setScale(0.8).setAlpha(0.7).setDepth(DEPTH.shot - 1);
+      const img = this.add.image(x, y, 'shard').setDepth(DEPTH.shot);
+      this.shards.push({ id, img, glow, y0: y });
     }
 
     // ---- collisions
@@ -175,6 +201,52 @@ export class GameScene extends Phaser.Scene {
       if (run.checkpoint === 0) this.hud.stageIntro?.(`STAGE ${run.stage + 1}`, st.name, st.tagline);
       else this.banner('CHECKPOINT', 1200, '#80ffb0');
     });
+    this.time.delayedCall(data?.retry ? 1200 : 2900, () => { this.comm('start'); if (data?.retry) this.comm('death'); });
+  }
+
+  /** Plays a story comms trigger once per run (radio overlay in the HUD; never pauses play). */
+  comm(trigger: string) {
+    if (this.state === 'dead') return;
+    const global = trigger === 'shard'; // the first shard of the run, whichever stage it is in
+    const key = global ? trigger : `${this.stage.id}:${trigger}`;
+    if (run.heard.includes(key)) return;
+    const src = global ? STORY.city : STORY[this.stage.id];
+    const lines: Line[] = (src?.comms ?? []).filter((c) => c.on === trigger).flatMap((c) => filterLines(c.lines));
+    if (!lines.length) return;
+    run.heard.push(key);
+    this.hud.comms?.(lines);
+  }
+
+  private tickStory(dt: number) {
+    const p = this.player;
+    for (const x of this.xTriggers) if (p.x >= x) this.comm(`x:${x}`);
+    if (this.seeIds.size && (this.seeT -= dt) <= 0) {
+      this.seeT = 200;
+      const cx = this.cameras.main.midPoint.x;
+      for (const e of this.enemies) if (!e.dead && this.seeIds.has(e.def.id) && Math.abs(e.x - cx) < 300) { this.seeIds.delete(e.def.id); this.comm(`see:${e.def.id}`); }
+    }
+    const b = this.boss;
+    if (b && !b.dead && !this.bossHalf && b.hp < b.maxHp * 0.5) { this.bossHalf = true; this.comm('boss50'); }
+    // shards: bob, and collect when the player's body touches one
+    for (const sh of this.shards) {
+      if (!sh.img.visible) continue;
+      const y = sh.y0 + Math.sin(this.time.now / 300 + sh.y0) * 3;
+      sh.img.setY(y); sh.glow.setY(y).setScale(0.75 + Math.sin(this.time.now / 160) * 0.08);
+      if (!p.dead && Math.abs(p.x - sh.img.x) < 16 && y > p.body.top - 6 && y < p.body.bottom + 6) this.takeShard(sh);
+    }
+  }
+
+  private takeShard(sh: Shard) {
+    sh.img.setVisible(false); sh.glow.setVisible(false);
+    run.shards.push(sh.id);
+    if (!save.archive.includes(sh.id)) { save.archive.push(sh.id); persist(); }
+    const got = (this.stage.shards ?? []).filter(([id]) => run.shards.includes(id)).length;
+    this.fx.ring(sh.img.x, sh.img.y, 0xff60d0, 1.4);
+    this.fx.popup(sh.img.x, sh.img.y - 20, `DATA SHARD ${got}/${this.stage.shards?.length ?? 3}`, '#ff90e0');
+    this.addScore(1000, sh.img.x, sh.img.y - 34);
+    audio.sfx('shard');
+    this.hud.shardGot?.();
+    this.comm('shard');
   }
 
   private makeWeather(st: StageDef) {
@@ -223,6 +295,7 @@ export class GameScene extends Phaser.Scene {
     this.stageTime += dt;
     if (this.comboT > 0) { this.comboT -= dt; if (this.comboT <= 0) { this.combo = 0; this.mult = 1; } }
     this.tickEncounter(dt);
+    this.tickStory(dt);
   }
 
   private tickShots() {
@@ -250,6 +323,7 @@ export class GameScene extends Phaser.Scene {
       } else {
         this.banner('HOSTILES INBOUND', 1100, '#ff6050');
         audio.sfx('warn');
+        this.comm(`enc:${this.encIndex}`);
       }
       return;
     }
@@ -265,6 +339,7 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     // cleared
+    this.comm(`clear:${this.encIndex}`);
     this.locked = false;
     this.encIndex++;
     run.checkpoint = this.encIndex;
@@ -299,6 +374,11 @@ export class GameScene extends Phaser.Scene {
     const b = this.spawnEnemy(id, x, y, 'enc');
     b.arena = { left, right, cx: (left + right) / 2 };
     this.boss = b;
+    this.comm('boss');
+    // FUNGAL nest choice-by-action: burn enough eggs and the hive sends its young after you
+    if (this.stage.id === 'fungal' && !run.flags.nest_truce) {
+      for (let i = 0; i < 4; i++) this.spawnEnemy('spiderling', i % 2 ? left - 30 - i * 20 : right + 30 + i * 20, GROUND_Y, 'add').awake = true;
+    }
     if (id === 'warden') this.time.delayedCall(620, () => { this.fx.shake(9); this.fx.dustPuff(b.x, GROUND_Y, 24); audio.sfx('explode'); });
   }
 
@@ -498,13 +578,17 @@ export class GameScene extends Phaser.Scene {
     run.hp = run.stats.maxHp;
     run.weapon = run.op.weapon;
     run.ammo = 0;
-    this.scene.restart();
+    this.scene.restart({ retry: true });
   }
 
   killEnemy(e: Enemy, byPlayer = true) {
     if (e.dead) return;
     const d = e.def;
     if (d.boss) return this.bossDeath(e);
+    if (d.ai === 'egg' && byPlayer) {
+      run.eggsShot++;
+      if (this.stage.id === 'fungal') run.flags.nest_truce = run.eggsShot < 3;
+    }
     this.corpse(e, byPlayer);
     this.removeEnemy(e);
     const x = e.x, y = e.cy;
@@ -571,6 +655,8 @@ export class GameScene extends Phaser.Scene {
     this.state = 'clear';
     this.bossActive = false;
     audio.playMusic(null);
+    this.comm('bossdown');
+    if (this.stage.id === 'fungal') run.choices.push(run.flags.nest_truce ? 'YOU SPARED THE MYRRHKIN NEST.' : 'YOU BURNED THE MYRRHKIN NEST.');
     for (const e of this.enemies) if (e !== b && !e.dead) { this.fx.explosion(e.x, e.cy, 22); this.removeEnemy(e); }
     for (const s of this.eShots.getChildren() as Shot[]) if (s.active) { this.fx.spark(s.x, s.y, 0xffffff, 2); s.kill(); }
     this.fx.hitstop(180);
@@ -607,7 +693,7 @@ export class GameScene extends Phaser.Scene {
       this.cameras.main.fadeOut(400);
       this.time.delayedCall(420, () => {
         this.scene.stop('Hud');
-        if (run.stage >= STAGES.length) this.scene.start('End'); else this.scene.start('Perk');
+        if (run.stage >= STAGES.length) this.scene.start('End'); else this.scene.start('Briefing', { next: 'Perk' });
       });
     });
   }

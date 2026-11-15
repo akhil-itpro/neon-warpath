@@ -5,6 +5,7 @@ import { newRun, save, persist } from '../systems/Run';
 import { audio } from '../systems/Audio';
 import { Controls } from '../systems/Controls';
 import { CharacterRig } from '../systems/CharacterRig';
+import { LORE } from '../data/story';
 
 export class TitleScene extends Phaser.Scene {
   private bg!: Phaser.GameObjects.TileSprite;
@@ -47,8 +48,19 @@ export class TitleScene extends Phaser.Scene {
     const press = this.txt(W / 2, 322, 'CLICK OR PRESS ENTER TO DEPLOY', 8);
     this.tweens.add({ targets: press, alpha: 0.15, duration: 500, yoyo: true, repeat: -1 });
     this.txt(W / 2, 344, 'A/D MOVE  SPACE JUMP  MOUSE AIM + FIRE  SHIFT SLIDE  Q OVERDRIVE', 8, '#70788c').setScale(0.75);
+    // ARCHIVE: lore unlocked by data shards (Tab or click)
+    const arch = this.add.text(8, 8, `ARCHIVE [TAB]  ${save.archive.length}/${LORE.length}`, { fontFamily: FONT, fontSize: '8px', color: '#ff90e0', stroke: '#000', strokeThickness: 3 }).setInteractive({ useHandCursor: true });
+    arch.on('pointerdown', () => this.openArchive());
+    this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.TAB).on('down', () => this.openArchive());
     if (save.best > 0) this.add.text(W - 8, 8, `BEST ${save.best}`, { fontFamily: FONT, fontSize: '8px', color: '#ffd040', stroke: '#000', strokeThickness: 3 }).setOrigin(1, 0);
     this.cameras.main.fadeIn(400);
+  }
+
+  private openArchive() {
+    if (this.started) return;
+    this.started = true;
+    audio.unlock(); audio.sfx('ui');
+    this.scene.start('Archive');
   }
 
   private refresh() {
@@ -75,6 +87,7 @@ export class TitleScene extends Phaser.Scene {
     // clicking beside the operator browses; clicking anywhere else deploys
     const ptr = c.pointer;
     const sideClick = c.pressed('fire') && ptr.isDown && Math.abs(ptr.x - W / 2) > 70 && ptr.y > 110 && ptr.y < 300;
+    if (c.pressed('fire') && ptr.isDown && ptr.y < 24 && ptr.x < 200) return; // the ARCHIVE link handles this click
     if (sideClick) move = ptr.x < W / 2 ? -1 : 1;
     if (move) {
       audio.unlock();
@@ -89,7 +102,7 @@ export class TitleScene extends Phaser.Scene {
       save.op = this.sel; persist();
       newRun(this.sel);
       this.cameras.main.fadeOut(350);
-      this.time.delayedCall(360, () => this.scene.start('Game'));
+      this.time.delayedCall(360, () => this.scene.start('Briefing', { next: 'Game' }));
     }
   }
 
