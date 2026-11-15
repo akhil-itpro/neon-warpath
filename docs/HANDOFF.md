@@ -2,6 +2,27 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
+## Session 9 - 2026-11-15 (Codex, requested species library - parked)
+
+### Scope and current priority
+- Owner explicitly followed the Frontier pack request with "more species different species as well involve them". Completed a separate art/bestiary library. While this ran, Claude committed Session 8's mouse-aim fixes and quality audit. **Session 8's city-quality priority and integration freeze remain in force: do not integrate this species pack yet.** No live assets, enemy/operator registries or scene code were changed here.
+
+### Completed
+- **Twelve original fictional species**, each with a four-frame hostile-variant movement sheet: Varkesh (reptilian), Corvane (avian), Kharrix (insectoid), Ferrivor (segmented rust-eater), Nacreth (shell cephalopod), Cirrid (gas colony), Myrrhkin (fungal), Thren (plant), Vitreon (crystalline tripod), Lithurn (stone quadruped), Geliform (gel colony), Asterid (cosmic echinoderm).
+- Two nonhuman operator designs within those species: **SERRIK** (Varkesh) and **QUILL** (Corvane), each with run x4, idle, jump, slide and crouch on the existing 96x72 canvas. These are the same forward-aim eight-pose contract as existing art, not Session 8's proposed separate gun-arm rebuild. Do not substitute them into that rebuild as finished assets.
+- Two related boss forms: **NACRETH TIDE SOVEREIGN** and **VITREON PRISM REGENT**, each with idle, windup, attack and exposed-state art. Their signature attack code is not implemented.
+- **72 transparent game-sized PNG frames**, 72 unoutlined source-resolution masters, twelve labeled PNG boards and sixteen GIF previews. Browse **`art/library/species/README.md`** or **`art/library/species/previews/bestiary.png`**. Exact paths/sizes/origins/bounds: `art/library/species/inventory.json`.
+- Ten immutable original generated sheets and exact built-in image_gen prompts: `art/source/species/manifest.json`. Rebuild this pack only: `python -B tools/process_species.py`. It writes solely to `art/library/species`, reusing existing pipeline helpers. Quill uses silhouette extraction to preserve a slide foot that crosses a nominal source grid gutter.
+- **`src/data/speciesPack.ts`** contains the twelve-species ecology/roles/counterplay bestiary, twelve typed EnemyDef proposals, two typed OperatorDef proposals, measured operator muzzle offsets, species palettes for all seven existing stages and boss briefs. No live module imports it. Allied/neutral roles and species-specific boss attacks are proposals, not implemented mechanics.
+
+### Verified / limits
+- Visually inspected all ten generated sources and all twelve processed PNG boards. Validated 72 unique frames, twelve species ids, all inventory/source/master paths, canvas sizes, binary alpha, empty borders, origins, one shared scale per animation group, README links and sixteen four-frame GIFs. `npm.cmd run check` passes after Claude's mouse-aim commit.
+- Art-only staging: no gameplay smoke run or balance claim. Normal-health combat, in-engine body/muzzle alignment, animation continuity and new boss timing remain unverified. Some strides are similar and centered hover silhouettes can bob. Nacreth boss shell/organ position shifts across states, requiring per-state anchor measurement.
+- Generic `flyer` currently does not advance a four-frame cycle; Cirrid/Asterid will need an animation call when integrated. Existing rusher/lobber warning durations are behaviour constants, not overridden by these proposals. Do not assume artwork or unused data implements new mechanics.
+
+### Next
+- Follow **Session 8**, starting with the ROOK body/separate-arm rebuild and city-only polish. Keep the species library parked for later, then select a few coherent species rather than adding the entire roster at once. The library README contains the future integration sequence and focused verification needs.
+
 ## Session 8 - 2026-11-15 (Claude Code, owner playtest feedback + quality audit) — READ THIS FIRST
 
 ### Owner feedback (first real human playtest)

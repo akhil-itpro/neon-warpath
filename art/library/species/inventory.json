@@ -1,0 +1,2018 @@
+[
+  {
+    "key": "sp_varkesh_0",
+    "kind": "enemy_sheet",
+    "group": "varkesh",
+    "species": "varkesh",
+    "frameIndex": 0,
+    "image": "sprites/sp_varkesh_0.png",
+    "master": "masters/sp_varkesh_0.png",
+    "size": [
+      112,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      18,
+      8,
+      93,
+      78
+    ],
+    "sourceScale": 0.190476,
+    "facing": "left",
+    "source": "art/source/species/species_sapients.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_varkesh_1",
+    "kind": "enemy_sheet",
+    "group": "varkesh",
+    "species": "varkesh",
+    "frameIndex": 1,
+    "image": "sprites/sp_varkesh_1.png",
+    "master": "masters/sp_varkesh_1.png",
+    "size": [
+      112,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      18,
+      8,
+      93,
+      78
+    ],
+    "sourceScale": 0.190476,
+    "facing": "left",
+    "source": "art/source/species/species_sapients.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_varkesh_2",
+    "kind": "enemy_sheet",
+    "group": "varkesh",
+    "species": "varkesh",
+    "frameIndex": 2,
+    "image": "sprites/sp_varkesh_2.png",
+    "master": "masters/sp_varkesh_2.png",
+    "size": [
+      112,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      18,
+      8,
+      94,
+      78
+    ],
+    "sourceScale": 0.190476,
+    "facing": "left",
+    "source": "art/source/species/species_sapients.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_varkesh_3",
+    "kind": "enemy_sheet",
+    "group": "varkesh",
+    "species": "varkesh",
+    "frameIndex": 3,
+    "image": "sprites/sp_varkesh_3.png",
+    "master": "masters/sp_varkesh_3.png",
+    "size": [
+      112,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      18,
+      8,
+      93,
+      78
+    ],
+    "sourceScale": 0.190476,
+    "facing": "left",
+    "source": "art/source/species/species_sapients.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_corvane_0",
+    "kind": "enemy_sheet",
+    "group": "corvane",
+    "species": "corvane",
+    "frameIndex": 0,
+    "image": "sprites/sp_corvane_0.png",
+    "master": "masters/sp_corvane_0.png",
+    "size": [
+      96,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      14,
+      8,
+      82,
+      78
+    ],
+    "sourceScale": 0.190476,
+    "facing": "left",
+    "source": "art/source/species/species_sapients.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_corvane_1",
+    "kind": "enemy_sheet",
+    "group": "corvane",
+    "species": "corvane",
+    "frameIndex": 1,
+    "image": "sprites/sp_corvane_1.png",
+    "master": "masters/sp_corvane_1.png",
+    "size": [
+      96,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      13,
+      8,
+      82,
+      78
+    ],
+    "sourceScale": 0.190476,
+    "facing": "left",
+    "source": "art/source/species/species_sapients.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_corvane_2",
+    "kind": "enemy_sheet",
+    "group": "corvane",
+    "species": "corvane",
+    "frameIndex": 2,
+    "image": "sprites/sp_corvane_2.png",
+    "master": "masters/sp_corvane_2.png",
+    "size": [
+      96,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      12,
+      8,
+      83,
+      78
+    ],
+    "sourceScale": 0.190476,
+    "facing": "left",
+    "source": "art/source/species/species_sapients.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_corvane_3",
+    "kind": "enemy_sheet",
+    "group": "corvane",
+    "species": "corvane",
+    "frameIndex": 3,
+    "image": "sprites/sp_corvane_3.png",
+    "master": "masters/sp_corvane_3.png",
+    "size": [
+      96,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      13,
+      8,
+      82,
+      78
+    ],
+    "sourceScale": 0.190476,
+    "facing": "left",
+    "source": "art/source/species/species_sapients.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_kharrix_0",
+    "kind": "enemy_sheet",
+    "group": "kharrix",
+    "species": "kharrix",
+    "frameIndex": 0,
+    "image": "sprites/sp_kharrix_0.png",
+    "master": "masters/sp_kharrix_0.png",
+    "size": [
+      112,
+      64
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      5,
+      12,
+      107,
+      62
+    ],
+    "sourceScale": 0.274286,
+    "facing": "left",
+    "source": "art/source/species/species_crawlers.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_kharrix_1",
+    "kind": "enemy_sheet",
+    "group": "kharrix",
+    "species": "kharrix",
+    "frameIndex": 1,
+    "image": "sprites/sp_kharrix_1.png",
+    "master": "masters/sp_kharrix_1.png",
+    "size": [
+      112,
+      64
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      6,
+      12,
+      105,
+      62
+    ],
+    "sourceScale": 0.274286,
+    "facing": "left",
+    "source": "art/source/species/species_crawlers.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_kharrix_2",
+    "kind": "enemy_sheet",
+    "group": "kharrix",
+    "species": "kharrix",
+    "frameIndex": 2,
+    "image": "sprites/sp_kharrix_2.png",
+    "master": "masters/sp_kharrix_2.png",
+    "size": [
+      112,
+      64
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      6,
+      11,
+      105,
+      62
+    ],
+    "sourceScale": 0.274286,
+    "facing": "left",
+    "source": "art/source/species/species_crawlers.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_kharrix_3",
+    "kind": "enemy_sheet",
+    "group": "kharrix",
+    "species": "kharrix",
+    "frameIndex": 3,
+    "image": "sprites/sp_kharrix_3.png",
+    "master": "masters/sp_kharrix_3.png",
+    "size": [
+      112,
+      64
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      6,
+      12,
+      105,
+      62
+    ],
+    "sourceScale": 0.274286,
+    "facing": "left",
+    "source": "art/source/species/species_crawlers.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_ferrivor_0",
+    "kind": "enemy_sheet",
+    "group": "ferrivor",
+    "species": "ferrivor",
+    "frameIndex": 0,
+    "image": "sprites/sp_ferrivor_0.png",
+    "master": "masters/sp_ferrivor_0.png",
+    "size": [
+      128,
+      56
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      2,
+      19,
+      126,
+      54
+    ],
+    "sourceScale": 0.328841,
+    "facing": "left",
+    "source": "art/source/species/species_crawlers.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_ferrivor_1",
+    "kind": "enemy_sheet",
+    "group": "ferrivor",
+    "species": "ferrivor",
+    "frameIndex": 1,
+    "image": "sprites/sp_ferrivor_1.png",
+    "master": "masters/sp_ferrivor_1.png",
+    "size": [
+      128,
+      56
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      4,
+      18,
+      123,
+      54
+    ],
+    "sourceScale": 0.328841,
+    "facing": "left",
+    "source": "art/source/species/species_crawlers.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_ferrivor_2",
+    "kind": "enemy_sheet",
+    "group": "ferrivor",
+    "species": "ferrivor",
+    "frameIndex": 2,
+    "image": "sprites/sp_ferrivor_2.png",
+    "master": "masters/sp_ferrivor_2.png",
+    "size": [
+      128,
+      56
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      2,
+      18,
+      125,
+      54
+    ],
+    "sourceScale": 0.328841,
+    "facing": "left",
+    "source": "art/source/species/species_crawlers.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_ferrivor_3",
+    "kind": "enemy_sheet",
+    "group": "ferrivor",
+    "species": "ferrivor",
+    "frameIndex": 3,
+    "image": "sprites/sp_ferrivor_3.png",
+    "master": "masters/sp_ferrivor_3.png",
+    "size": [
+      128,
+      56
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      2,
+      18,
+      126,
+      54
+    ],
+    "sourceScale": 0.328841,
+    "facing": "left",
+    "source": "art/source/species/species_crawlers.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_nacreth_0",
+    "kind": "enemy_sheet",
+    "group": "nacreth",
+    "species": "nacreth",
+    "frameIndex": 0,
+    "image": "sprites/sp_nacreth_0.png",
+    "master": "masters/sp_nacreth_0.png",
+    "size": [
+      96,
+      88
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      9,
+      7,
+      86,
+      81
+    ],
+    "sourceScale": 0.250871,
+    "facing": "left",
+    "source": "art/source/species/species_floaters.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_nacreth_1",
+    "kind": "enemy_sheet",
+    "group": "nacreth",
+    "species": "nacreth",
+    "frameIndex": 1,
+    "image": "sprites/sp_nacreth_1.png",
+    "master": "masters/sp_nacreth_1.png",
+    "size": [
+      96,
+      88
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      5,
+      6,
+      91,
+      82
+    ],
+    "sourceScale": 0.250871,
+    "facing": "left",
+    "source": "art/source/species/species_floaters.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_nacreth_2",
+    "kind": "enemy_sheet",
+    "group": "nacreth",
+    "species": "nacreth",
+    "frameIndex": 2,
+    "image": "sprites/sp_nacreth_2.png",
+    "master": "masters/sp_nacreth_2.png",
+    "size": [
+      96,
+      88
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      3,
+      3,
+      93,
+      84
+    ],
+    "sourceScale": 0.250871,
+    "facing": "left",
+    "source": "art/source/species/species_floaters.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_nacreth_3",
+    "kind": "enemy_sheet",
+    "group": "nacreth",
+    "species": "nacreth",
+    "frameIndex": 3,
+    "image": "sprites/sp_nacreth_3.png",
+    "master": "masters/sp_nacreth_3.png",
+    "size": [
+      96,
+      88
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      8,
+      7,
+      88,
+      81
+    ],
+    "sourceScale": 0.250871,
+    "facing": "left",
+    "source": "art/source/species/species_floaters.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_cirrid_0",
+    "kind": "enemy_sheet",
+    "group": "cirrid",
+    "species": "cirrid",
+    "frameIndex": 0,
+    "image": "sprites/sp_cirrid_0.png",
+    "master": "masters/sp_cirrid_0.png",
+    "size": [
+      88,
+      80
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      10,
+      7,
+      78,
+      73
+    ],
+    "sourceScale": 0.196923,
+    "facing": "left",
+    "source": "art/source/species/species_floaters.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_cirrid_1",
+    "kind": "enemy_sheet",
+    "group": "cirrid",
+    "species": "cirrid",
+    "frameIndex": 1,
+    "image": "sprites/sp_cirrid_1.png",
+    "master": "masters/sp_cirrid_1.png",
+    "size": [
+      88,
+      80
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      10,
+      5,
+      78,
+      74
+    ],
+    "sourceScale": 0.196923,
+    "facing": "left",
+    "source": "art/source/species/species_floaters.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_cirrid_2",
+    "kind": "enemy_sheet",
+    "group": "cirrid",
+    "species": "cirrid",
+    "frameIndex": 2,
+    "image": "sprites/sp_cirrid_2.png",
+    "master": "masters/sp_cirrid_2.png",
+    "size": [
+      88,
+      80
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      7,
+      4,
+      81,
+      75
+    ],
+    "sourceScale": 0.196923,
+    "facing": "left",
+    "source": "art/source/species/species_floaters.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_cirrid_3",
+    "kind": "enemy_sheet",
+    "group": "cirrid",
+    "species": "cirrid",
+    "frameIndex": 3,
+    "image": "sprites/sp_cirrid_3.png",
+    "master": "masters/sp_cirrid_3.png",
+    "size": [
+      88,
+      80
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      10,
+      7,
+      78,
+      73
+    ],
+    "sourceScale": 0.196923,
+    "facing": "left",
+    "source": "art/source/species/species_floaters.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_myrrhkin_0",
+    "kind": "enemy_sheet",
+    "group": "myrrhkin",
+    "species": "myrrhkin",
+    "frameIndex": 0,
+    "image": "sprites/sp_myrrhkin_0.png",
+    "master": "masters/sp_myrrhkin_0.png",
+    "size": [
+      104,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      14,
+      12,
+      90,
+      70
+    ],
+    "sourceScale": 0.202166,
+    "facing": "left",
+    "source": "art/source/species/species_garden.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_myrrhkin_1",
+    "kind": "enemy_sheet",
+    "group": "myrrhkin",
+    "species": "myrrhkin",
+    "frameIndex": 1,
+    "image": "sprites/sp_myrrhkin_1.png",
+    "master": "masters/sp_myrrhkin_1.png",
+    "size": [
+      104,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      14,
+      11,
+      90,
+      70
+    ],
+    "sourceScale": 0.202166,
+    "facing": "left",
+    "source": "art/source/species/species_garden.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_myrrhkin_2",
+    "kind": "enemy_sheet",
+    "group": "myrrhkin",
+    "species": "myrrhkin",
+    "frameIndex": 2,
+    "image": "sprites/sp_myrrhkin_2.png",
+    "master": "masters/sp_myrrhkin_2.png",
+    "size": [
+      104,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      14,
+      11,
+      90,
+      70
+    ],
+    "sourceScale": 0.202166,
+    "facing": "left",
+    "source": "art/source/species/species_garden.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_myrrhkin_3",
+    "kind": "enemy_sheet",
+    "group": "myrrhkin",
+    "species": "myrrhkin",
+    "frameIndex": 3,
+    "image": "sprites/sp_myrrhkin_3.png",
+    "master": "masters/sp_myrrhkin_3.png",
+    "size": [
+      104,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      12,
+      12,
+      91,
+      70
+    ],
+    "sourceScale": 0.202166,
+    "facing": "left",
+    "source": "art/source/species/species_garden.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_thren_0",
+    "kind": "enemy_sheet",
+    "group": "thren",
+    "species": "thren",
+    "frameIndex": 0,
+    "image": "sprites/sp_thren_0.png",
+    "master": "masters/sp_thren_0.png",
+    "size": [
+      112,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      8,
+      12,
+      104,
+      78
+    ],
+    "sourceScale": 0.25098,
+    "facing": "left",
+    "source": "art/source/species/species_garden.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_thren_1",
+    "kind": "enemy_sheet",
+    "group": "thren",
+    "species": "thren",
+    "frameIndex": 1,
+    "image": "sprites/sp_thren_1.png",
+    "master": "masters/sp_thren_1.png",
+    "size": [
+      112,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      10,
+      12,
+      102,
+      78
+    ],
+    "sourceScale": 0.25098,
+    "facing": "left",
+    "source": "art/source/species/species_garden.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_thren_2",
+    "kind": "enemy_sheet",
+    "group": "thren",
+    "species": "thren",
+    "frameIndex": 2,
+    "image": "sprites/sp_thren_2.png",
+    "master": "masters/sp_thren_2.png",
+    "size": [
+      112,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      10,
+      12,
+      102,
+      78
+    ],
+    "sourceScale": 0.25098,
+    "facing": "left",
+    "source": "art/source/species/species_garden.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_thren_3",
+    "kind": "enemy_sheet",
+    "group": "thren",
+    "species": "thren",
+    "frameIndex": 3,
+    "image": "sprites/sp_thren_3.png",
+    "master": "masters/sp_thren_3.png",
+    "size": [
+      112,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      9,
+      12,
+      102,
+      78
+    ],
+    "sourceScale": 0.25098,
+    "facing": "left",
+    "source": "art/source/species/species_garden.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_vitreon_0",
+    "kind": "enemy_sheet",
+    "group": "vitreon",
+    "species": "vitreon",
+    "frameIndex": 0,
+    "image": "sprites/sp_vitreon_0.png",
+    "master": "masters/sp_vitreon_0.png",
+    "size": [
+      96,
+      88
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      21,
+      12,
+      74,
+      86
+    ],
+    "sourceScale": 0.202817,
+    "facing": "left",
+    "source": "art/source/species/species_minerals.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_vitreon_1",
+    "kind": "enemy_sheet",
+    "group": "vitreon",
+    "species": "vitreon",
+    "frameIndex": 1,
+    "image": "sprites/sp_vitreon_1.png",
+    "master": "masters/sp_vitreon_1.png",
+    "size": [
+      96,
+      88
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      26,
+      12,
+      69,
+      86
+    ],
+    "sourceScale": 0.202817,
+    "facing": "left",
+    "source": "art/source/species/species_minerals.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_vitreon_2",
+    "kind": "enemy_sheet",
+    "group": "vitreon",
+    "species": "vitreon",
+    "frameIndex": 2,
+    "image": "sprites/sp_vitreon_2.png",
+    "master": "masters/sp_vitreon_2.png",
+    "size": [
+      96,
+      88
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      27,
+      12,
+      69,
+      86
+    ],
+    "sourceScale": 0.202817,
+    "facing": "left",
+    "source": "art/source/species/species_minerals.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_vitreon_3",
+    "kind": "enemy_sheet",
+    "group": "vitreon",
+    "species": "vitreon",
+    "frameIndex": 3,
+    "image": "sprites/sp_vitreon_3.png",
+    "master": "masters/sp_vitreon_3.png",
+    "size": [
+      96,
+      88
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      22,
+      12,
+      74,
+      86
+    ],
+    "sourceScale": 0.202817,
+    "facing": "left",
+    "source": "art/source/species/species_minerals.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_lithurn_0",
+    "kind": "enemy_sheet",
+    "group": "lithurn",
+    "species": "lithurn",
+    "frameIndex": 0,
+    "image": "sprites/sp_lithurn_0.png",
+    "master": "masters/sp_lithurn_0.png",
+    "size": [
+      128,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      16,
+      16,
+      111,
+      78
+    ],
+    "sourceScale": 0.248963,
+    "facing": "left",
+    "source": "art/source/species/species_minerals.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_lithurn_1",
+    "kind": "enemy_sheet",
+    "group": "lithurn",
+    "species": "lithurn",
+    "frameIndex": 1,
+    "image": "sprites/sp_lithurn_1.png",
+    "master": "masters/sp_lithurn_1.png",
+    "size": [
+      128,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      16,
+      16,
+      111,
+      78
+    ],
+    "sourceScale": 0.248963,
+    "facing": "left",
+    "source": "art/source/species/species_minerals.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_lithurn_2",
+    "kind": "enemy_sheet",
+    "group": "lithurn",
+    "species": "lithurn",
+    "frameIndex": 2,
+    "image": "sprites/sp_lithurn_2.png",
+    "master": "masters/sp_lithurn_2.png",
+    "size": [
+      128,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      16,
+      16,
+      111,
+      78
+    ],
+    "sourceScale": 0.248963,
+    "facing": "left",
+    "source": "art/source/species/species_minerals.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_lithurn_3",
+    "kind": "enemy_sheet",
+    "group": "lithurn",
+    "species": "lithurn",
+    "frameIndex": 3,
+    "image": "sprites/sp_lithurn_3.png",
+    "master": "masters/sp_lithurn_3.png",
+    "size": [
+      128,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      16,
+      16,
+      111,
+      78
+    ],
+    "sourceScale": 0.248963,
+    "facing": "left",
+    "source": "art/source/species/species_minerals.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_geliform_0",
+    "kind": "enemy_sheet",
+    "group": "geliform",
+    "species": "geliform",
+    "frameIndex": 0,
+    "image": "sprites/sp_geliform_0.png",
+    "master": "masters/sp_geliform_0.png",
+    "size": [
+      96,
+      64
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      7,
+      16,
+      89,
+      62
+    ],
+    "sourceScale": 0.271605,
+    "facing": "left",
+    "source": "art/source/species/species_exotics.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_geliform_1",
+    "kind": "enemy_sheet",
+    "group": "geliform",
+    "species": "geliform",
+    "frameIndex": 1,
+    "image": "sprites/sp_geliform_1.png",
+    "master": "masters/sp_geliform_1.png",
+    "size": [
+      96,
+      64
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      3,
+      18,
+      93,
+      62
+    ],
+    "sourceScale": 0.271605,
+    "facing": "left",
+    "source": "art/source/species/species_exotics.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_geliform_2",
+    "kind": "enemy_sheet",
+    "group": "geliform",
+    "species": "geliform",
+    "frameIndex": 2,
+    "image": "sprites/sp_geliform_2.png",
+    "master": "masters/sp_geliform_2.png",
+    "size": [
+      96,
+      64
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      3,
+      19,
+      92,
+      62
+    ],
+    "sourceScale": 0.271605,
+    "facing": "left",
+    "source": "art/source/species/species_exotics.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_geliform_3",
+    "kind": "enemy_sheet",
+    "group": "geliform",
+    "species": "geliform",
+    "frameIndex": 3,
+    "image": "sprites/sp_geliform_3.png",
+    "master": "masters/sp_geliform_3.png",
+    "size": [
+      96,
+      64
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      6,
+      17,
+      89,
+      62
+    ],
+    "sourceScale": 0.271605,
+    "facing": "left",
+    "source": "art/source/species/species_exotics.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_asterid_0",
+    "kind": "enemy_sheet",
+    "group": "asterid",
+    "species": "asterid",
+    "frameIndex": 0,
+    "image": "sprites/sp_asterid_0.png",
+    "master": "masters/sp_asterid_0.png",
+    "size": [
+      104,
+      88
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      19,
+      10,
+      84,
+      78
+    ],
+    "sourceScale": 0.229167,
+    "facing": "left",
+    "source": "art/source/species/species_exotics.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_asterid_1",
+    "kind": "enemy_sheet",
+    "group": "asterid",
+    "species": "asterid",
+    "frameIndex": 1,
+    "image": "sprites/sp_asterid_1.png",
+    "master": "masters/sp_asterid_1.png",
+    "size": [
+      104,
+      88
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      14,
+      7,
+      89,
+      81
+    ],
+    "sourceScale": 0.229167,
+    "facing": "left",
+    "source": "art/source/species/species_exotics.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_asterid_2",
+    "kind": "enemy_sheet",
+    "group": "asterid",
+    "species": "asterid",
+    "frameIndex": 2,
+    "image": "sprites/sp_asterid_2.png",
+    "master": "masters/sp_asterid_2.png",
+    "size": [
+      104,
+      88
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      11,
+      6,
+      92,
+      81
+    ],
+    "sourceScale": 0.229167,
+    "facing": "left",
+    "source": "art/source/species/species_exotics.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "sp_asterid_3",
+    "kind": "enemy_sheet",
+    "group": "asterid",
+    "species": "asterid",
+    "frameIndex": 3,
+    "image": "sprites/sp_asterid_3.png",
+    "master": "masters/sp_asterid_3.png",
+    "size": [
+      104,
+      88
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      19,
+      10,
+      84,
+      78
+    ],
+    "sourceScale": 0.229167,
+    "facing": "left",
+    "source": "art/source/species/species_exotics.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "op_serrik_run0",
+    "kind": "operator",
+    "group": "serrik",
+    "species": "varkesh",
+    "frameIndex": 0,
+    "image": "sprites/op_serrik_run0.png",
+    "master": "masters/op_serrik_run0.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      16,
+      6,
+      74,
+      70
+    ],
+    "sourceScale": 0.165829,
+    "facing": "right",
+    "source": "art/source/species/operator_serrik.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "op_serrik_run1",
+    "kind": "operator",
+    "group": "serrik",
+    "species": "varkesh",
+    "frameIndex": 1,
+    "image": "sprites/op_serrik_run1.png",
+    "master": "masters/op_serrik_run1.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      27,
+      6,
+      74,
+      70
+    ],
+    "sourceScale": 0.165829,
+    "facing": "right",
+    "source": "art/source/species/operator_serrik.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "op_serrik_run2",
+    "kind": "operator",
+    "group": "serrik",
+    "species": "varkesh",
+    "frameIndex": 2,
+    "image": "sprites/op_serrik_run2.png",
+    "master": "masters/op_serrik_run2.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      14,
+      7,
+      73,
+      70
+    ],
+    "sourceScale": 0.165829,
+    "facing": "right",
+    "source": "art/source/species/operator_serrik.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "op_serrik_run3",
+    "kind": "operator",
+    "group": "serrik",
+    "species": "varkesh",
+    "frameIndex": 3,
+    "image": "sprites/op_serrik_run3.png",
+    "master": "masters/op_serrik_run3.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      27,
+      5,
+      74,
+      70
+    ],
+    "sourceScale": 0.165829,
+    "facing": "right",
+    "source": "art/source/species/operator_serrik.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "op_serrik_idle",
+    "kind": "operator",
+    "group": "serrik",
+    "species": "varkesh",
+    "frameIndex": 4,
+    "image": "sprites/op_serrik_idle.png",
+    "master": "masters/op_serrik_idle.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      26,
+      2,
+      74,
+      70
+    ],
+    "sourceScale": 0.165829,
+    "facing": "right",
+    "source": "art/source/species/operator_serrik.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "op_serrik_jump",
+    "kind": "operator",
+    "group": "serrik",
+    "species": "varkesh",
+    "frameIndex": 5,
+    "image": "sprites/op_serrik_jump.png",
+    "master": "masters/op_serrik_jump.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      25,
+      17,
+      73,
+      70
+    ],
+    "sourceScale": 0.165829,
+    "facing": "right",
+    "source": "art/source/species/operator_serrik.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "op_serrik_slide",
+    "kind": "operator",
+    "group": "serrik",
+    "species": "varkesh",
+    "frameIndex": 6,
+    "image": "sprites/op_serrik_slide.png",
+    "master": "masters/op_serrik_slide.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      18,
+      27,
+      76,
+      70
+    ],
+    "sourceScale": 0.165829,
+    "facing": "right",
+    "source": "art/source/species/operator_serrik.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "op_serrik_crouch",
+    "kind": "operator",
+    "group": "serrik",
+    "species": "varkesh",
+    "frameIndex": 7,
+    "image": "sprites/op_serrik_crouch.png",
+    "master": "masters/op_serrik_crouch.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      23,
+      23,
+      74,
+      70
+    ],
+    "sourceScale": 0.165829,
+    "facing": "right",
+    "source": "art/source/species/operator_serrik.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "op_quill_run0",
+    "kind": "operator",
+    "group": "quill",
+    "species": "corvane",
+    "frameIndex": 0,
+    "image": "sprites/op_quill_run0.png",
+    "master": "masters/op_quill_run0.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      16,
+      9,
+      73,
+      70
+    ],
+    "sourceScale": 0.167089,
+    "facing": "right",
+    "source": "art/source/species/operator_quill.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "op_quill_run1",
+    "kind": "operator",
+    "group": "quill",
+    "species": "corvane",
+    "frameIndex": 1,
+    "image": "sprites/op_quill_run1.png",
+    "master": "masters/op_quill_run1.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      28,
+      8,
+      73,
+      70
+    ],
+    "sourceScale": 0.167089,
+    "facing": "right",
+    "source": "art/source/species/operator_quill.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "op_quill_run2",
+    "kind": "operator",
+    "group": "quill",
+    "species": "corvane",
+    "frameIndex": 2,
+    "image": "sprites/op_quill_run2.png",
+    "master": "masters/op_quill_run2.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      15,
+      9,
+      73,
+      70
+    ],
+    "sourceScale": 0.167089,
+    "facing": "right",
+    "source": "art/source/species/operator_quill.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "op_quill_run3",
+    "kind": "operator",
+    "group": "quill",
+    "species": "corvane",
+    "frameIndex": 3,
+    "image": "sprites/op_quill_run3.png",
+    "master": "masters/op_quill_run3.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      29,
+      8,
+      73,
+      70
+    ],
+    "sourceScale": 0.167089,
+    "facing": "right",
+    "source": "art/source/species/operator_quill.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "op_quill_idle",
+    "kind": "operator",
+    "group": "quill",
+    "species": "corvane",
+    "frameIndex": 4,
+    "image": "sprites/op_quill_idle.png",
+    "master": "masters/op_quill_idle.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      31,
+      2,
+      73,
+      70
+    ],
+    "sourceScale": 0.167089,
+    "facing": "right",
+    "source": "art/source/species/operator_quill.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "op_quill_jump",
+    "kind": "operator",
+    "group": "quill",
+    "species": "corvane",
+    "frameIndex": 5,
+    "image": "sprites/op_quill_jump.png",
+    "master": "masters/op_quill_jump.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      28,
+      14,
+      73,
+      70
+    ],
+    "sourceScale": 0.167089,
+    "facing": "right",
+    "source": "art/source/species/operator_quill.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "op_quill_slide",
+    "kind": "operator",
+    "group": "quill",
+    "species": "corvane",
+    "frameIndex": 6,
+    "image": "sprites/op_quill_slide.png",
+    "master": "masters/op_quill_slide.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      22,
+      20,
+      82,
+      70
+    ],
+    "sourceScale": 0.167089,
+    "facing": "right",
+    "source": "art/source/species/operator_quill.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "op_quill_crouch",
+    "kind": "operator",
+    "group": "quill",
+    "species": "corvane",
+    "frameIndex": 7,
+    "image": "sprites/op_quill_crouch.png",
+    "master": "masters/op_quill_crouch.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      26,
+      24,
+      75,
+      70
+    ],
+    "sourceScale": 0.167089,
+    "facing": "right",
+    "source": "art/source/species/operator_quill.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "nacreth_sovereign_idle",
+    "kind": "boss",
+    "group": "nacreth_sovereign",
+    "species": "nacreth",
+    "frameIndex": 0,
+    "image": "sprites/nacreth_sovereign_idle.png",
+    "master": "masters/nacreth_sovereign_idle.png",
+    "size": [
+      208,
+      160
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      17,
+      19,
+      190,
+      141
+    ],
+    "sourceScale": 0.279391,
+    "facing": "left",
+    "source": "art/source/species/boss_nacreth_sovereign.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "nacreth_sovereign_windup",
+    "kind": "boss",
+    "group": "nacreth_sovereign",
+    "species": "nacreth",
+    "frameIndex": 1,
+    "image": "sprites/nacreth_sovereign_windup.png",
+    "master": "masters/nacreth_sovereign_windup.png",
+    "size": [
+      208,
+      160
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      2,
+      17,
+      206,
+      143
+    ],
+    "sourceScale": 0.279391,
+    "facing": "left",
+    "source": "art/source/species/boss_nacreth_sovereign.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "nacreth_sovereign_attack",
+    "kind": "boss",
+    "group": "nacreth_sovereign",
+    "species": "nacreth",
+    "frameIndex": 2,
+    "image": "sprites/nacreth_sovereign_attack.png",
+    "master": "masters/nacreth_sovereign_attack.png",
+    "size": [
+      208,
+      160
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      2,
+      12,
+      206,
+      147
+    ],
+    "sourceScale": 0.279391,
+    "facing": "left",
+    "source": "art/source/species/boss_nacreth_sovereign.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "nacreth_sovereign_exposed",
+    "kind": "boss",
+    "group": "nacreth_sovereign",
+    "species": "nacreth",
+    "frameIndex": 3,
+    "image": "sprites/nacreth_sovereign_exposed.png",
+    "master": "masters/nacreth_sovereign_exposed.png",
+    "size": [
+      208,
+      160
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "bounds": [
+      6,
+      12,
+      202,
+      147
+    ],
+    "sourceScale": 0.279391,
+    "facing": "left",
+    "source": "art/source/species/boss_nacreth_sovereign.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "vitreon_regent_idle",
+    "kind": "boss",
+    "group": "vitreon_regent",
+    "species": "vitreon",
+    "frameIndex": 0,
+    "image": "sprites/vitreon_regent_idle.png",
+    "master": "masters/vitreon_regent_idle.png",
+    "size": [
+      176,
+      192
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      36,
+      62,
+      140,
+      190
+    ],
+    "sourceScale": 0.269414,
+    "facing": "left",
+    "source": "art/source/species/boss_vitreon_regent.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "vitreon_regent_windup",
+    "kind": "boss",
+    "group": "vitreon_regent",
+    "species": "vitreon",
+    "frameIndex": 1,
+    "image": "sprites/vitreon_regent_windup.png",
+    "master": "masters/vitreon_regent_windup.png",
+    "size": [
+      176,
+      192
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      10,
+      62,
+      166,
+      190
+    ],
+    "sourceScale": 0.269414,
+    "facing": "left",
+    "source": "art/source/species/boss_vitreon_regent.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "vitreon_regent_attack",
+    "kind": "boss",
+    "group": "vitreon_regent",
+    "species": "vitreon",
+    "frameIndex": 2,
+    "image": "sprites/vitreon_regent_attack.png",
+    "master": "masters/vitreon_regent_attack.png",
+    "size": [
+      176,
+      192
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      2,
+      61,
+      174,
+      190
+    ],
+    "sourceScale": 0.269414,
+    "facing": "left",
+    "source": "art/source/species/boss_vitreon_regent.png",
+    "status": "staged art; not registered in active gameplay"
+  },
+  {
+    "key": "vitreon_regent_exposed",
+    "kind": "boss",
+    "group": "vitreon_regent",
+    "species": "vitreon",
+    "frameIndex": 3,
+    "image": "sprites/vitreon_regent_exposed.png",
+    "master": "masters/vitreon_regent_exposed.png",
+    "size": [
+      176,
+      192
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "bounds": [
+      23,
+      61,
+      153,
+      190
+    ],
+    "sourceScale": 0.269414,
+    "facing": "left",
+    "source": "art/source/species/boss_vitreon_regent.png",
+    "status": "staged art; not registered in active gameplay"
+  }
+]

@@ -2,6 +2,8 @@
 
 ## For the owner (no coding needed)
 
+**Species library (parked during the city-quality content freeze):** `art/library/species/README.md` catalogs twelve species, two nonhuman operator sheets and two boss forms (72 transparent frames). Exact originals/prompts: `art/source/species/manifest.json`; rebuild: `python -B tools/process_species.py`. Optional typed bestiary/content proposals: `src/data/speciesPack.ts`. Nothing is live; follow HANDOFF Session 8's city-polish priority before integration. Session 9 documents this requested library.
+
 **Second pack - animated Frontier assets:** start at `art/library/frontier/README.md`. It adds two eight-pose operators, four animated enemies, two four-state bosses, eight weapons, eight props and two worlds. Sources and exact prompts: `art/source/frontier/manifest.json`. Rebuild only this isolated library with `python -B tools/process_frontier.py`. Optional typed content proposals and measured operator muzzle offsets are in `src/data/frontierPack.ts`; no live registry imports them yet. See Session 7 in HANDOFF for verification and integration limits.
 
 **New expansion library:** 44 staged designs are available at `art/library/expansion/README.md`, with previews, transparent cutouts, game-sized sprites and world backgrounds. Originals and exact prompts are in `art/source/expansion/`. Rebuild with `python tools/process_expansion.py`. This library is separate from the live game manifest; Claude should select assets and integrate them deliberately. Character/enemy concepts contain one pose each, not full animations.

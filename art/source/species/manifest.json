@@ -1,0 +1,367 @@
+[
+  {
+    "key": "species_sapients",
+    "kind": "enemy_sheet",
+    "cols": 4,
+    "rows": 2,
+    "names": [
+      "sp_varkesh_0",
+      "sp_varkesh_1",
+      "sp_varkesh_2",
+      "sp_varkesh_3",
+      "sp_corvane_0",
+      "sp_corvane_1",
+      "sp_corvane_2",
+      "sp_corvane_3"
+    ],
+    "groups": [
+      {
+        "id": "varkesh",
+        "start": 0,
+        "count": 4,
+        "canvas": [
+          112,
+          80
+        ],
+        "height": 68,
+        "anchor": "feet"
+      },
+      {
+        "id": "corvane",
+        "start": 4,
+        "count": 4,
+        "canvas": [
+          96,
+          80
+        ],
+        "height": 68,
+        "anchor": "feet"
+      }
+    ],
+    "prompt": "Original NEON WARPATH 2D run-and-gun species animation sheet. Detailed 16-bit pixel art, hard crisp pixel edges, dark sci-fi action, limited palette, silver edge highlights, no antialias blur. Exactly EIGHT isolated full-body sprites in a regular FOUR columns by TWO rows grid; each row is four animation frames of ONE creature, never four different designs. ALL face LEFT in strict SIDE VIEW. Equal-size grid cells, very generous empty gutters around every silhouette, full body and weapon inside its own cell, no overlap or cropping. Uniform flat solid MAGENTA #FF00FF background; no glow haze, shadows, floor, scenery, text, labels, grid lines, projectiles or detached particles. ROW 1: four WALK cycle frames of ONE VARKESH reptilian skirmisher: slender emerald-scaled biped with short cream snout, swept head crest, thick tail pointing right, two arms, two booted legs, maroon tactical vest and cream shoulder armor, compact copper pistol held pointing left. Reptile face and tail must read clearly, no human face. Alternate stride, passing, opposite stride, passing; same identity proportions clothes and weapon throughout. ROW 2: four WALK frames of ONE CORVANE avian scout: ravenlike intelligent bird biped, charcoal feathers, sharp ivory beak, small swept head feathers, ivory utility harness and teal jacket, two humanoid arms plus two clawed booted legs, folded feather cape attached to back, compact silver dart carbine points LEFT. No extra wing-arms. Alternate leg strides and slight cape motion, same character throughout. Make reptile and bird completely different silhouettes and biological species."
+  },
+  {
+    "key": "species_crawlers",
+    "kind": "enemy_sheet",
+    "cols": 4,
+    "rows": 2,
+    "names": [
+      "sp_kharrix_0",
+      "sp_kharrix_1",
+      "sp_kharrix_2",
+      "sp_kharrix_3",
+      "sp_ferrivor_0",
+      "sp_ferrivor_1",
+      "sp_ferrivor_2",
+      "sp_ferrivor_3"
+    ],
+    "groups": [
+      {
+        "id": "kharrix",
+        "start": 0,
+        "count": 4,
+        "canvas": [
+          112,
+          64
+        ],
+        "height": 48,
+        "anchor": "feet"
+      },
+      {
+        "id": "ferrivor",
+        "start": 4,
+        "count": 4,
+        "canvas": [
+          128,
+          56
+        ],
+        "height": 40,
+        "anchor": "feet"
+      }
+    ],
+    "prompt": "Original NEON WARPATH 2D run-and-gun species animation sheet. Detailed 16-bit pixel art, hard crisp pixel edges, dark sci-fi action, limited palette, silver edge highlights, no antialias blur. Exactly EIGHT isolated full-body sprites in a regular FOUR columns by TWO rows grid; each row is four animation frames of ONE creature, never four different designs. ALL face LEFT in strict SIDE VIEW. Equal-size grid cells, very generous empty gutters around every silhouette, full body and weapon inside its own cell, no overlap or cropping. Uniform flat solid MAGENTA #FF00FF background; no glow haze, shadows, floor, scenery, text, labels, grid lines, projectiles or detached particles. ROW 1: FOUR walking frames of ONE KHARRIX insectoid hunter, organic animal not a robot: low amber chitin plated beetle-mantis body, six jointed legs in alternating gait, two short scissor mouthparts pointing left, broad flattened armored back, small turquoise sensory spots. No humanoid torso or clothing. ROW 2: FOUR crawling frames of ONE FERRIVOR metal-eating alien annelid: long low burgundy segmented armored worm with six thick overlapping iron-gray dorsal plates, small orange mouth at left, many tiny connected feet, short forked tail right. Body compresses and extends slightly through the crawl, same length approximately; do not curl into a ball. Different creature from the insect top row, organic rusty mineral texture, not a train or machine. Both creatures have four distinct leg/body cycle positions with consistent body size and identity in each row. Their full wide silhouettes comfortably fit each cell with EXTRA wide empty margins."
+  },
+  {
+    "key": "species_floaters",
+    "kind": "enemy_sheet",
+    "cols": 4,
+    "rows": 2,
+    "names": [
+      "sp_nacreth_0",
+      "sp_nacreth_1",
+      "sp_nacreth_2",
+      "sp_nacreth_3",
+      "sp_cirrid_0",
+      "sp_cirrid_1",
+      "sp_cirrid_2",
+      "sp_cirrid_3"
+    ],
+    "groups": [
+      {
+        "id": "nacreth",
+        "start": 0,
+        "count": 4,
+        "canvas": [
+          96,
+          88
+        ],
+        "height": 72,
+        "anchor": "center"
+      },
+      {
+        "id": "cirrid",
+        "start": 4,
+        "count": 4,
+        "canvas": [
+          88,
+          80
+        ],
+        "height": 64,
+        "anchor": "center"
+      }
+    ],
+    "prompt": "Original NEON WARPATH 2D run-and-gun species animation sheet. Detailed 16-bit pixel art, hard crisp pixel edges, dark sci-fi action, limited palette, silver edge highlights, no antialias blur. Exactly EIGHT isolated full-body sprites in a regular FOUR columns by TWO rows grid; each row is four animation frames of ONE creature, never four different designs. ALL face LEFT in strict SIDE VIEW. Equal-size grid cells, very generous empty gutters around every silhouette, full body and weapon inside its own cell, no overlap or cropping. Uniform flat solid MAGENTA #FF00FF background; no glow haze, shadows, floor, scenery, text, labels, grid lines, projectiles or detached particles. ROW 1: FOUR HOVER cycle frames of ONE NACRETH shell-backed cephalopod alien: large ivory spiral shell above a small blue cuttlefish head facing left, single amber eye, thick connected teal tentacles curled underneath and toward left, delicate copper biological ridges on shell, no machine armor or humanoid parts. Tentacles gently unfurl and curl across four frames while shell stays same size. ROW 2: FOUR HOVER cycle frames of ONE CIRRID gas-colony lifeform: compact lavender storm cloud enclosed in a natural translucent pale-blue rib cage like a seed lantern, central three tiny yellow eye spots at left, three thick attached curling violet vapor tendrils below. Its cloud outline pulses gently between frames while rib cage remains fixed. All cloud/vapor drawn as opaque crisp pixel clusters, no diffuse transparency, no detached smoke, no haze, no glowing outer halo. A clearly alien floating organism, not a robot, skull or ordinary jellyfish. Both hover creatures fit completely inside cells with large margins; maintain same core size and left-facing orientation throughout."
+  },
+  {
+    "key": "species_garden",
+    "kind": "enemy_sheet",
+    "cols": 4,
+    "rows": 2,
+    "names": [
+      "sp_myrrhkin_0",
+      "sp_myrrhkin_1",
+      "sp_myrrhkin_2",
+      "sp_myrrhkin_3",
+      "sp_thren_0",
+      "sp_thren_1",
+      "sp_thren_2",
+      "sp_thren_3"
+    ],
+    "groups": [
+      {
+        "id": "myrrhkin",
+        "start": 0,
+        "count": 4,
+        "canvas": [
+          104,
+          72
+        ],
+        "height": 56,
+        "anchor": "feet"
+      },
+      {
+        "id": "thren",
+        "start": 4,
+        "count": 4,
+        "canvas": [
+          112,
+          80
+        ],
+        "height": 64,
+        "anchor": "feet"
+      }
+    ],
+    "prompt": "Original NEON WARPATH 2D run-and-gun species animation sheet. Detailed 16-bit pixel art, hard crisp pixel edges, dark sci-fi action, limited palette, silver edge highlights, no antialias blur. Exactly EIGHT isolated full-body sprites in a regular FOUR columns by TWO rows grid; each row is four animation frames of ONE creature, never four different designs. ALL face LEFT in strict SIDE VIEW. Equal-size grid cells, very generous empty gutters around every silhouette, full body and weapon inside its own cell, no overlap or cropping. Uniform flat solid MAGENTA #FF00FF background; no glow haze, shadows, floor, scenery, text, labels, grid lines, projectiles or detached particles. ROW 1: FOUR walking cycle frames of ONE MYRRHKIN fungal organism: broad flat midnight-blue mushroom cap with thick white gill underside, squat cream stalk body with two tiny amber eyes tucked under cap, four thick violet rootlike legs, a few orange shelf-fungi attached to the stalk. No humanoid arms, no zombie, no clothes. Root legs alternate their step; cap tilts slightly but stays same size. ROW 2: FOUR walking frames of ONE THREN thorn-plant creature: round armored jade seedpod body, overlapping dark green leaves, small pale flowerlike sensory face at LEFT, four long brown woody root legs arranged like a low deer, thorny short vine tail curling right, tiny white blossoms attached to back. No human body or hands. Four distinct coordinated leg positions, same identity shape size throughout. Fungal creature broad and squat; plant creature slender and long-legged. Fully isolated complete silhouettes with extra blank space around mushroom cap, vines and legs. No spores, no particles, no scenery."
+  },
+  {
+    "key": "species_minerals",
+    "kind": "enemy_sheet",
+    "cols": 4,
+    "rows": 2,
+    "names": [
+      "sp_vitreon_0",
+      "sp_vitreon_1",
+      "sp_vitreon_2",
+      "sp_vitreon_3",
+      "sp_lithurn_0",
+      "sp_lithurn_1",
+      "sp_lithurn_2",
+      "sp_lithurn_3"
+    ],
+    "groups": [
+      {
+        "id": "vitreon",
+        "start": 0,
+        "count": 4,
+        "canvas": [
+          96,
+          88
+        ],
+        "height": 72,
+        "anchor": "feet"
+      },
+      {
+        "id": "lithurn",
+        "start": 4,
+        "count": 4,
+        "canvas": [
+          128,
+          80
+        ],
+        "height": 60,
+        "anchor": "feet"
+      }
+    ],
+    "prompt": "Original NEON WARPATH 2D run-and-gun species animation sheet. Detailed 16-bit pixel art, hard crisp pixel edges, dark sci-fi action, limited palette, silver edge highlights, no antialias blur. Exactly EIGHT isolated full-body sprites in a regular FOUR columns by TWO rows grid; each row is four animation frames of ONE creature, never four different designs. ALL face LEFT in strict SIDE VIEW. Equal-size grid cells, very generous empty gutters around every silhouette, full body and weapon inside its own cell, no overlap or cropping. Uniform flat solid MAGENTA #FF00FF background; no glow haze, shadows, floor, scenery, text, labels, grid lines, projectiles or detached particles. ROW 1: FOUR walking cycle frames of ONE VITREON crystalline lifeform: tall asymmetric sapphire quartz central prism with a narrow amber eye seam facing left, three thick triangular jointed crystal legs, two tiny sharp shoulder shards CONNECTED to main prism, translucent-looking facets rendered as solid opaque colored pixels, no human shape, no floating detached fragments. Tripod steps alternate three supporting legs, central prism same size and position. ROW 2: FOUR walking cycle frames of ONE LITHURN mineral animal: broad heavy basalt tortoise-like quadruped, craggy dark-gray stone shell with pale turquoise crystal ridges, small blunt rock head facing left, four thick stone legs with layered toes, short attached rocky tail right. An ancient living stone animal, not a machine, no wheels or armor plates. Alternate slow heavy step positions; keep exactly same shell shape size and head proportions in all four frames. Upper creature tall angular blue tripod; lower creature low charcoal rocky quadruped. Both fully inside equal cells with very wide empty gutters, no clipping. No glow haze or effects."
+  },
+  {
+    "key": "species_exotics",
+    "kind": "enemy_sheet",
+    "cols": 4,
+    "rows": 2,
+    "names": [
+      "sp_geliform_0",
+      "sp_geliform_1",
+      "sp_geliform_2",
+      "sp_geliform_3",
+      "sp_asterid_0",
+      "sp_asterid_1",
+      "sp_asterid_2",
+      "sp_asterid_3"
+    ],
+    "groups": [
+      {
+        "id": "geliform",
+        "start": 0,
+        "count": 4,
+        "canvas": [
+          96,
+          64
+        ],
+        "height": 44,
+        "anchor": "feet"
+      },
+      {
+        "id": "asterid",
+        "start": 4,
+        "count": 4,
+        "canvas": [
+          104,
+          88
+        ],
+        "height": 66,
+        "anchor": "center"
+      }
+    ],
+    "prompt": "Original NEON WARPATH 2D run-and-gun species animation sheet. Detailed 16-bit pixel art, hard crisp pixel edges, dark sci-fi action, limited palette, silver edge highlights, no antialias blur. Exactly EIGHT isolated full-body sprites in a regular FOUR columns by TWO rows grid; each row is four animation frames of ONE creature, never four different designs. ALL face LEFT in strict SIDE VIEW. Equal-size grid cells, very generous empty gutters around every silhouette, full body and weapon inside its own cell, no overlap or cropping. Uniform flat solid MAGENTA #FF00FF background; no glow haze, shadows, floor, scenery, text, labels, grid lines, projectiles or detached particles. ROW 1: FOUR crawling cycle frames of ONE GELIFORM gelatinous alien: low rounded cyan semi-translucent-looking blob rendered as opaque crisp pixels, dark indigo central nucleus with tiny yellow eyes at left, three large rolling pseudopod feet, faint cream mineral flecks inside gel. No shell or humanoid shape, no dripping loose droplets. Across four frames gel squashes and stretches slightly while nucleus stays same size and body volume consistent. ROW 2: FOUR floating pulse cycle frames of ONE ASTERID cosmic echinoderm: organic violet six-armed star creature, oval black-and-amber eye embedded on LEFT side of central body, thick tapering curled arms edged with tiny pale-blue spines, short clustered coral-like knobs on back, full SIDE PROFILE facing left rather than a front-facing symmetric star icon. Six arms gently curl and extend across the four frames, same core and arm count. No geometric ring, no robot, no human face or clothing. A genuinely strange space-animal silhouette. Both complete organisms fully isolated with generous cell margins, no detached particles, no glow haze, no cropped tendrils."
+  },
+  {
+    "key": "operator_serrik",
+    "kind": "operator",
+    "cols": 4,
+    "rows": 2,
+    "names": [
+      "op_serrik_run0",
+      "op_serrik_run1",
+      "op_serrik_run2",
+      "op_serrik_run3",
+      "op_serrik_idle",
+      "op_serrik_jump",
+      "op_serrik_slide",
+      "op_serrik_crouch"
+    ],
+    "groups": [
+      {
+        "id": "serrik",
+        "species": "varkesh",
+        "start": 0,
+        "count": 8,
+        "canvas": [
+          96,
+          72
+        ],
+        "height": 66,
+        "reference": 4,
+        "anchor": "feet"
+      }
+    ],
+    "prompt": "Original NEON WARPATH production PLAYABLE OPERATOR sprite sheet, exactly EIGHT full-body poses of ONE character in FOUR columns by TWO rows. Character SERRIK: adult Varkesh reptilian woman, emerald scales, short cream crocodilian snout, swept compact head crest, bright amber eyes, short muscular tail curled close behind body, two arms and two legs, cobalt armored flight vest with copper shoulder plates, dark trousers and light boots, compact SILVER pistol in both hands. Reptile face must be clear, no human face or hair. ALL strict SIDE VIEW facing RIGHT and aiming pistol horizontally RIGHT. Same individual, outfit, weapon and proportions in every cell. Row 1 four different run-cycle frames: stride, passing, opposite stride, passing. Row 2 standing idle aiming, airborne knees-bent jump aiming, very LOW forward one-knee slide aiming, deep crouch aiming. Keep tail tucked and bent compactly during slide/crouch so full body fits a 96x72 runtime canvas. Keep body height consistent in running frames. Detailed crisp 16-bit pixel art, hard pixel edges, dark sci-fi action, limited palette, cyan edge highlights, strong readable silhouette, no antialias blur. Regular equal cells, very large blank gutters and margins, entire gun barrel tail and feet wholly inside own cell, no overlap or clipping. Flat uniform solid MAGENTA #FF00FF background, no glow haze, shadows, floor, scenery, grid lines, text, labels, loose particles or projectiles."
+  },
+  {
+    "key": "operator_quill",
+    "extraction": "components",
+    "kind": "operator",
+    "cols": 4,
+    "rows": 2,
+    "names": [
+      "op_quill_run0",
+      "op_quill_run1",
+      "op_quill_run2",
+      "op_quill_run3",
+      "op_quill_idle",
+      "op_quill_jump",
+      "op_quill_slide",
+      "op_quill_crouch"
+    ],
+    "groups": [
+      {
+        "id": "quill",
+        "species": "corvane",
+        "start": 0,
+        "count": 8,
+        "canvas": [
+          96,
+          72
+        ],
+        "height": 66,
+        "reference": 4,
+        "anchor": "feet"
+      }
+    ],
+    "prompt": "Original NEON WARPATH production PLAYABLE OPERATOR sprite sheet. Exactly EIGHT full-body poses of ONE same character in regular FOUR columns by TWO rows. Character QUILL: adult CORVANE avian male mechanic-operator, blue-gray feathers, sharp ivory beak, amber round goggles resting ABOVE the eyes on his feathered head, mustard yellow utility jacket, dark indigo armored trousers, two clawed booted legs, two humanoid arms with feathered forearms, very short folded feather mantle attached to back, NO extra wing-arms. Compact brass pistol held with both hands. Clearly a bird person, never a human wearing a bird mask. ALL strict SIDE VIEW facing RIGHT, pistol aimed horizontally RIGHT. Same individual clothes gun and proportions throughout. Row1 four distinct running frames: stride, pass, opposite stride, pass. Row2 standing idle aiming, airborne knees-bent jump aiming, LOW forward one-knee slide aiming, deep crouch aiming. Keep mantle compact close to torso, full figure fits a 96x72 runtime canvas. Running frames at same body height, no full wing extension. Detailed crisp 16-bit pixel art, dark sci-fi action, hard pixel edges, limited palette, cyan edge highlights, no antialias blur. Very generous blank margins and gutters, no overlap, all beak/gun/feet wholly inside each cell. Uniform flat solid MAGENTA #FF00FF background; no shadows, floor, glow haze, scenery, grid lines, labels, text, projectiles or particles."
+  },
+  {
+    "key": "boss_nacreth_sovereign",
+    "kind": "boss",
+    "cols": 2,
+    "rows": 2,
+    "names": [
+      "nacreth_sovereign_idle",
+      "nacreth_sovereign_windup",
+      "nacreth_sovereign_attack",
+      "nacreth_sovereign_exposed"
+    ],
+    "groups": [
+      {
+        "id": "nacreth_sovereign",
+        "species": "nacreth",
+        "start": 0,
+        "count": 4,
+        "canvas": [
+          208,
+          160
+        ],
+        "height": 136,
+        "anchor": "center"
+      }
+    ],
+    "prompt": "Original NEON WARPATH dark sci-fi pixel game BOSS STATE sheet. Exactly FOUR full-body sprites of ONE NACRETH TIDE SOVEREIGN in equal TWO columns by TWO rows. Huge organic floating cephalopod boss: majestic ridged ivory spiral shell with copper-brown edges and embedded tiny blue pearls, broad dark teal cuttlefish head facing LEFT, one large amber eye, six thick attached curling blue tentacles, a small hinged natural shell plate over an oval side mantle organ. No humanoid features, machinery, clothing, crowns or weapons. STRICT SIDE VIEW facing LEFT. Row1 left IDLE: tentacles curled close and mantle side plate closed. Row1 right WINDUP: front tentacles raised, side seams bright amber, same shell unchanged. Row2 left ATTACK: tentacles fan forward and mantle siphon at left opens into a dark round aperture, no projectile or spray. Row2 right RECOVERY: tentacles relaxed downward and small mantle plate hinges open revealing pale CYAN soft organ. Same creature identity body scale shell geometry and number of limbs in all four states; do not redraw as different species. Entire silhouette including tentacles inside each cell, EXTRA WIDE margins and gutters. Detailed 16-bit pixel art, crisp hard pixel edges, limited deep teal ivory bronze palette, silver edge highlights, no anti-alias blur. Uniform flat solid MAGENTA #FF00FF background; no floor, shadows, glow haze, scenery, particles, text, labels, grid lines or gore."
+  },
+  {
+    "key": "boss_vitreon_regent",
+    "kind": "boss",
+    "cols": 2,
+    "rows": 2,
+    "names": [
+      "vitreon_regent_idle",
+      "vitreon_regent_windup",
+      "vitreon_regent_attack",
+      "vitreon_regent_exposed"
+    ],
+    "groups": [
+      {
+        "id": "vitreon_regent",
+        "species": "vitreon",
+        "start": 0,
+        "count": 4,
+        "canvas": [
+          176,
+          192
+        ],
+        "height": 166,
+        "anchor": "feet"
+      }
+    ],
+    "prompt": "Original NEON WARPATH dark sci-fi pixel game BOSS STATE sprite sheet. Exactly FOUR large full-body sprites of ONE VITREON PRISM REGENT in regular TWO columns by TWO rows. An enormous living crystalline tripod: tall broad cobalt-sapphire central prism, asymmetrical attached crown ridge of clear ice-blue facets, narrow single amber eye seam on its LEFT face, three thick articulated crystal legs, small triangular natural chest facet like a hinged mineral plate. No humanoid arms or face, no weapon, no machine, no floating detached shards. Strict SIDE VIEW facing LEFT. Row1 left IDLE: tripod planted, chest facet closed. Row1 right WINDUP: legs brace wide, amber eye and mineral chest seams brighten, crystal crown remains attached and unchanged. Row2 left ATTACK: front leg thrust forward and chest facet opens revealing amber internal aperture, no emitted beam or debris. Row2 right RECOVERY: legs lowered and chest facet open around a pale cyan core. Same silhouette identity body size crystal facets and number of legs in all states, do not turn it into a humanoid or golem. Full silhouette entirely within every cell with EXTRA WIDE gutters and margins, nothing clipped or overlapping. Detailed crisp 16-bit pixel art, hard pixel edges, limited blue silver amber palette, no antialias blur. Uniform flat solid MAGENTA #FF00FF background, no shadows, floor, glow haze, scenery, projectiles, detached effects, labels, words or grid lines."
+  }
+]
