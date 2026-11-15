@@ -21,6 +21,7 @@ export class HudScene extends Phaser.Scene {
   private goTxt!: Phaser.GameObjects.Text;
   private red!: Phaser.GameObjects.Rectangle;
   private overlay!: Phaser.GameObjects.Container;
+  private intro?: Phaser.GameObjects.Container;
   private controls!: Controls;
   private paused = false;
   private shownScore = 0;
@@ -34,6 +35,7 @@ export class HudScene extends Phaser.Scene {
   }
 
   create() {
+    this.intro = undefined;
     this.paused = false;
     this.shownScore = run.score;
     this.hpLag = run.hp;
@@ -49,7 +51,7 @@ export class HudScene extends Phaser.Scene {
     this.bossTxt = this.txt(W / 2, H - 34, '', 8, '#ff6050').setOrigin(0.5, 0);
     this.bannerTxt = this.txt(W / 2, 110, '', 16).setOrigin(0.5).setAlpha(0);
     this.goTxt = this.txt(W - 16, H / 2 - 30, 'GO >', 16, '#80ffb0').setOrigin(1, 0.5).setVisible(false);
-    this.overlay = this.add.container(0, 0).setVisible(false);
+    this.overlay = this.add.container(0, 0).setDepth(100).setVisible(false);
   }
 
   update(_t: number, delta: number) {
@@ -63,7 +65,7 @@ export class HudScene extends Phaser.Scene {
     g.clear();
 
     // armor bar with a white "damage lag" strip
-    const bw = Math.round(s.maxHp * 0.9);
+    const bw = Math.min(180, Math.round(s.maxHp * 0.9));
     this.hpLag = Math.max(run.hp, this.hpLag - delta * 0.04);
     g.fillStyle(0x000000, 0.75).fillRect(10, 19, bw + 4, 12);
     g.fillStyle(0xffffff, 0.9).fillRect(12, 21, bw * (this.hpLag / s.maxHp), 8);
@@ -118,9 +120,13 @@ export class HudScene extends Phaser.Scene {
     const a = this.txt(W / 2, 96, top, 8, '#9fe8ff').setOrigin(0.5);
     const b = this.txt(W / 2, 120, name, 24).setOrigin(0.5);
     const c = this.txt(W / 2, 146, tagline, 8, '#c0c8d8').setOrigin(0.5);
-    const line = this.add.rectangle(W / 2, 134, 0, 2, 0xffffff);
-    this.tweens.add({ targets: line, width: 360, duration: 300 });
-    this.tweens.add({ targets: [a, b, c, line], alpha: 0, delay: 2200, duration: 400, onComplete: () => [a, b, c, line].forEach((o) => o.destroy()) });
+    const line = this.add.rectangle(W / 2, 134, 360, 2, 0xffffff).setScale(0, 1);
+    const intro = this.intro = this.add.container(0, 0, [a, b, c, line]);
+    this.tweens.add({ targets: line, scaleX: 1, duration: 300 });
+    this.tweens.add({ targets: intro, alpha: 0, delay: 2200, duration: 400, onComplete: () => {
+      intro.destroy();
+      if (this.intro === intro) this.intro = undefined;
+    } });
     audio.sfx('select');
   }
 
@@ -147,6 +153,12 @@ export class HudScene extends Phaser.Scene {
   }
 
   private panel(lines: [string, number, string][]) {
+    if (this.intro) {
+      this.tweens.killTweensOf(this.intro);
+      this.tweens.killTweensOf(this.intro.list);
+      this.intro.destroy();
+      this.intro = undefined;
+    }
     this.overlay.removeAll(true);
     this.overlay.add(this.add.rectangle(0, 0, W, H, 0x000000, 0.6).setOrigin(0));
     let y = H / 2 - lines.length * 9;

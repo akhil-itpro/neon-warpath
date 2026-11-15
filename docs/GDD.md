@@ -46,7 +46,7 @@ Female characters are leads and rivals with their own strength and style (confid
 | Faction | Units | Behaviour | Art |
 |---|---|---|---|
 | Machine Legion | Trooper, Enforcer, Seeker Drone, Burner Drone, Sentry Cannon, Razor Jet | ranged, bursts, dive-bombs, strafing runs | done |
-| Syndicate (gangsters) | Gunman | fast, close-range bursts | stand-in |
+| Syndicate (gangsters) | Gunman | fast, close-range bursts | four-frame walk sheet integrated |
 | Undead | Furnace Ghoul, Ghoul Brute | rush and lunge in packs | stand-in |
 | Aliens | Void Stalker | teleports, 3-way plasma | stand-in |
 | Underworld (demons) | Ash Imp | lobs arcing fireballs | stand-in |

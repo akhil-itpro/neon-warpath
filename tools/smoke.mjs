@@ -16,6 +16,22 @@ const SCENARIOS = [
   { name: 'cathedral', url: '?stage=3&god=1&weapon=rail', steps: [['wait', 800], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 5000], ['shot'], ['wait', 9000], ['shot']] },
   { name: 'cathedral-boss', url: '?stage=3&boss=1&god=1&weapon=smg', steps: [['wait', 500], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 7000], ['shot'], ['up', 'KeyD'], ['wait', 12000], ['shot']] },
   { name: 'death', url: '?stage=1', steps: [['eval', 'window.__run.hp = 1'], ['down', 'KeyD'], ['wait', 9000], ['shot']] },
+  // Force lethal damage only to exercise transitions, not to claim combat balance is verified.
+  ...[1, 2, 3].map((stage) => ({ name: `flow-stage-${stage}`, url: `?stage=${stage}&boss=1&god=1`, steps: [
+    ['down', 'KeyD'], ['until', '!!window.__game.scene.getScene("Game").boss'], ['up', 'KeyD'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp, g.player.x)'],
+    ['until', `window.__game.scene.isActive("${stage === 3 ? 'End' : 'Perk'}")`], ['wait', 1300], ['shot'],
+    ['assert', `window.__run.stage === ${stage}`], ['tap', 'Enter'],
+    ['until', `window.__game.scene.isActive("${stage === 3 ? 'Title' : 'Game'}")`], ['wait', 700], ['shot'],
+    ...(stage < 3 ? [['assert', 'window.__run.perks.length === 1']] : []),
+  ] })),
+  { name: 'flow-retry', url: '?stage=1', steps: [
+    ['wait', 800], ['eval', 'window.__run.score = 1000; var g = window.__game.scene.getScene("Game"); g.player.invuln = 0; g.hurtPlayer(10000, g.player.x - 20)'],
+    ['until', 'window.__game.scene.getScene("Game").canRetry'], ['wait', 400], ['shot'], ['tap', 'Enter'], ['wait', 1000],
+    ['assert', 'window.__game.scene.getScene("Game").state === "play" && window.__run.hp === window.__run.stats.maxHp && window.__run.score === 800 && window.__game.scene.getScene("Game").physics.world.timeScale === 1'],
+    ['tap', 'Escape'], ['wait', 300], ['assert', 'window.__game.scene.isPaused("Game")'], ['shot'],
+    ['tap', 'Escape'], ['wait', 300], ['assert', 'window.__game.scene.isActive("Game")'], ['shot'],
+  ] },
 ];
 
 mkdirSync('tools/shots', { recursive: true });
@@ -34,17 +50,25 @@ for (const sc of SCENARIOS.filter((s) => s.name.includes(filter))) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e.stack ?? e)));
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+  page.on('response', (r) => { if (r.status() >= 400) errors.push(`HTTP ${r.status()} ${r.url()}`); });
   await page.goto(base + sc.url);
   await page.waitForFunction(() => window.__game && window.__game.scene.getScenes(true).some((s) => s.scene.key !== 'Boot'), null, { timeout: 15000 });
   await page.click('canvas');
   let n = 0;
+  try {
   for (const [op, arg] of sc.steps) {
     if (op === 'wait') await page.waitForTimeout(arg);
     else if (op === 'down') await page.keyboard.down(arg);
     else if (op === 'up') await page.keyboard.up(arg);
     else if (op === 'tap') await page.keyboard.press(arg, { delay: 60 });
     else if (op === 'eval') await page.evaluate(arg);
+    else if (op === 'until') await page.waitForFunction(arg, null, { timeout: 20000 });
+    else if (op === 'assert' && !await page.evaluate(arg)) throw new Error(`Assertion failed: ${arg}`);
     else if (op === 'shot') await page.screenshot({ path: `tools/shots/${sc.name}-${n++}.png` });
+  }
+  } catch (e) {
+    errors.push(String(e));
+    await page.screenshot({ path: `tools/shots/${sc.name}-failure.png` });
   }
   const info = await page.evaluate(() => {
     const g = window.__game, r = window.__run;
