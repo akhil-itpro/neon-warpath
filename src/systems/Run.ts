@@ -1,0 +1,82 @@
+// State for one playthrough (survives scene changes) + persistent save data.
+import { OPERATORS, OperatorDef } from '../data/operators';
+
+export interface Stats {
+  maxHp: number;
+  dmg: number;
+  rate: number;
+  speed: number;
+  jump: number;
+  airJumps: number;
+  lifesteal: number;
+  slideCd: number; // ms
+  odGain: number;
+  blast: number; // chance-free: kills explode with this radius (0 = off)
+  ammo: number; // pickup ammo multiplier
+  magnet: number;
+  armor: number; // damage multiplier taken
+}
+
+export interface PerkDef {
+  id: string;
+  name: string;
+  desc: string;
+  apply: (s: Stats) => void;
+}
+
+export const PERKS: PerkDef[] = [
+  { id: 'plating', name: 'TITANIUM PLATING', desc: '+30 max armor, full heal', apply: (s) => { s.maxHp += 30; } },
+  { id: 'hollow', name: 'HOLLOW POINTS', desc: '+25% damage', apply: (s) => { s.dmg *= 1.25; } },
+  { id: 'trigger', name: 'HAIR TRIGGER', desc: '+20% fire rate', apply: (s) => { s.rate *= 1.2; } },
+  { id: 'boosters', name: 'JUMP BOOSTERS', desc: 'Extra mid-air jump', apply: (s) => { s.airJumps += 1; } },
+  { id: 'reflex', name: 'COMBAT REFLEX', desc: 'Slide recharges 45% faster', apply: (s) => { s.slideCd *= 0.55; } },
+  { id: 'vampire', name: 'FIELD SURGEON', desc: 'Heal 2 armor per kill', apply: (s) => { s.lifesteal += 2; } },
+  { id: 'fury', name: 'WAR FURY', desc: 'Overdrive charges 40% faster', apply: (s) => { s.odGain *= 1.4; } },
+  { id: 'chain', name: 'CHAIN REACTION', desc: 'Enemies explode on death', apply: (s) => { s.blast += 44; } },
+  { id: 'bandolier', name: 'BANDOLIER', desc: '+60% ammo from weapon crates', apply: (s) => { s.ammo *= 1.6; } },
+  { id: 'kevlar', name: 'REACTIVE KEVLAR', desc: 'Take 20% less damage', apply: (s) => { s.armor *= 0.8; } },
+  { id: 'sprinter', name: 'ADRENAL PUMP', desc: '+12% move speed', apply: (s) => { s.speed *= 1.12; } },
+];
+
+export interface RunState {
+  op: OperatorDef;
+  stage: number;
+  score: number;
+  hp: number;
+  weapon: string;
+  ammo: number;
+  od: number; // 0..100
+  perks: string[];
+  stats: Stats;
+  kills: number;
+  maxCombo: number;
+  deaths: number;
+  checkpoint: number; // index of first encounter not yet cleared in current stage
+  checkpointX: number;
+}
+
+export let run: RunState;
+
+export function newRun(opIndex: number) {
+  const op = OPERATORS[opIndex] ?? OPERATORS[0];
+  run = {
+    op, stage: 0, score: 0, hp: op.hp, weapon: op.weapon, ammo: 0, od: 0, perks: [],
+    stats: { maxHp: op.hp, dmg: op.dmg, rate: op.rate, speed: op.speed, jump: op.jump, airJumps: 0, lifesteal: 0, slideCd: 650, odGain: 1, blast: 0, ammo: 1, magnet: 90, armor: 1 },
+    kills: 0, maxCombo: 0, deaths: 0, checkpoint: 0, checkpointX: 80,
+  };
+  (window as any).__run = run; // debugging / smoke-test handle
+}
+
+// ---- persistent save (localStorage) ----
+interface SaveData { best: number; cleared: number; muted: boolean; op: number }
+const KEY = 'neon-warpath-save-v1';
+
+export const save: SaveData = (() => {
+  const d: SaveData = { best: 0, cleared: 0, muted: false, op: 0 };
+  try { Object.assign(d, JSON.parse(localStorage.getItem(KEY) ?? '{}')); } catch { /* corrupt or blocked: use defaults */ }
+  return d;
+})();
+
+export function persist() {
+  try { localStorage.setItem(KEY, JSON.stringify(save)); } catch { /* storage unavailable */ }
+}

@@ -1,0 +1,21 @@
+{
+ "images": [
+  "bg_cathedral",
+  "bg_city",
+  "bg_furnace",
+  "drone",
+  "heli",
+  "hero_crouch",
+  "hero_idle",
+  "hero_jump",
+  "hero_run0",
+  "hero_run1",
+  "hero_run2",
+  "hero_run3",
+  "hero_slide",
+  "jet",
+  "robot_aim",
+  "robot_walk",
+  "turret"
+ ]
+}
