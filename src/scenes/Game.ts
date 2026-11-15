@@ -321,6 +321,7 @@ export class GameScene extends Phaser.Scene {
       if (dist < best && off < R.DegToRad(38) && Math.abs(e.x - this.cameras.main.midPoint.x) < 330) { best = dist; target = e; }
     }
     if (target) base = Math.atan2(target.cy - m.y, target.x - m.x);
+    p.noteShot(base);
     const spread = R.DegToRad(w.spread);
     for (let i = 0; i < w.pellets; i++) {
       const shot = this.pShots.get(m.x, m.y) as Shot | null;

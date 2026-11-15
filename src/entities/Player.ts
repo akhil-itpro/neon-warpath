@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { DEPTH } from '../config';
 import { ART_MUZZLES } from '../data/artMuzzles';
+import { ARMS, buildArmRig } from '../systems/ArmRig';
 import { run } from '../systems/Run';
 import { audio } from '../systems/Audio';
 import type { Controls } from '../systems/Controls';
@@ -29,14 +30,21 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private buffer = 0;
   private airJumps = 0;
   private wasGround = true;
-  private art: string;
+  private art: string;     // texture prefix of the body frames (`rook_b` when the arm is rigged, else `rook`)
   private baseTint: number;
   private aura: Phaser.GameObjects.Image;
+  arm: Phaser.GameObjects.Image | null = null;
+  armAng = 0;       // current (smoothed) world angle of the gun arm
+  private shotAng = 0;      // keyboard/gamepad: angle of the last shot, held briefly
+  private shotUntil = 0;
+  private recoil = 0;       // 0..1 kick, decays
 
   constructor(private gs: GameScene, x: number, y: number) {
     const op = run.op;
     const hasArt = gs.textures.exists(`${op.art}_idle`);
-    const art = hasArt ? op.art : 'hero';
+    const baseArt = hasArt ? op.art : 'hero';
+    const rigged = buildArmRig(gs, baseArt);
+    const art = rigged ? `${baseArt}_b` : baseArt;
     super(gs, x, y, `${art}_idle`);
     this.art = art;
     this.baseTint = hasArt ? 0xffffff : op.tint;
@@ -47,6 +55,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.body.setMaxVelocityY(900);
     this.aura = gs.add.image(x, y, 'glow').setBlendMode(Phaser.BlendModes.ADD).setTint(0xffc040).setDepth(DEPTH.player - 1).setVisible(false);
 
+    if (rigged) {
+      this.arm = gs.add.image(x, y, `${baseArt}_a_idle`).setDepth(DEPTH.player + 0.1).setTint(this.baseTint);
+    }
     const key = `${art}-run`;
     if (!gs.anims.exists(key)) {
       gs.anims.create({ key, frames: [0, 1, 2, 3].map((i) => ({ key: `${art}_run${i}` })), frameRate: 12, repeat: -1 });
@@ -65,10 +76,62 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   /** World position of the gun muzzle for the current pose. */
   muzzle() {
+    const g = ARMS[this.texture.key];
+    if (g && this.arm) {
+      const p = this.pivot(g);
+      const a = this.armAng, c = Math.cos(a), sn = Math.sin(a);
+      const dy = this.dir > 0 ? g.dy : -g.dy; // mirrored arm flips the barrel offset
+      return { x: p.x + c * g.len - sn * dy, y: p.y + sn * g.len + c * dy };
+    }
     const tip = ART_MUZZLES[this.texture.key];
     if (tip) return { x: this.x + this.dir * tip[0], y: this.y - tip[1] };
     const y = this.low ? this.y - 31 : this.onGround ? this.y - 51 : this.y - 44;
     return { x: this.x + this.dir * 34, y };
+  }
+
+  /** World position of the shoulder pivot for the current frame. */
+  private pivot(g: { px: number; py: number }) {
+    return { x: this.x + this.dir * (g.px - FRAME_W / 2), y: this.y + (g.py - FRAME_H) };
+  }
+
+  /** Called by the scene when a shot is fired so the arm snaps to the shot direction (keyboard/gamepad). */
+  noteShot(angle: number) {
+    this.shotAng = angle; this.shotUntil = this.gs.time.now + 320; this.recoil = 1;
+  }
+
+  /** Keep the arm sprite glued to the body and pointed at the aim target. */
+  preUpdate(time: number, delta: number) {
+    super.preUpdate(time, delta);
+    const arm = this.arm;
+    if (!arm) return;
+    const g = ARMS[this.texture.key];
+    if (!g) { arm.setVisible(false); return; }
+    const pose = this.texture.key.split('_b_')[1];
+    const piv = this.pivot(g);
+    const fwd = this.dir > 0 ? 0 : Math.PI;
+    let want = fwd;
+    if (!this.dead) {
+      const aim = this.gs.aim;
+      if (aim) want = Math.atan2(aim.y - piv.y, aim.x - piv.x);
+      else if (time < this.shotUntil) want = this.shotAng;
+      else if (pose === 'run0' || pose === 'run1' || pose === 'run2' || pose === 'run3') want = fwd; // arm stays forward
+    }
+    // limit how far the arm can swing away from the facing direction (tighter while sliding)
+    const lim = this.sliding > 0 ? 0.35 : this.low ? 1.1 : 1.75;
+    const rel = Phaser.Math.Angle.Wrap(want - fwd);
+    want = fwd + Phaser.Math.Clamp(rel, -lim, lim);
+    const k = Math.min(1, delta / 55);
+    this.armAng += Phaser.Math.Angle.Wrap(want - this.armAng) * k;
+    this.recoil = Math.max(0, this.recoil - delta / 130);
+    const kick = this.recoil * this.recoil;
+    const a = this.armAng - this.dir * kick * 0.07;
+    arm.setVisible(true)
+      .setTexture(`${this.art.slice(0, -2)}_a_${pose}`)
+      .setOrigin(g.ox, g.oy)
+      .setFlipX(this.dir < 0)
+      .setPosition(piv.x - Math.cos(this.armAng) * kick * 2.5, piv.y - Math.sin(this.armAng) * kick * 2.5)
+      .setRotation(this.dir > 0 ? a : a - Math.PI)
+      .setAlpha(this.alpha);
   }
 
   tick(dt: number, c: Controls) {
@@ -176,8 +239,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   flashWhite() {
-    this.setTintFill(0xffffff);
-    this.gs.time.delayedCall(70, () => { if (!this.dead) this.setTint(this.baseTint); });
+    this.setTintFill(0xffffff); this.arm?.setTintFill(0xffffff);
+    this.gs.time.delayedCall(70, () => { if (!this.dead) { this.setTint(this.baseTint); this.arm?.setTint(this.baseTint); } });
   }
 
   die() {
@@ -186,6 +249,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.overdrive = 0;
     this.anims.stop();
     this.setTexture(`${this.art}_slide`).setTint(0xff6060).setAlpha(1);
+    this.arm?.setTint(0xff6060);
     this.body.setVelocity(-this.dir * 160, -320);
     this.body.setAccelerationX(0);
     this.body.setDragX(300);
