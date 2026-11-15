@@ -40,3 +40,15 @@ Style line to paste into every prompt:
 
 ## Licensing note
 Keep the original prompts and outputs in `art/source/`. Before selling the game, check the current terms of the image tool used and the disclosure rules of the store (Steam requires declaring AI-generated content).
+
+## First-time guide: your next asset
+
+You do not need to write code or pay for an API key for this workflow. This session generated and integrated the gangster directly with the built-in image tool.
+
+If you want to make the next sheet yourself, send ChatGPT this entire message:
+
+> Create a sprite sheet for my original side-scrolling game. Exactly four full-body poses in one horizontal row: a walk cycle of the same factory-worker zombie in torn overalls, glowing green eyes, arms reaching LEFT. Every pose faces LEFT. Same outfit and proportions in every frame, alternating leg strides, generous empty space around each character. 16-bit detailed pixel art, strict side view, hard pixel edges, limited palette, no anti-aliasing blur. Flat solid magenta #FF00FF background, no glow, no shadows, no floor, no text, no grid lines. Nothing cropped or overlapping.
+
+Save the resulting image as `zombie_sheet.png` in `D:\Game1\art\source`, then tell the coding agent: "Add zombie_sheet.png to the game and test it." You can also attach the image to the coding conversation. The agent handles background removal, sizing, animation, and checks. Do not just rename a JPEG to PNG; keep the downloaded original and let the agent convert it if needed.
+
+For agents: `npm.cmd run assets -- --only gangster_sheet.png` rebuilds just that sheet and preserves other outputs. The preview in this mode shows only the rebuilt sheet. Omit `--only` for a full rebuild. On Windows PowerShell use `npm.cmd` if `npm` is blocked by execution policy.

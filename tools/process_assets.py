@@ -15,7 +15,7 @@ How it works
 To add art: drop the PNG in art/source/, add an entry to MANIFEST below, run the script,
 then reference the output key in src/data/*.ts. See docs/ART_PIPELINE.md.
 """
-import sys, os, json
+import sys, os, json, argparse
 import numpy as np
 from PIL import Image
 from scipy import ndimage
@@ -31,6 +31,13 @@ ENEMY_OUTLINE = (255, 86, 56)
 # sheet -> list of sprites in row-major order. h = target height in game pixels (game is 640x360).
 # canvas = shared (w, h) frame for animated characters (feet anchored bottom-centre).
 MANIFEST = {
+    "gangster_sheet.png": {
+        "outline": ENEMY_OUTLINE,
+        "grid": (4, 1),
+        "scale_ref": {"index": 0, "h": 66},
+        "canvas": (96, 72),
+        "names": ["gangster_0", "gangster_1", "gangster_2", "gangster_3"],
+    },
     "Tactical Hero Eight-Frame Sprite Sheet.png": {
         "outline": HERO_OUTLINE,
         "grid": (4, 2),  # columns, rows of sprites on the sheet
@@ -165,9 +172,15 @@ def place(spr: np.ndarray, canvas):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--preview", action="store_true")
+    parser.add_argument("--only", choices=list(MANIFEST), help="Rebuild one sprite sheet; preserve other assets")
+    args = parser.parse_args()
     os.makedirs(OUT, exist_ok=True)
     made = []
     for sheet, spec in MANIFEST.items():
+        if args.only and sheet != args.only:
+            continue
         path = os.path.join(SRC, sheet)
         if not os.path.exists(path):
             print("skip (missing):", sheet)
@@ -190,6 +203,8 @@ def main():
             made.append((name, spr))
             print(f"{name:12s} {spr.shape[1]}x{spr.shape[0]}")
     for sheet, key in BACKGROUNDS.items():
+        if args.only:
+            continue
         path = os.path.join(SRC, sheet)
         if not os.path.exists(path):
             continue
@@ -204,7 +219,7 @@ def main():
     keys = sorted(f[:-4] for f in os.listdir(OUT) if f.endswith(".png"))
     with open(os.path.join(OUT, "manifest.json"), "w") as fh:
         json.dump({"images": keys}, fh, indent=1)
-    if "--preview" in sys.argv:
+    if args.preview and made:
         os.makedirs(PREVIEW, exist_ok=True)
         W = sum(s.shape[1] + 6 for _, s in made)
         H = max(s.shape[0] for _, s in made) + 12
