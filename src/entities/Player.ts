@@ -10,6 +10,8 @@ import type { GameScene } from '../scenes/Game';
 const FRAME_W = 96, FRAME_H = 72;
 const STAND: [number, number] = [18, 56];
 const LOW: [number, number] = [18, 32];
+// Legacy rectangle-cut arms stay opt-in until an operator has purpose-drawn parts.
+const ARM_RIG = false;
 
 // Movement feel constants. These numbers ARE the game feel; tune with care and playtest.
 const ACCEL = 1700, AIR_ACCEL = 1150, FRICTION = 2100;
@@ -44,7 +46,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const op = run.op;
     const hasArt = gs.textures.exists(`${op.art}_idle`);
     const baseArt = hasArt ? op.art : 'hero';
-    const rigged = buildArmRig(gs, baseArt);
+    const rigged = ARM_RIG && buildArmRig(gs, baseArt);
     const art = rigged ? `${baseArt}_b` : baseArt;
     super(gs, x, y, `${art}_idle`);
     this.art = art;
