@@ -46,6 +46,15 @@ export class BootScene extends Phaser.Scene {
 
     this.canvas('px', 2, 2, (c) => px(c, '#fff', 0, 0, 2, 2));
 
+    // mouse-aim crosshair: white with a dark edge so it reads on any background
+    this.canvas('crosshair', 15, 15, (c) => {
+      for (const [col, g] of [['#05060a', 1], ['#ffffff', 0]] as const) { // dark pass is 1px fatter
+        px(c, col, 7 - g, 0, 1 + g * 2, 5 + g); px(c, col, 7 - g, 10 - g, 1 + g * 2, 5 + g);
+        px(c, col, 0, 7 - g, 5 + g, 1 + g * 2); px(c, col, 10 - g, 7 - g, 5 + g, 1 + g * 2);
+        px(c, col, 7 - g, 7 - g, 1 + g * 2, 1 + g * 2);
+      }
+    });
+
     this.canvas('glow', 64, 64, (c) => {
       const g = c.createRadialGradient(32, 32, 0, 32, 32, 32);
       g.addColorStop(0, 'rgba(255,255,255,1)');

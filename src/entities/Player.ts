@@ -122,6 +122,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       }
     }
 
+    // --- mouse aim: face the crosshair, so you can back away from a target while shooting it ---
+    const aim = this.gs.aim;
+    if (aim && this.sliding <= 0 && Math.abs(aim.x - this.x) > 6) this.dir = aim.x > this.x ? 1 : -1;
+
     // --- jump (buffered + coyote time + variable height) ---
     if (this.buffer > 0) {
       if (c.held('down') && ground && this.gs.onOneWay(this)) {
@@ -143,7 +147,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (this.sliding > 0) this.pose('slide');
     else if (!ground) this.pose('jump');
     else if (lowPose) this.pose('crouch');
-    else if (Math.abs(body.velocity.x) > 20) this.play(`${this.art}-run`, true);
+    else if (Math.abs(body.velocity.x) > 20) {
+      this.play(`${this.art}-run`, true);
+      const backwards = Math.sign(body.velocity.x) !== this.dir; // back-pedalling plays the run cycle in reverse
+      if (this.anims.inReverse !== backwards) this.anims.reverse();
+    }
     else this.pose('idle');
 
     // --- blink while invulnerable after a hit ---

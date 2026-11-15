@@ -58,6 +58,13 @@ export class PerkScene extends Phaser.Scene {
     if (this.done) return;
     const move = (c.pressed('right') ? 1 : 0) - (c.pressed('left') ? 1 : 0);
     if (move) { this.sel = Phaser.Math.Clamp(this.sel + move, 0, this.picks.length - 1); this.highlight(); audio.sfx('ui'); }
+    // clicking a card picks that card
+    const ptr = c.pointer;
+    if (c.pressed('fire') && ptr.isDown) {
+      const hit = this.cards.findIndex((card) => Math.abs(ptr.x - card.x) < 88 && Math.abs(ptr.y - card.y) < 86);
+      if (hit < 0) return;
+      this.sel = hit; this.highlight();
+    }
     if (c.pressed('fire') || c.pressed('jump')) {
       this.done = true;
       const p = this.picks[this.sel];

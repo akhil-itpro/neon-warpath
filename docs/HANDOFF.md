@@ -2,6 +2,45 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
+## Session 8 - 2026-11-15 (Claude Code, owner playtest feedback + quality audit) — READ THIS FIRST
+
+### Owner feedback (first real human playtest)
+The owner played and said, in short: no mouse pointer to shoot enemies, "the fire is stuck", graphics and animation look bad, wants a professional result, and allowed a tech-stack change if needed. **This overrides the "more assets" direction of Sessions 5-7.** The owner does not want more content; they want what exists to look and feel good.
+
+### Fixed this session
+- **Mouse aim.** Moving or clicking the mouse switches to free aim: a crosshair replaces the system arrow during combat, shots go exactly to the crosshair, the hero faces it and back-pedals (run cycle reversed) when moving away. Left click fires, right click slides. Pressing a fire key (J/X/Enter) or gamepad fire switches back to the old auto-aim. Code: `Controls.mouseAim` / `aimPoint()` in `src/systems/Controls.ts`, `GameScene.aim` + `playerFire()`, facing in `Player.tick()`, crosshair in `HudScene.update()`, texture in `Boot.ts`.
+- "Fire is stuck" was read as "shots only ever go straight ahead". No bug was found where firing continues after release; the new `mouse-aim` smoke scenario asserts it stops.
+- Title: clicking left/right of the operator browses, clicking elsewhere deploys. Perk screen: clicking a card picks it. On-screen control hints updated.
+- Foreground pillars are now 40% opaque (four sessions noted they hid enemies).
+
+### Verified
+- `npm.cmd run check`, `npm.cmd run build` pass. Smoke: new `mouse-aim` passes (aim up-right, aim left, release stops fire, back-pedal, J returns to auto-aim); `title`, all `art-*`, all eight `flow-*`, `city`, `city-boss` re-run and pass. Looked at both mouse-aim screenshots.
+- NOT verified: how mouse aim feels to a human; the reversed run cycle was not reviewed visually; Title/Perk mouse clicks have no automated test; the remaining ~14 smoke scenarios were not re-run (the change does not touch enemies, bosses or weapons data).
+
+### Audit: why it does not look professional (most important first)
+1. **Almost nothing is animated.** Each hero has 8 still pictures: a 4-frame run and ONE frame each for idle, jump, slide, crouch. No shooting, hurt or death frames. The 16 expansion enemies and all 7 bosses are single still images that rock or hover. Commercial run-and-guns use 8-12 run frames, breathing idles, separate jump-up/fall, hit reactions and death animations for everything.
+2. **The gun does not point where the shots go.** The art only aims forward, so aimed shots leave a sideways gun. Now that the mouse aims, this is the most visible flaw. Standard fix: draw the hero without the gun arm and add a separate arm+gun sprite that rotates to the aim angle (shoulder pivot per pose, replacing `ART_MUZZLES`).
+3. **Flat worlds.** Each stage is one flattened picture scrolling at one speed, plus the same grey steel floor strip and the same platform tile in all 7 stages (drawn in code in `Boot.ts`). No parallax layers, no per-stage ground, props do nothing.
+4. **Inconsistent art.** ~30 AI sheets made in separate batches: different proportions, palettes and pixel sizes, then shrunk to fit. Heroes are low-contrast against busy backgrounds; the baked outline is the only thing separating them.
+5. **Breadth before quality.** 7 stages, 28+ enemies, 13 weapons, 7 bosses, plus two unused packs (Frontier, 26 designs; `art/source/species/`, untracked, origin unknown to this session) — and no stage has ever been completed at normal health. `docs/ROADMAP.md` Milestone 1 ("stage 1 only, perfect") was skipped.
+6. All sound is synthesised. Acceptable for now; revisit after the visuals.
+
+### Tech stack decision: keep it
+Phaser 3 + TypeScript + Vite is not what makes the game look bad, and it is not limiting anything on the list above. The code is small (~3,000 lines), data-driven and covered by an automated browser playthrough that AI agents can run unattended; a move to Godot or Unity would throw that away and fix none of the six points. Worth doing inside the current stack when the time comes: pack sprites into texture atlases (the game currently downloads ~170 separate PNGs), describe animations in data (frame lists + per-frame pivots) instead of hard-coded `_run0..3` names, and wrap with Tauri/Electron for Steam.
+
+### Rules for the next sessions (both agents)
+- **Content freeze.** No new stages, enemies, weapons, bosses or asset packs until stage 1 (city) is finished to shipping quality. Do not integrate Frontier or species art yet.
+- One agent works at a time; commit at the end of each session.
+- Lock an art style before generating anything: one reference sheet (ROOK), one palette, one pixel density (hero about 56px tall on the 640x360 screen), every new sheet generated against that reference.
+- Every session ends with something the owner can play and judge at `npm run dev`. Ask them for one sentence of feedback; it is the only real test this project has had.
+
+### Next tasks, in order
+1. **Hero rebuild, ROOK only** (needs image generation — Codex has it, this Claude session did not): gun-arm-less body frames — idle x4, run x8, jump-up, fall, land, slide, crouch, hurt, death x6 — plus one separate arm+gun sprite pointing right. Then code: arm sprite child rotating to `GameScene.aim` (or the auto-aim angle), shoulder pivots per pose, muzzle derived from the arm, recoil kick on the arm.
+2. **Stage 1 world:** split the city backdrop into 3-4 parallax layers (sky, far skyline, near buildings, foreground), a city-specific ground and platform tileset, a few animated props (neon flicker, steam).
+3. **Stage 1 enemies** (trooper/robot, gangster, drone, turret, VULTURE boss): shooting frame, hit flinch, death animation each.
+4. Play stage 1 at normal health and tune it (Session 6's balance list still stands, but only for stage 1).
+5. Only then carry the same treatment to stage 2, one stage at a time.
+
 ## Session 7 - 2026-11-15 (Codex, animated Frontier asset pack)
 
 ### Completed

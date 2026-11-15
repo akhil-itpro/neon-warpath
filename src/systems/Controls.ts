@@ -16,6 +16,10 @@ const BINDS = {
 type Action = keyof typeof BINDS;
 
 export class Controls {
+  /** True while the player is aiming with the mouse (it moved or clicked more recently than a fire key / gamepad was used). Shared by all scenes. */
+  static mouseAim = false;
+  private lastX = 0;
+  private lastY = 0;
   private keys = {} as Record<Action, Phaser.Input.Keyboard.Key[]>;
   private now = {} as Record<Action, boolean>;
   private prev = {} as Record<Action, boolean>;
@@ -27,6 +31,8 @@ export class Controls {
       this.now[a] = this.prev[a] = false;
     }
     scene.input.mouse?.disableContextMenu();
+    const ptr = scene.input.activePointer;
+    this.lastX = ptr.x; this.lastY = ptr.y;
   }
 
   /** Call once per frame before reading. */
@@ -37,6 +43,10 @@ export class Controls {
       this.prev[a] = this.now[a];
       this.now[a] = this.keys[a].some((k) => k.isDown);
     }
+    // Whichever device was used last decides how shots are aimed: mouse = free aim at the crosshair, keys/pad = auto-aim.
+    if (this.now.fire) Controls.mouseAim = false;
+    if (ptr.isDown || ptr.x !== this.lastX || ptr.y !== this.lastY) Controls.mouseAim = true;
+    this.lastX = ptr.x; this.lastY = ptr.y;
     if (ptr.isDown) { if (ptr.rightButtonDown()) this.now.slide = true; else this.now.fire = true; }
     if (pad) {
       const sx = pad.leftStick.x, sy = pad.leftStick.y;
@@ -44,12 +54,21 @@ export class Controls {
       if (pad.right || sx > 0.4) this.now.right = true;
       if (pad.down || sy > 0.6) this.now.down = true;
       if (pad.A) this.now.jump = true;
-      if (pad.X || pad.R2 > 0.3) this.now.fire = true;
+      if (pad.X || pad.R2 > 0.3) { this.now.fire = true; Controls.mouseAim = false; }
       if (pad.B || pad.R1) this.now.slide = true;
       if (pad.Y || pad.L1) this.now.overdrive = true;
       if (pad.buttons[9]?.pressed) this.now.pause = true;
     }
   }
+
+  /** Where the mouse points in the world, or null when the player is not aiming with the mouse. */
+  aimPoint(cam: Phaser.Cameras.Scene2D.Camera) {
+    if (!Controls.mouseAim) return null;
+    const v = this.scene.input.activePointer.positionToCamera(cam) as Phaser.Math.Vector2;
+    return { x: v.x, y: v.y };
+  }
+  /** Mouse position in screen (game pixel) coordinates. */
+  get pointer() { return this.scene.input.activePointer; }
 
   held(a: Action) { return this.now[a]; }
   pressed(a: Action) { return this.now[a] && !this.prev[a]; }

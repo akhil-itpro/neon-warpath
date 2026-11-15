@@ -100,6 +100,22 @@ const SCENARIOS = [
       ['assert', `window.__targets.some(e => e.hp < e.maxHp) /* ${w} must damage */`],
     ]),
   ] },
+  // Mouse aim: shots follow the crosshair, the hero faces it, and releasing the button stops the gun.
+  { name: 'mouse-aim', url: '?stage=city&god=1&weapon=smg', steps: [
+    ['wait', 2800],
+    ['eval', `var g = window.__game.scene.getScene('Game'); for (const e of g.enemies) g.removeEnemy(e); g.player.x = 300; g.player.body.setVelocity(0, 0);`],
+    ['mouse', [1100, 200]], ['wait', 200], ['mdown'], ['wait', 500], ['shot'],
+    ['assert', `var g = window.__game.scene.getScene('Game'); var s = g.pShots.getChildren().filter(s => s.active); g.aim && g.player.dir === 1 && s.length > 2 && s.every(s => s.body.velocity.y < -100 && s.body.velocity.x > 0)`],
+    ['assert', `var h = window.__game.scene.getScene('Hud'); h.cross.visible && window.__game.canvas.style.cursor === 'none'`],
+    ['mouse', [150, 300]], ['wait', 1200], ['shot'],
+    ['assert', `var g = window.__game.scene.getScene('Game'); var s = g.pShots.getChildren().filter(s => s.active); g.player.dir === -1 && g.player.flipX && s.length > 2 && s.every(s => s.body.velocity.x < 0)`],
+    ['mup'], ['wait', 1300],
+    ['assert', `window.__game.scene.getScene('Game').pShots.getChildren().every(s => !s.active) /* fire must stop on release */`],
+    ['down', 'KeyD'], ['wait', 500], ['shot'], ['up', 'KeyD'],
+    ['assert', `window.__game.scene.getScene('Game').player.dir === -1 /* back-pedals while facing the crosshair */`],
+    ['down', 'KeyJ'], ['wait', 300], ['up', 'KeyJ'],
+    ['assert', `!window.__game.scene.getScene('Game').aim && !window.__game.scene.getScene('Hud').cross.visible /* fire key returns to auto-aim */`],
+  ] },
   { name: 'death', url: '?stage=1', steps: [['eval', 'window.__run.hp = 1'], ['down', 'KeyD'], ['wait', 9000], ['shot']] },
   // Force lethal damage only to exercise transitions, not to claim combat balance is verified.
   ...[1, 2, 3, 4, 5, 6, 7].map((stage) => ({ name: `flow-stage-${stage}`, url: `?stage=${stage}&boss=1&god=1`, steps: [
@@ -146,6 +162,9 @@ for (const sc of SCENARIOS.filter((s) => s.name.includes(filter))) {
     else if (op === 'down') await page.keyboard.down(arg);
     else if (op === 'up') await page.keyboard.up(arg);
     else if (op === 'tap') await page.keyboard.press(arg, { delay: 60 });
+    else if (op === 'mouse') await page.mouse.move(arg[0], arg[1], { steps: 4 });
+    else if (op === 'mdown') await page.mouse.down();
+    else if (op === 'mup') await page.mouse.up();
     else if (op === 'eval') await page.evaluate(arg);
     else if (op === 'until') await page.waitForFunction(arg, null, { timeout: 20000 });
     else if (op === 'assert' && !await page.evaluate(arg)) throw new Error(`Assertion failed: ${arg}`);

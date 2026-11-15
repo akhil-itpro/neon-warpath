@@ -45,6 +45,8 @@ Python deps for the asset pipeline: `pip install pillow numpy scipy "rembg[cpu]"
 
 **Asset pipeline.** Raw AI sheets live in `art/source/` (never edit them). `tools/process_assets.py` removes backgrounds (chroma key if flat colour, else `rembg` per grid cell), finds sprites, downsizes to game pixels, bakes a 1px team-coloured outline, and writes `public/assets/*.png` + `manifest.json`. New sheets need a `MANIFEST` entry in that script. The single-pose expansion library (`art/library/expansion`) is brought in by `python tools/integrate_expansion.py` instead (its `JOBS` table sets in-game sizes). Enemy source sprites face LEFT, hero faces RIGHT.
 
+**Aiming.** Two modes, switched by whichever device was used last (`Controls.mouseAim`): mouse = free aim at the crosshair (`GameScene.aim`, hero faces it), fire key / gamepad = auto-aim cone in `playerFire`. The crosshair is drawn by `HudScene`.
+
 ## Gotchas
 
 - Scenes are reused on restart: reset every field in `create()`, not in property initialisers.

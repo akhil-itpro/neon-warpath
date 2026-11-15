@@ -35,6 +35,7 @@ export class GameScene extends Phaser.Scene {
   stageKills = 0;
   stageTime = 0;
   canRetry = false;
+  aim: { x: number; y: number } | null = null; // world point under the mouse crosshair; null = keyboard/gamepad auto-aim
 
   private pShots!: Phaser.Physics.Arcade.Group;
   private eShots!: Phaser.Physics.Arcade.Group;
@@ -58,6 +59,7 @@ export class GameScene extends Phaser.Scene {
     const st = (this.stage = STAGES[run.stage]);
     this.enemies = []; this.pickups = []; this.flows = [];
     this.state = 'play'; this.combo = 0; this.comboT = 0; this.mult = 1;
+    this.aim = null;
     this.boss = null; this.bossActive = false; this.locked = false; this.canRetry = false;
     this.stageKills = 0; this.stageTime = 0; this.wave = 0; this.waveGap = 0;
     this.physics.world.resume();
@@ -107,7 +109,7 @@ export class GameScene extends Phaser.Scene {
     }
     // foreground silhouettes scroll faster than the world for depth
     for (let x = 500; x < st.width * 1.6; x += R.Between(620, 980)) {
-      this.add.image(x, 0, 'pillar').setOrigin(0.5, 0).setScrollFactor(1.6, 1).setDepth(DEPTH.front);
+      this.add.image(x, 0, 'pillar').setOrigin(0.5, 0).setScrollFactor(1.6, 1).setDepth(DEPTH.front).setAlpha(0.4); // see-through so it never hides a threat
     }
     this.makeWeather(st);
 
@@ -189,6 +191,7 @@ export class GameScene extends Phaser.Scene {
     for (let i = this.pickups.length - 1; i >= 0; i--) if (this.pickups[i].taken) { this.pickups[i].glow?.destroy(); this.pickups[i].destroy(); this.pickups.splice(i, 1); }
 
     const p = this.player;
+    this.aim = c.aimPoint(cam);
     p.tick(dt, c);
     if (!p.dead) {
       p.x = R.Clamp(p.x, this.bounds.left + 10, this.bounds.right - 10);
@@ -303,9 +306,15 @@ export class GameScene extends Phaser.Scene {
     p.fireCd = w.rate / s.rate / (od ? 1.8 : 1);
     const m = p.muzzle();
     let base = p.dir > 0 ? 0 : Math.PI;
-    // Aim assist: the hero art only aims forward, so shots bend toward the nearest target in a forward cone.
+    const aim = this.aim;
+    if (aim) {
+      // Mouse aim: shots go exactly where the crosshair is. Very close to the gun the angle is taken from the body so it cannot flip backwards.
+      const near = R.Distance.Between(m.x, m.y, aim.x, aim.y) < 40;
+      base = near ? Math.atan2(aim.y - p.centerY, aim.x - p.x) : Math.atan2(aim.y - m.y, aim.x - m.x);
+    }
+    // Keyboard / gamepad aim assist: shots bend toward the nearest target in a forward cone.
     let best = 420, target: Enemy | null = null;
-    for (const e of this.enemies) {
+    for (const e of aim ? [] : this.enemies) {
       if (e.dead || (e.x - m.x) * p.dir < 12) continue;
       const dist = R.Distance.Between(m.x, m.y, e.x, e.cy);
       const off = Math.abs(R.Angle.Wrap(Math.atan2(e.cy - m.y, e.x - m.x) - base));

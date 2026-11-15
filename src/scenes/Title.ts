@@ -41,9 +41,9 @@ export class TitleScene extends Phaser.Scene {
     this.info = [this.txt(W / 2, 264, '', 16, '#9fe8ff'), this.txt(W / 2, 282, '', 8, '#ffd040'), this.txt(W / 2, 296, '', 8, '#c0c8d8')];
     this.refresh();
 
-    const press = this.txt(W / 2, 322, 'PRESS ENTER OR J TO DEPLOY', 8);
+    const press = this.txt(W / 2, 322, 'CLICK OR PRESS ENTER TO DEPLOY', 8);
     this.tweens.add({ targets: press, alpha: 0.15, duration: 500, yoyo: true, repeat: -1 });
-    this.txt(W / 2, 344, 'A/D MOVE  SPACE JUMP  J FIRE  SHIFT SLIDE  Q OVERDRIVE  M MUTE', 8, '#70788c').setScale(0.75);
+    this.txt(W / 2, 344, 'A/D MOVE  SPACE JUMP  MOUSE AIM + FIRE  SHIFT SLIDE  Q OVERDRIVE', 8, '#70788c').setScale(0.75);
     if (save.best > 0) this.add.text(W - 8, 8, `BEST ${save.best}`, { fontFamily: FONT, fontSize: '8px', color: '#ffd040', stroke: '#000', strokeThickness: 3 }).setOrigin(1, 0);
     this.cameras.main.fadeIn(400);
   }
@@ -63,14 +63,18 @@ export class TitleScene extends Phaser.Scene {
     c.poll();
     if (this.started) return;
     if (c.pressed('mute')) { audio.unlock(); audio.setMuted(!audio.muted); save.muted = audio.muted; persist(); }
-    const move = (c.pressed('right') ? 1 : 0) - (c.pressed('left') ? 1 : 0);
+    let move = (c.pressed('right') ? 1 : 0) - (c.pressed('left') ? 1 : 0);
+    // clicking beside the operator browses; clicking anywhere else deploys
+    const ptr = c.pointer;
+    const sideClick = c.pressed('fire') && ptr.isDown && Math.abs(ptr.x - W / 2) > 70 && ptr.y > 110 && ptr.y < 300;
+    if (sideClick) move = ptr.x < W / 2 ? -1 : 1;
     if (move) {
       audio.unlock();
       this.sel = (this.sel + move + OPERATORS.length) % OPERATORS.length;
       this.refresh();
       audio.sfx('ui');
     }
-    if (c.pressed('fire') || c.pressed('jump')) {
+    if (!sideClick && (c.pressed('fire') || c.pressed('jump'))) {
       this.started = true;
       audio.unlock();
       audio.sfx('select');

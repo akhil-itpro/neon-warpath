@@ -26,6 +26,7 @@ export class HudScene extends Phaser.Scene {
   private paused = false;
   private shownScore = 0;
   private hpLag = 0;
+  private cross!: Phaser.GameObjects.Image;
 
   constructor() { super('Hud'); }
 
@@ -52,11 +53,18 @@ export class HudScene extends Phaser.Scene {
     this.bannerTxt = this.txt(W / 2, 110, '', 16).setOrigin(0.5).setAlpha(0);
     this.goTxt = this.txt(W - 16, H / 2 - 30, 'GO >', 16, '#80ffb0').setOrigin(1, 0.5).setVisible(false);
     this.overlay = this.add.container(0, 0).setDepth(100).setVisible(false);
+    this.cross = this.add.image(0, 0, 'crosshair').setDepth(200).setVisible(false);
+    this.events.once('shutdown', () => this.input.setDefaultCursor('default'));
   }
 
   update(_t: number, delta: number) {
     const gs = this.gs;
     this.controls.poll();
+    // Mouse aim: the system arrow is swapped for a crosshair while fighting, and comes back on pause / death / tally screens.
+    const aiming = Controls.mouseAim && !this.paused && gs.state === 'play';
+    const ptr = this.controls.pointer;
+    this.cross.setVisible(aiming).setPosition(Math.round(ptr.x), Math.round(ptr.y)).setTint(run.od >= 100 ? 0xffd040 : 0xffffff);
+    this.input.setDefaultCursor(aiming ? 'none' : 'default');
     if (this.paused) {
       if (this.controls.pressed('pause') || this.controls.pressed('fire')) this.setPaused(false);
       return;
@@ -188,7 +196,7 @@ export class HudScene extends Phaser.Scene {
   setPaused(on: boolean) {
     this.paused = on;
     if (on) {
-      this.panel([['PAUSED', 24, '#ffffff'], ['MOVE  A/D   JUMP  SPACE   FIRE  J', 8, '#c0c8d8'], ['SLIDE  SHIFT   OVERDRIVE  Q   MUTE  M', 8, '#c0c8d8'], ['PRESS ESC TO RESUME', 8, '#9fe8ff']]);
+      this.panel([['PAUSED', 24, '#ffffff'], ['MOVE  A/D   JUMP  SPACE', 8, '#c0c8d8'], ['AIM + FIRE  MOUSE   (OR J = AUTO-AIM)', 8, '#c0c8d8'], ['SLIDE  SHIFT / RIGHT CLICK', 8, '#c0c8d8'], ['OVERDRIVE  Q   MUTE  M', 8, '#c0c8d8'], ['PRESS ESC TO RESUME', 8, '#9fe8ff']]);
     } else {
       this.overlay.setVisible(false);
       this.scene.resume('Game');
