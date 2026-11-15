@@ -11,7 +11,7 @@ const rad = R.DegToRad;
 function resolveArt(scene: Phaser.Scene, def: EnemyDef) {
   const multi: string[] = [];
   for (let i = 0; scene.textures.exists(`${def.art}_${i}`); i++) multi.push(`${def.art}_${i}`);
-  if (multi.length) return { frames: multi, tint: 0xffffff, scale: 1 };
+  if (multi.length) return { frames: multi, tint: 0xffffff, scale: def.artScale ?? 1 };
   if (scene.textures.exists(def.art)) return { frames: [def.art], tint: 0xffffff, scale: def.fallback.scale ?? 1 };
   return { frames: def.fallback.frames, tint: def.fallback.tint ?? 0xffffff, scale: def.fallback.scale ?? 1 };
 }
@@ -183,6 +183,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         break;
       }
       case 'blinker': {
+        this.walkAnim(dt, true);
         this.face();
         this.hoverTo(p.x - this.dir * 140, 190 + Math.sin((now + this.seed * 7) / 420) * 26, d.speed);
         if (this.t <= 0 && this.onScreen(40) && !p.dead) {
@@ -203,6 +204,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         break;
       }
       case 'lobber': {
+        this.walkAnim(dt, true);
         this.face();
         this.hoverTo(p.x - this.dir * 150, 185 + Math.sin((now + this.seed * 5) / 600) * 22, d.speed);
         if (this.t <= 0 && this.onScreen() && !p.dead) {

@@ -31,6 +31,30 @@ ENEMY_OUTLINE = (255, 86, 56)
 # sheet -> list of sprites in row-major order. h = target height in game pixels (game is 640x360).
 # canvas = shared (w, h) frame for animated characters (feet anchored bottom-centre).
 MANIFEST = {
+    **{f"{key}_sheet.png": {
+        "outline": HERO_OUTLINE, "grid": (4, 2),
+        "scale_ref": {"index": 4, "h": 66}, "canvas": (96, 72),
+        "names": [f"{key}_{pose}" for pose in
+                  ["run0", "run1", "run2", "run3", "idle", "jump", "slide", "crouch"]],
+    } for key in ["viper", "titan"]},
+    **{f"{key}_sheet.png": {
+        "outline": ENEMY_OUTLINE, "grid": (4, 1),
+        "scale_ref": {"index": 0, "h": height}, "canvas": canvas,
+        "anchor": anchor,
+        "names": [f"{key}_{i}" for i in range(4)],
+    } for key, height, canvas, anchor in [
+        ("zombie", 68, (96, 72), "feet"),
+        ("brute", 68, (96, 72), "feet"),
+        ("alien", 34, (72, 48), "center"),
+        ("demon", 40, (72, 48), "center"),
+    ]},
+    **{f"{key}.png": {
+        "outline": ENEMY_OUTLINE,
+        "sprites": [{"name": key, "h": height}],
+        "max_width": width,
+    } for key, height, width in [
+        ("vulture", 74, 168), ("warden", 62, 100), ("archon", 94, 94),
+    ]},
     "gangster_sheet.png": {
         "outline": ENEMY_OUTLINE,
         "grid": (4, 1),
@@ -155,7 +179,7 @@ def cut(img, mask, lab, box):
     return rgba
 
 
-def place(spr: np.ndarray, canvas):
+def place(spr: np.ndarray, canvas, anchor="feet"):
     """Feet at bottom, torso (top 40% of rows) centred horizontally."""
     cw, ch = canvas
     h, w = spr.shape[:2]
@@ -164,6 +188,8 @@ def place(spr: np.ndarray, canvas):
     cx = int(np.median(np.where(top)[1])) if len(cx) else w // 2
     out = np.zeros((ch, cw, 4), np.uint8)
     ox, oy = cw // 2 - cx, ch - h
+    if anchor == "center":
+        ox, oy = (cw - w) // 2, (ch - h) // 2
     sx0, sy0 = max(0, -ox), max(0, -oy)
     dx0, dy0 = max(0, ox), max(0, oy)
     ww, hh = min(w - sx0, cw - dx0), min(h - sy0, ch - dy0)
@@ -196,9 +222,11 @@ def main():
         for i, (name, box) in enumerate(zip(names, boxes)):
             raw = cut(img, mask, lab, box)
             scale = sheet_scale or spec["sprites"][i]["h"] / raw.shape[0]
+            if spec.get("max_width"):
+                scale = min(scale, spec["max_width"] / raw.shape[1])
             spr = outline(shrink(raw, scale), spec["outline"])
             if spec.get("canvas"):
-                spr = place(spr, spec["canvas"])
+                spr = place(spr, spec["canvas"], spec.get("anchor", "feet"))
             Image.fromarray(spr, "RGBA").save(os.path.join(OUT, name + ".png"))
             made.append((name, spr))
             print(f"{name:12s} {spr.shape[1]}x{spr.shape[0]}")

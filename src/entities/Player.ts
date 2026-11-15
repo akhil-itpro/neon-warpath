@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { DEPTH } from '../config';
+import { ART_MUZZLES } from '../data/artMuzzles';
 import { run } from '../systems/Run';
 import { audio } from '../systems/Audio';
 import type { Controls } from '../systems/Controls';
@@ -64,6 +65,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   /** World position of the gun muzzle for the current pose. */
   muzzle() {
+    const tip = ART_MUZZLES[this.texture.key];
+    if (tip) return { x: this.x + this.dir * tip[0], y: this.y - tip[1] };
     const y = this.low ? this.y - 31 : this.onGround ? this.y - 51 : this.y - 44;
     return { x: this.x + this.dir * 34, y };
   }

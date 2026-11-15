@@ -20,6 +20,7 @@ export interface EnemyDef {
   speed: number;
   contact: number; // damage on touch (0 = harmless to touch)
   art: string;
+  artScale?: number; // animation scale; preserve the existing collision size when replacing stand-ins
   fallback: { frames: string[]; tint?: number; scale?: number };
   body: [number, number]; // hitbox w,h in unscaled sprite pixels
   flying?: boolean;
@@ -47,14 +48,14 @@ export const ENEMIES: Record<string, EnemyDef> = {
   gangster: { id: 'gangster', name: 'Syndicate Gunman', faction: 'syndicate', ai: 'gunner', hp: 24, score: 90, speed: 88, contact: 0, art: 'gangster', fallback: { frames: ROBOT, tint: 0xd9c08a, scale: 0.92 }, body: [20, 58], burst: 2, range: 180, fireRate: 1500, shotSpeed: 210, gore: 0xc03030 },
 
   // --- UNDEAD (zombies) ---
-  zombie: { id: 'zombie', name: 'Furnace Ghoul', faction: 'undead', ai: 'rusher', hp: 28, score: 80, speed: 78, contact: 12, art: 'zombie', fallback: { frames: ROBOT, tint: 0x8cd96a, scale: 0.95 }, body: [20, 58], gore: 0x70c040 },
-  brute: { id: 'brute', name: 'Ghoul Brute', faction: 'undead', ai: 'rusher', hp: 130, score: 350, speed: 52, contact: 20, art: 'brute', fallback: { frames: ROBOT, tint: 0x5fae58, scale: 1.35 }, body: [24, 62], heavy: true, gore: 0x70c040 },
+  zombie: { id: 'zombie', name: 'Furnace Ghoul', faction: 'undead', ai: 'rusher', hp: 28, score: 80, speed: 78, contact: 12, art: 'zombie', artScale: 0.95, fallback: { frames: ROBOT, tint: 0x8cd96a, scale: 0.95 }, body: [20, 58], gore: 0x70c040 },
+  brute: { id: 'brute', name: 'Ghoul Brute', faction: 'undead', ai: 'rusher', hp: 130, score: 350, speed: 52, contact: 20, art: 'brute', artScale: 1.35, fallback: { frames: ROBOT, tint: 0x5fae58, scale: 1.35 }, body: [24, 62], heavy: true, gore: 0x70c040 },
 
   // --- ALIENS ---
-  alien: { id: 'alien', name: 'Void Stalker', faction: 'alien', ai: 'blinker', hp: 40, score: 220, speed: 90, contact: 0, art: 'alien', fallback: { frames: ['drone'], tint: 0xb48cff, scale: 0.95 }, body: [40, 24], flying: true, fireRate: 2300, shotSpeed: 190, gore: 0xb070ff },
+  alien: { id: 'alien', name: 'Void Stalker', faction: 'alien', ai: 'blinker', hp: 40, score: 220, speed: 90, contact: 0, art: 'alien', artScale: 0.95, fallback: { frames: ['drone'], tint: 0xb48cff, scale: 0.95 }, body: [40, 24], flying: true, fireRate: 2300, shotSpeed: 190, gore: 0xb070ff },
 
   // --- UNDERWORLD (demons) ---
-  demon: { id: 'demon', name: 'Ash Imp', faction: 'demon', ai: 'lobber', hp: 48, score: 240, speed: 70, contact: 14, art: 'demon', fallback: { frames: ['drone'], tint: 0xff5a4a, scale: 1.2 }, body: [42, 24], flying: true, fireRate: 2000, shotSpeed: 0, gore: 0xff5030 },
+  demon: { id: 'demon', name: 'Ash Imp', faction: 'demon', ai: 'lobber', hp: 48, score: 240, speed: 70, contact: 14, art: 'demon', artScale: 1.2, fallback: { frames: ['drone'], tint: 0xff5a4a, scale: 1.2 }, body: [42, 24], flying: true, fireRate: 2000, shotSpeed: 0, gore: 0xff5030 },
 
   // --- PROPS ---
   crate: { id: 'crate', name: 'Supply Crate', faction: 'prop', ai: 'crate', hp: 16, score: 0, speed: 0, contact: 0, art: 'crate', fallback: { frames: ['crate'] }, body: [20, 20], heavy: true, gore: 0xd0a060 },
