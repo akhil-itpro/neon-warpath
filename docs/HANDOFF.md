@@ -2,6 +2,16 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
+## Resume here - handback to Claude Code (2026-11-15)
+
+- Owner is switching back to Claude Code. Read `CLAUDE.md`, then Session 2 below; Session 1 is historical and its unverified/missing-art notes are superseded where Session 2 says otherwise.
+- Completed commits: `98aa234` (gangster art and asset guide), `d257dbe` (campaign transition tests and HUD fixes). No unfinished code changes were left from that work.
+- Start with normal-health stage-1 combat and boss playtesting, then strengthen input-driven encounter tests. Do not mistake forced boss-death transition tests for proof that the campaign can be beaten normally.
+- Commands on this machine: `npm.cmd run dev`, `npm.cmd run check`, `npm.cmd run smoke`, `npm.cmd run smoke -- flow`, `npm.cmd run build`. Screenshots are in `tools/shots/` and must be inspected after gameplay changes.
+- New art is already integrated; do not regenerate the gangster unnecessarily. Its original sheet and exact generation prompt are in `art/source/`. Rebuild it alone with `npm.cmd run assets -- --only gangster_sheet.png`.
+- Owner welcomes new assets and is new to coding. Make routine implementation decisions, integrate and verify assets for them, and explain results plainly. If image generation is unavailable in your session, use the ready-to-paste prompts in `docs/ART_PIPELINE.md`; do not assume Codex's image tool is available to Claude.
+- This handback adds documentation only; no gameplay or asset changes. Existing verification and remaining limitations are recorded below.
+
 ## Session 2 - 2026-11-15 (Codex)
 
 ### Completed
