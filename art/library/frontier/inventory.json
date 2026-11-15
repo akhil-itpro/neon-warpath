@@ -1,0 +1,1484 @@
+[
+  {
+    "key": "kestrel_run0",
+    "kind": "operator",
+    "group": "kestrel_run0",
+    "image": "sprites/kestrel_run0.png",
+    "master": "masters/kestrel_run0.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.164179,
+    "bounds": [
+      16,
+      7,
+      73,
+      70
+    ],
+    "source": "art/source/frontier/kestrel_sheet.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "kestrel_run1",
+    "kind": "operator",
+    "group": "kestrel_run0",
+    "image": "sprites/kestrel_run1.png",
+    "master": "masters/kestrel_run1.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.164179,
+    "bounds": [
+      30,
+      8,
+      73,
+      70
+    ],
+    "source": "art/source/frontier/kestrel_sheet.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "kestrel_run2",
+    "kind": "operator",
+    "group": "kestrel_run0",
+    "image": "sprites/kestrel_run2.png",
+    "master": "masters/kestrel_run2.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.164179,
+    "bounds": [
+      14,
+      8,
+      73,
+      70
+    ],
+    "source": "art/source/frontier/kestrel_sheet.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "kestrel_run3",
+    "kind": "operator",
+    "group": "kestrel_run0",
+    "image": "sprites/kestrel_run3.png",
+    "master": "masters/kestrel_run3.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.164179,
+    "bounds": [
+      28,
+      7,
+      73,
+      70
+    ],
+    "source": "art/source/frontier/kestrel_sheet.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "kestrel_idle",
+    "kind": "operator",
+    "group": "kestrel_run0",
+    "image": "sprites/kestrel_idle.png",
+    "master": "masters/kestrel_idle.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.164179,
+    "bounds": [
+      30,
+      2,
+      73,
+      70
+    ],
+    "source": "art/source/frontier/kestrel_sheet.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "kestrel_jump",
+    "kind": "operator",
+    "group": "kestrel_run0",
+    "image": "sprites/kestrel_jump.png",
+    "master": "masters/kestrel_jump.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.164179,
+    "bounds": [
+      31,
+      18,
+      72,
+      70
+    ],
+    "source": "art/source/frontier/kestrel_sheet.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "kestrel_slide",
+    "kind": "operator",
+    "group": "kestrel_run0",
+    "image": "sprites/kestrel_slide.png",
+    "master": "masters/kestrel_slide.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.164179,
+    "bounds": [
+      21,
+      28,
+      83,
+      70
+    ],
+    "source": "art/source/frontier/kestrel_sheet.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "kestrel_crouch",
+    "kind": "operator",
+    "group": "kestrel_run0",
+    "image": "sprites/kestrel_crouch.png",
+    "master": "masters/kestrel_crouch.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.164179,
+    "bounds": [
+      27,
+      24,
+      73,
+      70
+    ],
+    "source": "art/source/frontier/kestrel_sheet.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "moth_run0",
+    "kind": "operator",
+    "group": "moth_run0",
+    "image": "sprites/moth_run0.png",
+    "master": "masters/moth_run0.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.170984,
+    "bounds": [
+      14,
+      6,
+      77,
+      70
+    ],
+    "source": "art/source/frontier/moth_sheet.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "moth_run1",
+    "kind": "operator",
+    "group": "moth_run0",
+    "image": "sprites/moth_run1.png",
+    "master": "masters/moth_run1.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.170984,
+    "bounds": [
+      26,
+      6,
+      76,
+      70
+    ],
+    "source": "art/source/frontier/moth_sheet.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "moth_run2",
+    "kind": "operator",
+    "group": "moth_run0",
+    "image": "sprites/moth_run2.png",
+    "master": "masters/moth_run2.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.170984,
+    "bounds": [
+      14,
+      6,
+      77,
+      70
+    ],
+    "source": "art/source/frontier/moth_sheet.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "moth_run3",
+    "kind": "operator",
+    "group": "moth_run0",
+    "image": "sprites/moth_run3.png",
+    "master": "masters/moth_run3.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.170984,
+    "bounds": [
+      27,
+      6,
+      76,
+      70
+    ],
+    "source": "art/source/frontier/moth_sheet.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "moth_idle",
+    "kind": "operator",
+    "group": "moth_run0",
+    "image": "sprites/moth_idle.png",
+    "master": "masters/moth_idle.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.170984,
+    "bounds": [
+      24,
+      2,
+      77,
+      70
+    ],
+    "source": "art/source/frontier/moth_sheet.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "moth_jump",
+    "kind": "operator",
+    "group": "moth_run0",
+    "image": "sprites/moth_jump.png",
+    "master": "masters/moth_jump.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.170984,
+    "bounds": [
+      23,
+      15,
+      77,
+      70
+    ],
+    "source": "art/source/frontier/moth_sheet.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "moth_slide",
+    "kind": "operator",
+    "group": "moth_run0",
+    "image": "sprites/moth_slide.png",
+    "master": "masters/moth_slide.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.170984,
+    "bounds": [
+      19,
+      20,
+      84,
+      70
+    ],
+    "source": "art/source/frontier/moth_sheet.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "moth_crouch",
+    "kind": "operator",
+    "group": "moth_run0",
+    "image": "sprites/moth_crouch.png",
+    "master": "masters/moth_crouch.png",
+    "size": [
+      96,
+      72
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.170984,
+    "bounds": [
+      23,
+      24,
+      77,
+      70
+    ],
+    "source": "art/source/frontier/moth_sheet.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "rail_marauder_0",
+    "kind": "enemy_sheet",
+    "group": "rail_marauder_0",
+    "image": "sprites/rail_marauder_0.png",
+    "master": "masters/rail_marauder_0.png",
+    "size": [
+      96,
+      76
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.176,
+    "bounds": [
+      16,
+      6,
+      79,
+      74
+    ],
+    "source": "art/source/frontier/rail_enemies.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "rail_marauder_1",
+    "kind": "enemy_sheet",
+    "group": "rail_marauder_0",
+    "image": "sprites/rail_marauder_1.png",
+    "master": "masters/rail_marauder_1.png",
+    "size": [
+      96,
+      76
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.176,
+    "bounds": [
+      19,
+      6,
+      77,
+      74
+    ],
+    "source": "art/source/frontier/rail_enemies.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "rail_marauder_2",
+    "kind": "enemy_sheet",
+    "group": "rail_marauder_0",
+    "image": "sprites/rail_marauder_2.png",
+    "master": "masters/rail_marauder_2.png",
+    "size": [
+      96,
+      76
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.176,
+    "bounds": [
+      16,
+      6,
+      79,
+      74
+    ],
+    "source": "art/source/frontier/rail_enemies.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "rail_marauder_3",
+    "kind": "enemy_sheet",
+    "group": "rail_marauder_0",
+    "image": "sprites/rail_marauder_3.png",
+    "master": "masters/rail_marauder_3.png",
+    "size": [
+      96,
+      76
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.176,
+    "bounds": [
+      19,
+      6,
+      77,
+      74
+    ],
+    "source": "art/source/frontier/rail_enemies.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "storm_kite_0",
+    "kind": "enemy_sheet",
+    "group": "storm_kite_0",
+    "image": "sprites/storm_kite_0.png",
+    "master": "masters/storm_kite_0.png",
+    "size": [
+      80,
+      64
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.156977,
+    "bounds": [
+      17,
+      4,
+      62,
+      60
+    ],
+    "source": "art/source/frontier/rail_enemies.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "storm_kite_1",
+    "kind": "enemy_sheet",
+    "group": "storm_kite_0",
+    "image": "sprites/storm_kite_1.png",
+    "master": "masters/storm_kite_1.png",
+    "size": [
+      80,
+      64
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.156977,
+    "bounds": [
+      17,
+      14,
+      62,
+      50
+    ],
+    "source": "art/source/frontier/rail_enemies.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "storm_kite_2",
+    "kind": "enemy_sheet",
+    "group": "storm_kite_0",
+    "image": "sprites/storm_kite_2.png",
+    "master": "masters/storm_kite_2.png",
+    "size": [
+      80,
+      64
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.156977,
+    "bounds": [
+      17,
+      11,
+      62,
+      53
+    ],
+    "source": "art/source/frontier/rail_enemies.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "storm_kite_3",
+    "kind": "enemy_sheet",
+    "group": "storm_kite_0",
+    "image": "sprites/storm_kite_3.png",
+    "master": "masters/storm_kite_3.png",
+    "size": [
+      80,
+      64
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.156977,
+    "bounds": [
+      17,
+      16,
+      62,
+      47
+    ],
+    "source": "art/source/frontier/rail_enemies.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "bellows_acolyte_0",
+    "kind": "enemy_sheet",
+    "group": "bellows_acolyte_0",
+    "image": "sprites/bellows_acolyte_0.png",
+    "master": "masters/bellows_acolyte_0.png",
+    "size": [
+      96,
+      76
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.213592,
+    "bounds": [
+      7,
+      6,
+      88,
+      74
+    ],
+    "source": "art/source/frontier/kiln_enemies.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "bellows_acolyte_1",
+    "kind": "enemy_sheet",
+    "group": "bellows_acolyte_0",
+    "image": "sprites/bellows_acolyte_1.png",
+    "master": "masters/bellows_acolyte_1.png",
+    "size": [
+      96,
+      76
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.213592,
+    "bounds": [
+      10,
+      6,
+      86,
+      74
+    ],
+    "source": "art/source/frontier/kiln_enemies.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "bellows_acolyte_2",
+    "kind": "enemy_sheet",
+    "group": "bellows_acolyte_0",
+    "image": "sprites/bellows_acolyte_2.png",
+    "master": "masters/bellows_acolyte_2.png",
+    "size": [
+      96,
+      76
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.213592,
+    "bounds": [
+      10,
+      7,
+      85,
+      74
+    ],
+    "source": "art/source/frontier/kiln_enemies.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "bellows_acolyte_3",
+    "kind": "enemy_sheet",
+    "group": "bellows_acolyte_0",
+    "image": "sprites/bellows_acolyte_3.png",
+    "master": "masters/bellows_acolyte_3.png",
+    "size": [
+      96,
+      76
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.213592,
+    "bounds": [
+      10,
+      6,
+      85,
+      74
+    ],
+    "source": "art/source/frontier/kiln_enemies.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "cinder_skate_0",
+    "kind": "enemy_sheet",
+    "group": "cinder_skate_0",
+    "image": "sprites/cinder_skate_0.png",
+    "master": "masters/cinder_skate_0.png",
+    "size": [
+      80,
+      64
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.219585,
+    "bounds": [
+      2,
+      8,
+      77,
+      56
+    ],
+    "source": "art/source/frontier/kiln_enemies.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "cinder_skate_1",
+    "kind": "enemy_sheet",
+    "group": "cinder_skate_0",
+    "image": "sprites/cinder_skate_1.png",
+    "master": "masters/cinder_skate_1.png",
+    "size": [
+      80,
+      64
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.219585,
+    "bounds": [
+      2,
+      15,
+      78,
+      48
+    ],
+    "source": "art/source/frontier/kiln_enemies.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "cinder_skate_2",
+    "kind": "enemy_sheet",
+    "group": "cinder_skate_0",
+    "image": "sprites/cinder_skate_2.png",
+    "master": "masters/cinder_skate_2.png",
+    "size": [
+      80,
+      64
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.219585,
+    "bounds": [
+      2,
+      9,
+      77,
+      55
+    ],
+    "source": "art/source/frontier/kiln_enemies.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "cinder_skate_3",
+    "kind": "enemy_sheet",
+    "group": "cinder_skate_0",
+    "image": "sprites/cinder_skate_3.png",
+    "master": "masters/cinder_skate_3.png",
+    "size": [
+      80,
+      64
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.219585,
+    "bounds": [
+      2,
+      17,
+      78,
+      47
+    ],
+    "source": "art/source/frontier/kiln_enemies.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "switchyard_colossus_idle",
+    "kind": "boss",
+    "group": "switchyard_colossus_idle",
+    "image": "sprites/switchyard_colossus_idle.png",
+    "master": "masters/switchyard_colossus_idle.png",
+    "size": [
+      224,
+      128
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.255269,
+    "bounds": [
+      4,
+      28,
+      220,
+      126
+    ],
+    "source": "art/source/frontier/switchyard_colossus_sheet.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "switchyard_colossus_windup",
+    "kind": "boss",
+    "group": "switchyard_colossus_idle",
+    "image": "sprites/switchyard_colossus_windup.png",
+    "master": "masters/switchyard_colossus_windup.png",
+    "size": [
+      224,
+      128
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.255269,
+    "bounds": [
+      2,
+      35,
+      222,
+      126
+    ],
+    "source": "art/source/frontier/switchyard_colossus_sheet.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "switchyard_colossus_attack",
+    "kind": "boss",
+    "group": "switchyard_colossus_idle",
+    "image": "sprites/switchyard_colossus_attack.png",
+    "master": "masters/switchyard_colossus_attack.png",
+    "size": [
+      224,
+      128
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.255269,
+    "bounds": [
+      2,
+      32,
+      221,
+      126
+    ],
+    "source": "art/source/frontier/switchyard_colossus_sheet.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "switchyard_colossus_exposed",
+    "kind": "boss",
+    "group": "switchyard_colossus_idle",
+    "image": "sprites/switchyard_colossus_exposed.png",
+    "master": "masters/switchyard_colossus_exposed.png",
+    "size": [
+      224,
+      128
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.255269,
+    "bounds": [
+      4,
+      29,
+      220,
+      126
+    ],
+    "source": "art/source/frontier/switchyard_colossus_sheet.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "kiln_matriarch_idle",
+    "kind": "boss",
+    "group": "kiln_matriarch_idle",
+    "image": "sprites/kiln_matriarch_idle.png",
+    "master": "masters/kiln_matriarch_idle.png",
+    "size": [
+      192,
+      160
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.294304,
+    "bounds": [
+      4,
+      16,
+      187,
+      143
+    ],
+    "source": "art/source/frontier/kiln_matriarch_sheet.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "kiln_matriarch_windup",
+    "kind": "boss",
+    "group": "kiln_matriarch_idle",
+    "image": "sprites/kiln_matriarch_windup.png",
+    "master": "masters/kiln_matriarch_windup.png",
+    "size": [
+      192,
+      160
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.294304,
+    "bounds": [
+      3,
+      5,
+      189,
+      155
+    ],
+    "source": "art/source/frontier/kiln_matriarch_sheet.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "kiln_matriarch_attack",
+    "kind": "boss",
+    "group": "kiln_matriarch_idle",
+    "image": "sprites/kiln_matriarch_attack.png",
+    "master": "masters/kiln_matriarch_attack.png",
+    "size": [
+      192,
+      160
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.294304,
+    "bounds": [
+      2,
+      17,
+      190,
+      143
+    ],
+    "source": "art/source/frontier/kiln_matriarch_sheet.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "kiln_matriarch_exposed",
+    "kind": "boss",
+    "group": "kiln_matriarch_idle",
+    "image": "sprites/kiln_matriarch_exposed.png",
+    "master": "masters/kiln_matriarch_exposed.png",
+    "size": [
+      192,
+      160
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.294304,
+    "bounds": [
+      6,
+      17,
+      186,
+      143
+    ],
+    "source": "art/source/frontier/kiln_matriarch_sheet.png",
+    "facing": "left",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "prismbreak",
+    "kind": "weapon",
+    "group": "prismbreak",
+    "image": "sprites/prismbreak.png",
+    "master": "masters/prismbreak.png",
+    "size": [
+      48,
+      28
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.104218,
+    "bounds": [
+      2,
+      3,
+      46,
+      24
+    ],
+    "source": "art/source/frontier/frontier_arsenal.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "pinball",
+    "kind": "weapon",
+    "group": "pinball",
+    "image": "sprites/pinball.png",
+    "master": "masters/pinball.png",
+    "size": [
+      48,
+      28
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.111406,
+    "bounds": [
+      2,
+      2,
+      46,
+      26
+    ],
+    "source": "art/source/frontier/frontier_arsenal.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "needle_hive",
+    "kind": "weapon",
+    "group": "needle_hive",
+    "image": "sprites/needle_hive.png",
+    "master": "masters/needle_hive.png",
+    "size": [
+      48,
+      28
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.10396,
+    "bounds": [
+      2,
+      4,
+      46,
+      23
+    ],
+    "source": "art/source/frontier/frontier_arsenal.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "rivet_king",
+    "kind": "weapon",
+    "group": "rivet_king",
+    "image": "sprites/rivet_king.png",
+    "master": "masters/rivet_king.png",
+    "size": [
+      48,
+      28
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.097778,
+    "bounds": [
+      3,
+      2,
+      45,
+      26
+    ],
+    "source": "art/source/frontier/frontier_arsenal.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "tidebinder",
+    "kind": "weapon",
+    "group": "tidebinder",
+    "image": "sprites/tidebinder.png",
+    "master": "masters/tidebinder.png",
+    "size": [
+      48,
+      28
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.103194,
+    "bounds": [
+      2,
+      4,
+      46,
+      24
+    ],
+    "source": "art/source/frontier/frontier_arsenal.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "echo_fork",
+    "kind": "weapon",
+    "group": "echo_fork",
+    "image": "sprites/echo_fork.png",
+    "master": "masters/echo_fork.png",
+    "size": [
+      48,
+      28
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.103704,
+    "bounds": [
+      2,
+      3,
+      46,
+      24
+    ],
+    "source": "art/source/frontier/frontier_arsenal.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "ember_wheel",
+    "kind": "weapon",
+    "group": "ember_wheel",
+    "image": "sprites/ember_wheel.png",
+    "master": "masters/ember_wheel.png",
+    "size": [
+      48,
+      28
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.10396,
+    "bounds": [
+      2,
+      2,
+      46,
+      25
+    ],
+    "source": "art/source/frontier/frontier_arsenal.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "star_anvil",
+    "kind": "weapon",
+    "group": "star_anvil",
+    "image": "sprites/star_anvil.png",
+    "master": "masters/star_anvil.png",
+    "size": [
+      48,
+      28
+    ],
+    "anchor": "center",
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "sourceScale": 0.101852,
+    "bounds": [
+      2,
+      2,
+      45,
+      26
+    ],
+    "source": "art/source/frontier/frontier_arsenal.png",
+    "facing": "right",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "rail_signal",
+    "kind": "prop",
+    "group": "rail_signal",
+    "image": "sprites/rail_signal.png",
+    "master": "masters/rail_signal.png",
+    "size": [
+      96,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.178117,
+    "bounds": [
+      30,
+      6,
+      65,
+      78
+    ],
+    "source": "art/source/frontier/frontier_props.png",
+    "facing": "neutral",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "storm_battery",
+    "kind": "prop",
+    "group": "storm_battery",
+    "image": "sprites/storm_battery.png",
+    "master": "masters/storm_battery.png",
+    "size": [
+      96,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.1983,
+    "bounds": [
+      14,
+      6,
+      82,
+      78
+    ],
+    "source": "art/source/frontier/frontier_props.png",
+    "facing": "neutral",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "pressure_vent",
+    "kind": "prop",
+    "group": "pressure_vent",
+    "image": "sprites/pressure_vent.png",
+    "master": "masters/pressure_vent.png",
+    "size": [
+      96,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.236486,
+    "bounds": [
+      4,
+      6,
+      92,
+      78
+    ],
+    "source": "art/source/frontier/frontier_props.png",
+    "facing": "neutral",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "cargo_drone_wreck",
+    "kind": "prop",
+    "group": "cargo_drone_wreck",
+    "image": "sprites/cargo_drone_wreck.png",
+    "master": "masters/cargo_drone_wreck.png",
+    "size": [
+      96,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.196078,
+    "bounds": [
+      2,
+      23,
+      94,
+      78
+    ],
+    "source": "art/source/frontier/frontier_props.png",
+    "facing": "neutral",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "furnace_shrine",
+    "kind": "prop",
+    "group": "furnace_shrine",
+    "image": "sprites/furnace_shrine.png",
+    "master": "masters/furnace_shrine.png",
+    "size": [
+      96,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.176768,
+    "bounds": [
+      10,
+      6,
+      85,
+      78
+    ],
+    "source": "art/source/frontier/frontier_props.png",
+    "facing": "neutral",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "ember_egg",
+    "kind": "prop",
+    "group": "ember_egg",
+    "image": "sprites/ember_egg.png",
+    "master": "masters/ember_egg.png",
+    "size": [
+      96,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.239726,
+    "bounds": [
+      15,
+      6,
+      80,
+      78
+    ],
+    "source": "art/source/frontier/frontier_props.png",
+    "facing": "neutral",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "coolant_pump",
+    "kind": "prop",
+    "group": "coolant_pump",
+    "image": "sprites/coolant_pump.png",
+    "master": "masters/coolant_pump.png",
+    "size": [
+      96,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.220049,
+    "bounds": [
+      2,
+      8,
+      94,
+      78
+    ],
+    "source": "art/source/frontier/frontier_props.png",
+    "facing": "neutral",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "salvage_cache",
+    "kind": "prop",
+    "group": "salvage_cache",
+    "image": "sprites/salvage_cache.png",
+    "master": "masters/salvage_cache.png",
+    "size": [
+      96,
+      80
+    ],
+    "anchor": "feet",
+    "origin": [
+      0.5,
+      1
+    ],
+    "sourceScale": 0.20979,
+    "bounds": [
+      2,
+      24,
+      94,
+      78
+    ],
+    "source": "art/source/frontier/frontier_props.png",
+    "facing": "neutral",
+    "status": "staged art; no runtime registration or collision definition"
+  },
+  {
+    "key": "bg_stormbreak",
+    "kind": "world",
+    "image": "worlds/bg_stormbreak.png",
+    "strip": "worlds/bg_stormbreak_strip.png",
+    "size": [
+      640,
+      360
+    ],
+    "source": "art/source/frontier/world_stormbreak.png",
+    "frames": 1,
+    "status": "staged flattened backdrop; mirrored strip; no level geometry"
+  },
+  {
+    "key": "bg_underworld_engine",
+    "kind": "world",
+    "image": "worlds/bg_underworld_engine.png",
+    "strip": "worlds/bg_underworld_engine_strip.png",
+    "size": [
+      640,
+      360
+    ],
+    "source": "art/source/frontier/world_underworld_engine.png",
+    "frames": 1,
+    "status": "staged flattened backdrop; mirrored strip; no level geometry"
+  }
+]

@@ -2,6 +2,31 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
+## Session 7 - 2026-11-15 (Codex, animated Frontier asset pack)
+
+### Completed
+- Owner requested more original assets while Claude integrated the first expansion. Created a separate **26-design Frontier pack** without changing active gameplay or the live asset manifest. Claude's concurrent integration is preserved in Session 6 below.
+- Start at **`art/library/frontier/README.md`**. Ten original source sheets and exact generation prompts: `art/source/frontier/manifest.json`. Generated using built-in image_gen; no API-key workflow required.
+- Prepared **56 transparent runtime sprite frames**, **2 world backgrounds** (640x360), **2 mirrored scrolling strips** (1280x360), 56 source-resolution transparent masters, ten labeled PNG boards and eight animation/state GIF previews. Full paths/sizes/bounds/origins: `art/library/frontier/inventory.json`.
+- **Operators:** KESTREL and MOTH, eight poses each on the existing 96x72 operator canvas: run x4, idle, jump, slide, crouch. Measured barrel offsets are provided in `FRONTIER_MUZZLES`; MOTH's operator id is `moth_operator`, distinct from the existing Lantern Moth enemy id.
+- **Enemies:** Rail Marauder, Storm Kite, Bellows Acolyte and Cinder Skate, four walk/hover frames each. Ground canvases 96x76, flyers 80x64.
+- **Bosses:** SWITCHYARD COLOSSUS (locomotive-crab, 224x128) and KILN MATRIARCH (mechanical furnace-moth, 192x160), each with idle, windup, attack and exposed-recovery pictures. These are semantic states, not idle animation loops.
+- **Weapons:** Prismbreak, Pinball, Needle Hive, Rivet King, Tidebinder, Echo Fork, Ember Wheel, Star Anvil. **Props:** rail signal, storm battery, pressure vent, cargo drone wreck, furnace shrine, ember egg, coolant pump, salvage cache. **Worlds:** Stormbreak Railyard and The Underworld Engine.
+- Optional typed content proposals, muzzle offsets, boss cues/dodge responses, encounter progression and prop roles live in **`src/data/frontierPack.ts`**. Nothing imports this file into live registries. Pinball ricochet and Tidebinder anchoring are explicitly future features; supplied initial WeaponDef versions do not implement those mechanics.
+- Reproducible preparation: `python -B tools/process_frontier.py`. It writes only the isolated library, never `public/assets` or game data. Source sheets are immutable; preserve them.
+
+### Verified / limits
+- Visually inspected all ten original source images and all ten processed PNG boards. Checked all inventory paths, canvas sizes, binary alpha, transparent borders, sprite origins, prompt/source count, README links and eight four-frame GIFs. `npm.cmd run check` passes against Claude's integrated seven-stage campaign.
+- **Staged assets and design proposals only:** no playable operators, new enemies, weapons, bosses or stages were registered in this session. No gameplay changes, campaign smoke run, balance verification or normal-health completion are claimed.
+- First-pass generated animation: strides vary slightly in height; silhouette-centered flying frames/boss wings can shift body position. Review GIFs and add body pivots if needed. Muzzle offsets are measured from the PNGs but need in-engine alignment checks. Hitboxes, display scale, boss weak-point positions and state texture changes need deliberate integration.
+- Backgrounds are flattened scenery with visibly mirrored repeat strips, not parallax layers, tile sets or collision geometry. Props have no implicit hazard/healing behaviour.
+
+### Next for Claude
+1. Browse the Frontier README and choose one operator or enemy. Copy only chosen PNGs into live assets and register their keys. Use existing data-only proposal entries as starting values, not tested balance.
+2. For operators, merge matching muzzle values into `ART_MUZZLES` and check every pose facing both ways. For flyers, check centered body alignment; ensure each AI advances its frames.
+3. Boss state art needs explicit state-to-texture logic and fair attack/recovery windows. Preserve full warning times, avoid overlapping high/low lanes and never require sliding through the entire wide train boss.
+4. Follow Session 6's normal-health campaign tuning priorities. Run check plus focused smoke/screenshots when integrating gameplay; this art-only pack does not require repeating the full suite.
+
 ## Session 6 - 2026-11-15 (Claude Code, expansion library integrated into the game)
 
 ### Completed

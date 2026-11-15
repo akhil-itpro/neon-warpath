@@ -1,0 +1,146 @@
+[
+  {
+    "key": "kestrel_sheet",
+    "kind": "operator",
+    "cols": 4,
+    "rows": 2,
+    "names": [
+      "kestrel_run0",
+      "kestrel_run1",
+      "kestrel_run2",
+      "kestrel_run3",
+      "kestrel_idle",
+      "kestrel_jump",
+      "kestrel_slide",
+      "kestrel_crouch"
+    ],
+    "prompt": "Use case: stylized-concept. Production sprite sheet for original NEON WARPATH 2D side-scrolling action game. ONE original playable operator KESTREL: athletic adult woman with short white swept hair, amber visor, cobalt cropped flight jacket over armored black trousers, orange scarf tucked close to her body, lightweight boots, compact silver pistol. Exactly EIGHT full-body poses arranged in a perfectly regular FOUR columns by TWO rows grid. Every pose strict SIDE VIEW facing RIGHT, gun aimed horizontally RIGHT. Row 1 four different run-cycle frames: left foot forward, passing stance, right foot forward, second passing stance. Row 2 standing idle aiming, airborne jump with knees bent aiming, very low forward slide on one knee aiming, deep crouch aiming. Same character identity, outfit, gun and body proportions throughout. Each cell is equal size with wide empty gutters; entire character and pistol wholly within its cell. Keep run poses near same body height; lower row slides/crouches intentionally lower. 16-bit detailed pixel art, hard pixel edges, limited dark sci-fi palette, cyan rim highlights, readable strong silhouette, no antialiasing blur. Flat uniform solid MAGENTA #FF00FF background, NO glow, NO shadow, NO floor, NO text, NO labels, NO grid lines, no other objects. No wings or extra weapons, no cropped feet or gun barrels."
+  },
+  {
+    "key": "moth_sheet",
+    "kind": "operator",
+    "cols": 4,
+    "rows": 2,
+    "names": [
+      "moth_run0",
+      "moth_run1",
+      "moth_run2",
+      "moth_run3",
+      "moth_idle",
+      "moth_jump",
+      "moth_slide",
+      "moth_crouch"
+    ],
+    "prompt": "Use case: stylized-concept. Production sprite sheet for original NEON WARPATH side-scrolling action game. ONE original playable operator MOTH: adult male scavenger engineer, dark brown skin, shaved head under compact hood, pale bone-colored utility poncho cropped at waist, dark plum armored trousers, teal mechanical left forearm, heavy brown boots, compact brass-and-black pistol held in both hands. Friendly fierce face, practical original sci-fi design; no skull face, no existing franchise. Exactly EIGHT full-body poses, regular FOUR columns by TWO rows. Strict SIDE VIEW facing RIGHT, pistol horizontal aiming RIGHT in all poses. Row 1 four distinct running frames alternating the legs: left stride, pass, right stride, pass. Row 2 standing aiming, airborne knees-up aiming, low forward one-knee slide aiming, deep crouch aiming. Same identity clothes weapon proportions throughout, same body size. Wide empty gutters between cells; character entirely inside each equal cell. 16-bit detailed pixel art, hard pixel edges, limited dark sci-fi palette, cyan edge highlights, strong readable silhouette, no antialias blur. Uniform flat solid MAGENTA #FF00FF background, no glow, shadows, floor, text, grid lines or labels. Nothing cropped or overlapping, no loose debris or extra objects."
+  },
+  {
+    "key": "rail_enemies",
+    "kind": "enemy_sheet",
+    "cols": 4,
+    "rows": 2,
+    "names": [
+      "rail_marauder_0",
+      "rail_marauder_1",
+      "rail_marauder_2",
+      "rail_marauder_3",
+      "storm_kite_0",
+      "storm_kite_1",
+      "storm_kite_2",
+      "storm_kite_3"
+    ],
+    "prompt": "Use case: stylized-concept. Production enemy animation sheet for original NEON WARPATH dark sci-fi pixel run-and-gun. Exactly EIGHT full sprites in regular FOUR columns by TWO rows. All face LEFT in strict SIDE VIEW. Row 1 is FOUR WALK CYCLE FRAMES of the SAME RAIL MARAUDER: lean outlaw rail engineer in teal long coat, brass round respirator mask, orange shoulder plates, black trousers, heavy boots; holds a short rivet shotgun aiming LEFT. Alternate left stride, passing, right stride, passing. Row 2 is FOUR HOVER CYCLE FRAMES of the SAME STORM KITE drone: compact triangular indigo armored flying ray machine, single amber central eye facing left, silver jointed fins, small twin battery pods, no legs. Fins animate raised, level, lowered, level; chassis stays same shape and size. Very clear difference in silhouettes between humanoid top row and small ray drone bottom row. Same proportions within each animation. Equal grid cells, large empty gutters, nothing touches cell edges, each entire sprite wholly visible, no overlap, no other objects. Detailed 16-bit pixel art with hard pixel edges, limited dark palette, silver highlights and subtle red edge accents, no anti-alias blur. Uniform FLAT SOLID MAGENTA #FF00FF background, NO shadows, floor, glow haze, text, labels, grid lines, projectiles or effects."
+  },
+  {
+    "key": "kiln_enemies",
+    "kind": "enemy_sheet",
+    "cols": 4,
+    "rows": 2,
+    "names": [
+      "bellows_acolyte_0",
+      "bellows_acolyte_1",
+      "bellows_acolyte_2",
+      "bellows_acolyte_3",
+      "cinder_skate_0",
+      "cinder_skate_1",
+      "cinder_skate_2",
+      "cinder_skate_3"
+    ],
+    "prompt": "Use case: stylized-concept. Original NEON WARPATH enemy animation sprite sheet, exactly EIGHT full sprites in regular FOUR columns by TWO rows. All strict SIDE VIEW facing LEFT. Row 1 FOUR WALK CYCLE FRAMES of same BELLOWS ACOLYTE: stocky nonhuman furnace monk in dark rust-red insulated robes, brass bellows backpack connected to a short forward nozzle held in thick gauntlets, small enclosed iron mask with two orange eyes, metal boots, rounded silhouette. Alternate leg strides, subtle bellows compression, nozzle points left throughout. Row 2 FOUR HOVER CYCLE FRAMES of same CINDER SKATE: small flying obsidian manta ray creature with glowing orange seams, swept angular wings, tiny horned head at left, thick curled short tail at right, no humanoid parts. Wings raised, level, lowered, level; same core size throughout. No flames or detached particles. Every sprite full body in own equal grid cell with generous empty space around it, nothing cropped or overlapping. Detailed crisp 16-bit pixel art, dark sci-fi mechanical infernal action, hard pixel edges, strong readable silhouettes, limited palette, silver and warm orange edge accents, no antialias blur. Uniform flat solid MAGENTA #FF00FF background. No scenery, floor, shadows, glow haze, text, labels, grid lines, projectiles or effects, no gore."
+  },
+  {
+    "key": "switchyard_colossus_sheet",
+    "kind": "boss",
+    "cols": 2,
+    "rows": 2,
+    "names": [
+      "switchyard_colossus_idle",
+      "switchyard_colossus_windup",
+      "switchyard_colossus_attack",
+      "switchyard_colossus_exposed"
+    ],
+    "prompt": "Use case: stylized-concept. Boss animation state sheet for original NEON WARPATH pixel side-scroller. Exactly FOUR large full-body sprites of ONE SAME boss in equal TWO columns by TWO rows. Boss SWITCHYARD COLOSSUS: monstrous autonomous armored locomotive carried by four massive jointed industrial crab legs; broad low locomotive body, slanted plow face and one huge amber circular headlamp at LEFT, twin dark exhaust stacks, teal-black riveted armor, orange caution panels, large copper electromagnetic coil along its back. STRICT SIDE VIEW facing LEFT, full body including every leg and plow, strong wide silhouette. Same mechanical design size proportions in all four cells. Row 1 left: neutral planted idle, coil dark. Row 1 right: attack windup, front lowered and coil lit amber, front legs braced. Row 2 left: firing stance with front vents open and headlamp bright, no actual projectile or loose effect. Row 2 right: recovery with hinged upper side armor open exposing a cyan reactor weak point, legs planted. Pose changes modest, SAME machine, not four redesigns. Detailed 16-bit pixel art, crisp hard pixel edges, dark sci-fi action, limited steel teal copper orange palette, silver rim accents. Uniform flat solid MAGENTA #FF00FF background, no glow haze, no shadows, no floor, scenery, text, labels, grid lines, projectiles, debris. Wide empty gutters, each complete machine wholly inside own cell."
+  },
+  {
+    "key": "kiln_matriarch_sheet",
+    "kind": "boss",
+    "cols": 2,
+    "rows": 2,
+    "names": [
+      "kiln_matriarch_idle",
+      "kiln_matriarch_windup",
+      "kiln_matriarch_attack",
+      "kiln_matriarch_exposed"
+    ],
+    "prompt": "Use case: stylized-concept. Production boss state sprite sheet for original NEON WARPATH, dark science fiction underworld. Exactly FOUR full-body sprites of the SAME KILN MATRIARCH boss in equal TWO columns by TWO rows. A huge hovering mechanical moth queen fused with a bell-shaped iron furnace: crown-like antennae, small bronze masked head at LEFT, broad layered obsidian wings with copper struts, central round furnace belly with hinged shutter around an amber heart, short hooked landing claws, no humanoid anatomy. Strict SIDE VIEW facing LEFT. Same identity design and body proportions in every cell. Row1 left idle hover wings raised moderately, belly shutter closed. Row1 right windup wings raised high and shutter seams bright amber. Row2 left attack wings swept down, belly shutter open revealing orange furnace mouth, no emitted flame or projectiles. Row2 right recovery wings droop and belly shutter open around pale cyan exposed heart, no particles. Exaggerate modest differences enough to read at game scale, retain exactly same machine. Entire moth and wings contained inside each cell with generous empty margins, nothing touching or overlapping. 16-bit detailed pixel art, crisp hard pixel edges, limited black iron bronze ember-orange palette, silver highlights, strong readable original silhouette, no blur. Flat uniform solid MAGENTA #FF00FF background, no shadows, floor, glow haze, text, labels, grid lines, scenery, gore, projectiles or loose effects."
+  },
+  {
+    "key": "frontier_arsenal",
+    "kind": "weapon",
+    "cols": 4,
+    "rows": 2,
+    "names": [
+      "prismbreak",
+      "pinball",
+      "needle_hive",
+      "rivet_king",
+      "tidebinder",
+      "echo_fork",
+      "ember_wheel",
+      "star_anvil"
+    ],
+    "prompt": "Use case: stylized-concept. Original NEON WARPATH weapon pickup sprite atlas, exactly EIGHT distinct complete sci-fi firearms in regular FOUR columns by TWO rows. Strict flat SIDE VIEW, all barrels point RIGHT, each object isolated in its equal cell with generous empty gutters. Row1 left to right: PRISMBREAK, angular ivory rifle with triangular violet crystal chamber and split short muzzle; PINBALL, compact yellow drum-fed submachinegun with blue rubberized bumpers and stubby barrel; NEEDLE HIVE, thin dark green flechette carbine with three amber cartridge tubes and tapered long barrel; RIVET KING, heavy rusty orange industrial rivet gun with large steel nail magazine and square muzzle. Row2 left to right: TIDEBINDER, teal brass harpoon launcher with connected silver spear tip inside wide muzzle and compact cable spool; ECHO FORK, white and indigo sonic shotgun with two parallel tuning-fork muzzle tines and circular cyan resonator; EMBER WHEEL, black copper rotary heat gun with round slotted barrel and small orange coolant tank; STAR ANVIL, chunky dark purple meteor grenade launcher with spherical amber chamber and short silver barrel. Distinct silhouettes, functional trigger grips and stocks, no lettering, no logos. Detailed 16-bit pixel art, hard crisp pixel edges, limited dark sci-fi palette, readable at tiny pickup size, silver and cyan edge highlights. Flat uniform solid MAGENTA #FF00FF background. No shadows, floor, glow haze, text, labels, grid lines, particles, hands, characters or loose ammo. No cropping or overlap."
+  },
+  {
+    "key": "frontier_props",
+    "kind": "prop",
+    "cols": 4,
+    "rows": 2,
+    "names": [
+      "rail_signal",
+      "storm_battery",
+      "pressure_vent",
+      "cargo_drone_wreck",
+      "furnace_shrine",
+      "ember_egg",
+      "coolant_pump",
+      "salvage_cache"
+    ],
+    "prompt": "Use case: stylized-concept. Original NEON WARPATH environment prop atlas. Exactly EIGHT different full isolated props in regular FOUR columns by TWO rows, strict flat side elevation for a 2D side-scroller, no perspective floor. Row1 left to right: rail signal mast with two circular amber lenses above short teal pedestal; squat copper storm battery with cyan insulated coils in armored cage; horizontal industrial vent with orange ribbed shutter in rusty square base; broken teal cargo drone wreck with folded wings connected to body resting sideways. Row2 left to right: large dark bronze furnace shrine with circular amber window and angular iron crown; small obsidian ember egg in metal claw cradle with orange cracks; squat cyan coolant pump with silver pipe bent into connected loop and pressure dial; hefty gray salvage cache with orange lid and blank pale triangular lock, no writing. Each prop one connected silhouette, wholly inside equal cell with generous blank margins, no loose pieces, no overlap or cropping. Detailed 16-bit pixel art, crisp hard pixel edges, dark sci-fi action, strong simple silhouettes, limited teal steel copper amber palette, bright silver edge highlights. Uniform flat solid MAGENTA #FF00FF background, no glow haze, shadows, floor, scenery, labels, text, logos, grid lines or characters."
+  },
+  {
+    "key": "world_stormbreak",
+    "kind": "world",
+    "names": [
+      "bg_stormbreak"
+    ],
+    "prompt": "Use case: stylized-concept. Original NEON WARPATH game world background, landscape WIDE 16:9 composition. Detailed crisp 16-bit pixel art, limited dark sci-fi palette, hard pixel edges, not painted blurry. STORMBREAK RAILYARD: enormous elevated rail freight interchange during an electrical storm, abandoned teal armored freight cars on distant horizontal tracks, copper power pylons, suspended amber insulated cables, massive circular induction turbine in far background, cobalt night sky with a few narrow lightning strokes confined to far sky, distant rain. STRICT SIDE-SCROLLER BACKDROP, horizontal side elevation and layered distant silhouettes, no road or rails receding toward a vanishing point, NOT isometric. Upper two thirds hold detailed cranes, far rails and storm machinery. LOWER THIRD is a quiet very dark navy horizontal metal service deck, low contrast, few details, broad clear open space so tiny player and enemy sprites read. No foreground pillars or fences covering the playing area. No characters, enemies, bosses, close vehicles, words, letters, numbers, signage text, logos, HUD, borders. Original coherent environment, one scene, not a collage."
+  },
+  {
+    "key": "world_underworld_engine",
+    "kind": "world",
+    "names": [
+      "bg_underworld_engine"
+    ],
+    "prompt": "Use case: stylized-concept. Original NEON WARPATH side-scrolling game background, WIDE 16:9 landscape. Detailed crisp 16-bit pixel art, hard pixel edges, limited dark science-fiction palette. THE UNDERWORLD ENGINE: vast subterranean obsidian engine hall, distant cathedral-like bronze piston towers, giant dark iron cog wheel framing an orange furnace heart far in background, copper conduits and ribbed overhead vaults, ember-red seams in rock, hanging chains only in high background, faint orange mist. Industrial infernal science fiction, architectural machinery not a fantasy castle. Strict SIDE-SCROLLER horizontal SIDE ELEVATION, no isometric viewpoint, no vanishing-point hallway or receding road. Upper two thirds richly detailed but dark, bright orange areas small and confined behind distant structures. LOWER THIRD a quiet flat very dark charcoal horizontal metal walkway with sparse subdued rivets, no bright lava across playing area, no foreground pillars or chains blocking sprites. No characters, creatures, bosses, close vehicles, text, letters, signs, logos, HUD, borders. One cohesive world, not a collage. Clear depth, menacing huge scale, readable gameplay zone."
+  }
+]
