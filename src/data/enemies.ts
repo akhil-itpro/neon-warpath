@@ -5,10 +5,11 @@
 // So factions without final art are already playable, and upgrade automatically when the PNGs arrive.
 
 export type AiKind =
-  | 'gunner' | 'rusher' | 'flyer' | 'diver' | 'blinker' | 'lobber' | 'turret' | 'jet' | 'crate'
-  | 'boss_heli' | 'boss_warden' | 'boss_core';
+  | 'gunner' | 'rusher' | 'flyer' | 'diver' | 'blinker' | 'lobber' | 'spitter' | 'turret' | 'jet'
+  | 'crate' | 'barrel' | 'egg'
+  | 'boss_heli' | 'boss_warden' | 'boss_core' | 'boss_stomper' | 'boss_seer';
 
-export type Faction = 'machine' | 'syndicate' | 'undead' | 'alien' | 'demon' | 'prop';
+export type Faction = 'machine' | 'syndicate' | 'undead' | 'alien' | 'demon' | 'mutant' | 'prop';
 
 export interface EnemyDef {
   id: string;
@@ -31,6 +32,14 @@ export interface EnemyDef {
   fireRate?: number; // ms between attacks
   shotSpeed?: number;
   gore: number; // particle colour when hit
+  // --- optional traits (all behaviour for them lives in Enemy.ts / Game.ts) ---
+  muzzle?: [number, number]; // gunner gun tip: px forward, px above the feet
+  windup?: number; // ms of warning light before an attack (default depends on the AI)
+  shotColor?: number;
+  shield?: number; // damage multiplier for hits from the front (slide past and shoot the back)
+  radial?: number; // flyer: fires a ring of this many shots / stomper boss: fires fans instead of lobs
+  adds?: string; // enemy id this one hatches or summons
+  drops?: 'health' | 'weapon'; // guaranteed drop when destroyed
 }
 
 const ROBOT = ['robot_walk', 'robot_aim'];
@@ -60,7 +69,39 @@ export const ENEMIES: Record<string, EnemyDef> = {
   // --- PROPS ---
   crate: { id: 'crate', name: 'Supply Crate', faction: 'prop', ai: 'crate', hp: 16, score: 0, speed: 0, contact: 0, art: 'crate', fallback: { frames: ['crate'] }, body: [20, 20], heavy: true, gore: 0xd0a060 },
 
+  // --- EXPANSION ROSTER (single-pose art from art/library/expansion; they waddle/hover procedurally) ---
+  // machines
+  bastion: { id: 'bastion', name: 'Riot Bastion', faction: 'machine', ai: 'gunner', hp: 120, score: 320, speed: 40, contact: 0, art: 'riot_bastion', fallback: { frames: ROBOT, tint: 0x8090ff }, body: [30, 60], heavy: true, shield: 0.2, burst: 2, range: 170, fireRate: 2200, shotSpeed: 220, muzzle: [30, 40], gore: 0x9fd0ff },
+  sniper: { id: 'sniper', name: 'Coil Sniper', faction: 'machine', ai: 'gunner', hp: 30, score: 260, speed: 55, contact: 0, art: 'coil_sniper', fallback: { frames: ROBOT, tint: 0xfff0d0 }, body: [20, 58], burst: 1, range: 300, fireRate: 2900, shotSpeed: 430, windup: 750, shotColor: 0x60d0ff, muzzle: [34, 43], gore: 0x60d0ff },
+  hound: { artScale: 1, id: 'hound', name: 'Welder Hound', faction: 'machine', ai: 'rusher', hp: 36, score: 140, speed: 125, contact: 14, art: 'welder_hound', fallback: { frames: ROBOT, tint: 0xffa040, scale: 0.7 }, body: [50, 34], gore: 0xffb040 },
+  sawcrab: { artScale: 1, id: 'sawcrab', name: 'Saw Crab', faction: 'machine', ai: 'rusher', hp: 90, score: 260, speed: 60, contact: 18, art: 'saw_crab', fallback: { frames: ROBOT, tint: 0xc06050, scale: 0.8 }, body: [46, 36], heavy: true, gore: 0xffb040 },
+  bell: { id: 'bell', name: 'Bell Drone', faction: 'machine', ai: 'flyer', hp: 34, score: 200, speed: 80, contact: 0, art: 'bell_drone', fallback: { frames: ['drone'], tint: 0xffd070 }, body: [26, 36], flying: true, radial: 8, fireRate: 2600, shotSpeed: 130, windup: 520, shotColor: 0xffc040, gore: 0xffc040 },
+  mantis: { id: 'mantis', name: 'Scrap Mantis', faction: 'machine', ai: 'rusher', hp: 55, score: 240, speed: 105, contact: 18, art: 'scrap_mantis', fallback: { frames: ROBOT, tint: 0xb0e060 }, body: [34, 50], gore: 0xb0e060 },
+  // mutants
+  sporeback: { id: 'sporeback', name: 'Sporeback', faction: 'mutant', ai: 'spitter', hp: 60, score: 220, speed: 50, contact: 12, art: 'sporeback', fallback: { frames: ROBOT, tint: 0x90c050 }, body: [30, 56], burst: 1, range: 190, fireRate: 2300, shotColor: 0xffa030, gore: 0x90d040 },
+  bellower: { id: 'bellower', name: 'Acid Bellower', faction: 'mutant', ai: 'spitter', hp: 110, score: 340, speed: 34, contact: 14, art: 'acid_bellower', fallback: { frames: ROBOT, tint: 0xc070d0 }, body: [38, 48], heavy: true, burst: 3, range: 230, fireRate: 3000, shotColor: 0xc0ff30, gore: 0xc0ff30 },
+  spiderling: { artScale: 1, id: 'spiderling', name: 'Glass Spiderling', faction: 'mutant', ai: 'rusher', hp: 20, score: 110, speed: 135, contact: 10, art: 'glass_widow', fallback: { frames: ROBOT, tint: 0x80a0ff, scale: 0.6 }, body: [44, 32], gore: 0x80c0ff },
+  knight: { artScale: 1, id: 'knight', name: 'Cinder Knight', faction: 'demon', ai: 'rusher', hp: 150, score: 420, speed: 64, contact: 22, art: 'cinder_knight', fallback: { frames: ROBOT, tint: 0xff7040, scale: 1.1 }, body: [26, 62], heavy: true, drops: 'weapon', gore: 0xff6020 },
+  deepjaw: { id: 'deepjaw', name: 'Deepjaw', faction: 'mutant', ai: 'rusher', hp: 62, score: 230, speed: 96, contact: 16, art: 'deepjaw', fallback: { frames: ROBOT, tint: 0x70a0c0 }, body: [30, 56], gore: 0x60c0e0 },
+  moth: { id: 'moth', name: 'Lantern Moth', faction: 'mutant', ai: 'lobber', hp: 38, score: 230, speed: 80, contact: 0, art: 'lantern_moth', fallback: { frames: ['drone'], tint: 0x60ffc0 }, body: [40, 30], flying: true, fireRate: 2300, shotSpeed: 0, gore: 0xffd040 },
+  jelly: { id: 'jelly', name: 'Umbrella Jelly', faction: 'mutant', ai: 'flyer', hp: 30, score: 180, speed: 70, contact: 12, art: 'umbrella_jelly', fallback: { frames: ['drone'], tint: 0x8080ff }, body: [34, 40], flying: true, fireRate: 2200, shotSpeed: 160, windup: 420, shotColor: 0x60a0ff, gore: 0x8060ff },
+  // oddities
+  vendotron: { id: 'vendotron', name: 'Vendotron', faction: 'machine', ai: 'spitter', hp: 100, score: 300, speed: 42, contact: 14, art: 'vendotron', fallback: { frames: ROBOT, tint: 0x70d0e0 }, body: [36, 60], heavy: true, burst: 2, range: 210, fireRate: 2600, shotColor: 0xff60c0, drops: 'health', gore: 0x70d0e0 },
+  totem: { id: 'totem', name: 'Traffic Totem', faction: 'machine', ai: 'gunner', hp: 48, score: 190, speed: 58, contact: 0, art: 'traffic_totem', fallback: { frames: ROBOT, tint: 0xffe060 }, body: [28, 60], burst: 3, range: 220, fireRate: 2300, shotSpeed: 200, windup: 450, shotColor: 0x60ff60, muzzle: [8, 50], gore: 0xffc040 },
+  slug: { artScale: 1, id: 'slug', name: 'Disco Slug', faction: 'mutant', ai: 'spitter', hp: 140, score: 360, speed: 24, contact: 16, art: 'disco_slug', fallback: { frames: ROBOT, tint: 0x60e090, scale: 0.8 }, body: [50, 38], heavy: true, burst: 4, range: 260, fireRate: 3400, shotColor: 0xff70e0, gore: 0x60e090 },
+
+  // --- EXPANSION PROPS ---
+  locker: { id: 'locker', name: 'Ammo Locker', faction: 'prop', ai: 'crate', hp: 26, score: 0, speed: 0, contact: 0, art: 'ammo_locker', fallback: { frames: ['crate'], tint: 0xffd040 }, body: [26, 42], heavy: true, drops: 'weapon', gore: 0xf0c040 },
+  medstation: { id: 'medstation', name: 'Med Station', faction: 'prop', ai: 'crate', hp: 26, score: 0, speed: 0, contact: 0, art: 'med_station', fallback: { frames: ['crate'], tint: 0x80ffa0 }, body: [30, 36], heavy: true, drops: 'health', gore: 0x80ffa0 },
+  barrel: { id: 'barrel', name: 'Toxic Barrel', faction: 'prop', ai: 'barrel', hp: 12, score: 0, speed: 0, contact: 0, art: 'toxic_barrel', fallback: { frames: ['crate'], tint: 0xa0ff40 }, body: [22, 32], heavy: true, gore: 0xa0ff40 },
+  egg: { id: 'egg', name: 'Brood Egg', faction: 'alien', ai: 'egg', hp: 30, score: 150, speed: 0, contact: 0, art: 'alien_egg', fallback: { frames: ['crate'], tint: 0xc060ff }, body: [30, 36], heavy: true, adds: 'spiderling', gore: 0xc060ff },
+  seaegg: { id: 'seaegg', name: 'Brood Egg', faction: 'alien', ai: 'egg', hp: 30, score: 150, speed: 0, contact: 0, art: 'alien_egg', fallback: { frames: ['crate'], tint: 0xc060ff }, body: [30, 36], heavy: true, adds: 'deepjaw', gore: 0xc060ff },
+
   // --- BOSSES ---
+  tyrant: { artScale: 1, id: 'tyrant', name: 'THE TEACUP TYRANT', faction: 'machine', ai: 'boss_stomper', hp: 1700, score: 6000, speed: 46, contact: 20, art: 'boss_tyrant', fallback: { frames: ['turret'], tint: 0xffe0a0, scale: 2 }, body: [84, 92], heavy: true, boss: true, adds: 'slug', shotColor: 0xff70c0, gore: 0xffd060 },
+  widow: { artScale: 1, id: 'widow', name: 'GLASS WIDOW', faction: 'mutant', ai: 'boss_stomper', hp: 2200, score: 9000, speed: 62, contact: 20, art: 'boss_widow', fallback: { frames: ['turret'], tint: 0x80a0ff, scale: 2 }, body: [96, 72], heavy: true, boss: true, radial: 5, adds: 'spiderling', shotColor: 0x80d0ff, gore: 0x80c0ff },
+  queen: { id: 'queen', name: 'THE DROWNED QUEEN', faction: 'mutant', ai: 'boss_seer', hp: 1700, score: 11000, speed: 110, contact: 20, art: 'boss_jelly', fallback: { frames: ['core'], tint: 0x8080ff }, body: [78, 92], flying: true, heavy: true, boss: true, adds: 'jelly', shotColor: 0x60b0ff, gore: 0x8060ff },
+  oracle: { id: 'oracle', name: 'STATIC ORACLE', faction: 'machine', ai: 'boss_seer', hp: 2000, score: 13000, speed: 135, contact: 20, art: 'boss_oracle', fallback: { frames: ['core'], tint: 0x60ff80 }, body: [62, 92], flying: true, heavy: true, boss: true, adds: 'bell', shotColor: 0x60ff80, gore: 0x60ff80 },
   vulture: { id: 'vulture', name: 'VULTURE GUNSHIP', faction: 'machine', ai: 'boss_heli', hp: 900, score: 5000, speed: 110, contact: 20, art: 'vulture', fallback: { frames: ['heli'] }, body: [120, 40], flying: true, heavy: true, boss: true, gore: 0xffb040 },
   warden: { id: 'warden', name: 'FURNACE WARDEN', faction: 'machine', ai: 'boss_warden', hp: 1250, score: 8000, speed: 0, contact: 20, art: 'warden', fallback: { frames: ['turret'], scale: 2.3 }, body: [42, 58], heavy: true, boss: true, gore: 0xffb040 },
   archon: { id: 'archon', name: 'ARCHON CORE', faction: 'machine', ai: 'boss_core', hp: 1600, score: 15000, speed: 0, contact: 20, art: 'archon', fallback: { frames: ['core'] }, body: [70, 70], flying: true, heavy: true, boss: true, gore: 0xff4040 },

@@ -40,7 +40,7 @@ const SCENARIOS = [
     ['up', 'KeyJ'], ['wait', 500], ['down', 'KeyA'], ['wait', 180], ['up', 'KeyA'], ['wait', 300],
     ['assert', 'window.__game.scene.getScene("Game").player.flipX'], ['shot'],
   ] })),
-  { name: 'art-enemies', url: '?stage=2&god=1', steps: [
+  { name: 'art-enemies', url: '?stage=furnace&god=1', steps: [
     ['wait', 2800],
     ['eval', `var g = window.__game.scene.getScene('Game');
       for (const e of g.enemies) g.removeEnemy(e);
@@ -59,19 +59,56 @@ const SCENARIOS = [
   { name: 'title', url: '', steps: [['wait', 1200], ['shot'], ['tap', 'ArrowRight'], ['wait', 300], ['shot'], ['tap', 'Enter'], ['wait', 1500], ['shot']] },
   { name: 'city', url: '?stage=1&god=1', steps: [['wait', 800], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 3000], ['shot'], ['tap', 'Space'], ['wait', 400], ['tap', 'ShiftLeft'], ['wait', 5000], ['shot'], ['wait', 9000], ['shot']] },
   { name: 'city-boss', url: '?stage=1&boss=1&god=1&weapon=smg', steps: [['wait', 500], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 6000], ['shot'], ['up', 'KeyD'], ['wait', 9000], ['shot'], ['wait', 30000], ['shot']] },
-  { name: 'furnace', url: '?stage=2&god=1&weapon=shotgun', steps: [['wait', 800], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 5000], ['shot'], ['wait', 9000], ['shot']] },
-  { name: 'furnace-boss', url: '?stage=2&boss=1&god=1&weapon=rocket', steps: [['wait', 500], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 7000], ['shot'], ['wait', 12000], ['shot']] },
-  { name: 'cathedral', url: '?stage=3&god=1&weapon=rail', steps: [['wait', 800], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 5000], ['shot'], ['wait', 9000], ['shot']] },
-  { name: 'cathedral-boss', url: '?stage=3&boss=1&god=1&weapon=smg', steps: [['wait', 500], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 7000], ['shot'], ['up', 'KeyD'], ['wait', 12000], ['shot']] },
+  { name: 'furnace', url: '?stage=furnace&god=1&weapon=shotgun', steps: [['wait', 800], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 5000], ['shot'], ['wait', 9000], ['shot']] },
+  { name: 'furnace-boss', url: '?stage=furnace&boss=1&god=1&weapon=rocket', steps: [['wait', 500], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 7000], ['shot'], ['wait', 12000], ['shot']] },
+  { name: 'cathedral', url: '?stage=cathedral&god=1&weapon=rail', steps: [['wait', 800], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 5000], ['shot'], ['wait', 9000], ['shot']] },
+  { name: 'cathedral-boss', url: '?stage=cathedral&boss=1&god=1&weapon=smg', steps: [['wait', 500], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 7000], ['shot'], ['up', 'KeyD'], ['wait', 12000], ['shot']] },
+  // ---- expansion content
+  ...[['casino', 'arc'], ['fungal', 'spore'], ['abyss', 'cryo'], ['orbital', 'tesla']].flatMap(([id, weapon]) => [
+    { name: `x-${id}`, url: `?stage=${id}&god=1&weapon=${weapon}`, steps: [['wait', 800], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 4000], ['shot'], ['wait', 6000], ['shot'], ['wait', 9000], ['shot']] },
+    { name: `x-${id}-boss`, url: `?stage=${id}&boss=1&god=1&weapon=smg`, steps: [
+      ['wait', 500], ['down', 'KeyD'], ['until', '!!window.__game.scene.getScene("Game").boss'], ['up', 'KeyD'],
+      ['eval', 'var g = window.__game.scene.getScene("Game"); g.player.x = g.bounds.left + 90'], ['down', 'KeyJ'], // stand on the left, firing right
+      ['wait', 2500], ['shot'], ['wait', 5000], ['shot'], ['wait', 6000], ['shot'],
+      ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.hp - g.boss.maxHp * 0.4, g.player.x)'], // push into the rage phase
+      ['wait', 7000], ['shot'], ['wait', 7000], ['shot'],
+      ['assert', 'var g = window.__game.scene.getScene("Game"); g.state !== "dead" && (!g.boss || g.boss.dead || (g.boss.hp < g.boss.maxHp * 0.6 && g.boss.x > g.bounds.left - 10 && g.boss.x < g.bounds.right + 10 && g.boss.y > 0 && g.boss.y < 330))'],
+    ] },
+  ]),
+  { name: 'x-roster', url: '?stage=casino&god=1', steps: [
+    ['wait', 2800],
+    ['eval', `var g = window.__game.scene.getScene('Game');
+      for (const e of g.enemies) g.removeEnemy(e);
+      g.player.x = 80;
+      var ids = ['bastion', 'sniper', 'hound', 'sawcrab', 'mantis', 'sporeback', 'bellower', 'spiderling', 'knight', 'deepjaw', 'vendotron', 'totem', 'slug', 'locker', 'medstation', 'barrel', 'egg'];
+      window.__roster = ids.map((id, i) => g.spawnEnemy(id, 150 + (i % 9) * 52, i < 9 ? 320 : 248, ''));
+      window.__roster.slice(9).forEach((e) => { e.body.setAllowGravity(false); });
+      ['bell', 'moth', 'jelly'].forEach((id, i) => window.__roster.push(g.spawnEnemy(id, 250 + i * 110, 120, '')));`],
+    ['wait', 300], ['shot'],
+    ['assert', 'window.__roster.every(e => e.texture.key === e.def.art && e.scaleX === 1)'],
+    ['eval', 'window.__roster.forEach(e => e.awake = true)'], ['wait', 2500], ['shot'], ['wait', 2500], ['shot'],
+  ] },
+  { name: 'x-weapons', url: '?stage=city&god=1', steps: [
+    ['wait', 2800],
+    ...['arc', 'cryo', 'scrap', 'sun', 'saw', 'spore', 'grav', 'tesla'].flatMap((w) => [
+      ['eval', `var g = window.__game.scene.getScene('Game'); var r = window.__run;
+        for (const e of g.enemies) g.removeEnemy(e);
+        g.player.x = 120; g.player.body.setVelocity(0, 0);
+        window.__targets = [0, 1, 2].map((i) => { const e = g.spawnEnemy('trooper', 260 + i * 50, 320, ''); return e; });
+        r.weapon = '${w}'; r.ammo = 999; window.__kills = r.kills;`],
+      ['down', 'KeyJ'], ['wait', 700], ['shot'], ['wait', 2600], ['up', 'KeyJ'],
+      ['assert', `window.__targets.some(e => e.hp < e.maxHp) /* ${w} must damage */`],
+    ]),
+  ] },
   { name: 'death', url: '?stage=1', steps: [['eval', 'window.__run.hp = 1'], ['down', 'KeyD'], ['wait', 9000], ['shot']] },
   // Force lethal damage only to exercise transitions, not to claim combat balance is verified.
-  ...[1, 2, 3].map((stage) => ({ name: `flow-stage-${stage}`, url: `?stage=${stage}&boss=1&god=1`, steps: [
+  ...[1, 2, 3, 4, 5, 6, 7].map((stage) => ({ name: `flow-stage-${stage}`, url: `?stage=${stage}&boss=1&god=1`, steps: [
     ['down', 'KeyD'], ['until', '!!window.__game.scene.getScene("Game").boss'], ['up', 'KeyD'],
     ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp, g.player.x)'],
-    ['until', `window.__game.scene.isActive("${stage === 3 ? 'End' : 'Perk'}")`], ['wait', 1300], ['shot'],
+    ['until', `window.__game.scene.isActive("${stage === 7 ? 'End' : 'Perk'}")`], ['wait', 1300], ['shot'],
     ['assert', `window.__run.stage === ${stage}`], ['tap', 'Enter'],
-    ['until', `window.__game.scene.isActive("${stage === 3 ? 'Title' : 'Game'}")`], ['wait', 700], ['shot'],
-    ...(stage < 3 ? [['assert', 'window.__run.perks.length === 1']] : []),
+    ['until', `window.__game.scene.isActive("${stage === 7 ? 'Title' : 'Game'}")`], ['wait', 700], ['shot'],
+    ...(stage < 7 ? [['assert', 'window.__run.perks.length === 1']] : []),
   ] })),
   { name: 'flow-retry', url: '?stage=1', steps: [
     ['wait', 800], ['eval', 'window.__run.score = 1000; var g = window.__game.scene.getScene("Game"); g.player.invuln = 0; g.hurtPlayer(10000, g.player.x - 20)'],

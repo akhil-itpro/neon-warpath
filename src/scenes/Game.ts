@@ -90,8 +90,9 @@ export class GameScene extends Phaser.Scene {
       this.oneways.add(p);
       this.add.rectangle(x + n * 16, y + 13, n * 32 - 6, 2, st.accent, 0.5).setDepth(DEPTH.world).setBlendMode(Phaser.BlendModes.ADD);
     }
-    const hazTex = st.weather === 'data' ? 'volt' : 'lava';
-    const hazCol = st.weather === 'data' ? 0x40e0ff : 0xff7a20;
+    const hazKind = st.hazard ?? (st.weather === 'data' ? 'volt' : 'lava');
+    const hazTex = hazKind;
+    const hazCol = { volt: 0x40e0ff, lava: 0xff7a20, acid: 0x80ff40 }[hazKind];
     for (const [x, w] of st.hazards) {
       const t = this.add.tileSprite(x + w / 2, GROUND_Y + 3, w, 10, hazTex).setDepth(DEPTH.world + 2);
       this.flows.push(t);
@@ -99,6 +100,10 @@ export class GameScene extends Phaser.Scene {
       const z = this.add.zone(x + w / 2, GROUND_Y - 4, w - 10, 10);
       this.physics.add.existing(z, true);
       this.hazards.add(z);
+    }
+    // scenery props: no collision, drawn behind the action
+    for (const [key, x] of st.decor ?? []) {
+      if (this.textures.exists(key)) this.add.image(x, GROUND_Y + 1, key).setOrigin(0.5, 1).setDepth(DEPTH.world - 1).setTint(0xa8b0c8);
     }
     // foreground silhouettes scroll faster than the world for depth
     for (let x = 500; x < st.width * 1.6; x += R.Between(620, 980)) {
@@ -158,6 +163,9 @@ export class GameScene extends Phaser.Scene {
     let cfg: Phaser.Types.GameObjects.Particles.ParticleEmitterConfig;
     if (st.weather === 'rain') cfg = { ...base, y: -10, speedY: { min: 480, max: 600 }, speedX: -130, lifespan: 760, scaleX: 0.5, scaleY: { min: 3, max: 6 }, alpha: 0.32, tint: 0x9ac4ff, quantity: 2, frequency: 16 };
     else if (st.weather === 'embers') cfg = { ...base, y: H + 6, speedY: { min: -110, max: -40 }, speedX: { min: -40, max: 40 }, lifespan: 3200, scale: { start: 1.2, end: 0 }, alpha: 0.9, tint: [0xff8030, 0xffc040, 0xff5020], blendMode: 'ADD', frequency: 70 };
+    else if (st.weather === 'spores') cfg = { ...base, y: H + 6, speedY: { min: -46, max: -14 }, speedX: { min: -24, max: 24 }, lifespan: 6000, scale: { start: 1.4, end: 0.2 }, alpha: { start: 0.8, end: 0 }, tint: [0x40ffc0, 0x80ffa0, 0xc0ff60], blendMode: 'ADD', frequency: 90 };
+    else if (st.weather === 'bubbles') cfg = { ...base, y: H + 6, speedY: { min: -90, max: -40 }, speedX: { min: -12, max: 12 }, lifespan: 4200, scale: { min: 0.6, max: 1.8 }, alpha: { start: 0.5, end: 0 }, tint: [0x60b0ff, 0xa0e0ff], frequency: 110 };
+    else if (st.weather === 'petals') cfg = { ...base, y: -10, speedY: { min: 26, max: 70 }, speedX: { min: -60, max: -10 }, lifespan: 6500, scale: { min: 0.8, max: 1.6 }, rotate: { min: 0, max: 360 }, alpha: { start: 0.8, end: 0.2 }, tint: [0xff5070, 0xff90a0, 0xc03050], frequency: 120 };
     else cfg = { ...base, y: -10, speedY: { min: 60, max: 150 }, lifespan: 3600, scaleX: 0.5, scaleY: { min: 2, max: 8 }, alpha: { start: 0.55, end: 0 }, tint: [0x40e0ff, 0xff4060], blendMode: 'ADD', frequency: 60 };
     this.add.particles(0, 0, 'px', cfg).setScrollFactor(0).setDepth(DEPTH.weather);
   }
@@ -264,7 +272,8 @@ export class GameScene extends Phaser.Scene {
   private spawnBoss() {
     const { left, right } = this.bounds;
     const id = this.stage.boss;
-    const pos: Record<string, [number, number]> = { vulture: [right + 130, 70], warden: [right - 95, -160], archon: [(left + right) / 2, -70] };
+    const mid = (left + right) / 2;
+    const pos: Record<string, [number, number]> = { vulture: [right + 130, 70], warden: [right - 95, -160], archon: [mid, -70], tyrant: [right - 130, -40], widow: [right - 130, -40], queen: [mid, -90], oracle: [mid, -90] };
     const [x, y] = pos[id] ?? [right - 100, GROUND_Y];
     const b = this.spawnEnemy(id, x, y, 'enc');
     b.arena = { left, right, cx: (left + right) / 2 };
@@ -308,7 +317,7 @@ export class GameScene extends Phaser.Scene {
       const shot = this.pShots.get(m.x, m.y) as Shot | null;
       if (!shot) break;
       const a = base + (w.pellets > 1 ? R.Linear(-spread / 2, spread / 2, i / (w.pellets - 1)) : R.FloatBetween(-spread / 2, spread / 2));
-      shot.fire(w.tex, m.x, m.y, a, w.speed * R.FloatBetween(0.95, 1.05), w.dmg * s.dmg * (od ? 1.5 : 1), od ? 0xffd040 : w.color, { pierce: w.pierce, blast: w.explosive, smoke: w.id === 'rocket', life: w.pellets > 1 ? 420 : 950 });
+      shot.fire(w.tex, m.x, m.y, a - (w.gravity ? 0.2 : 0) * (Math.cos(a) < 0 ? -1 : 1), w.speed * R.FloatBetween(0.95, 1.05), w.dmg * s.dmg * (od ? 1.5 : 1), od ? 0xffd040 : w.color, { pierce: w.pierce, blast: w.explosive, smoke: w.id === 'rocket', life: w.life ?? (w.pellets > 1 ? 420 : 950), scale: w.scale, gravity: w.gravity, chain: w.chain, chill: w.chill, pull: w.pull, rehit: w.rehit });
     }
     this.fx.muzzle(m.x, m.y, od ? 0xffd040 : w.color);
     this.fx.spark(m.x - p.dir * 16, m.y - 2, 0xffd070, 1); // shell casing
@@ -341,17 +350,54 @@ export class GameScene extends Phaser.Scene {
     this.fx.spark(shot.x, shot.y, e.def.gore, 5);
     this.fx.glow(shot.x, shot.y, shot.color, 0.35, 90);
     audio.sfx('hit');
-    if (shot.blast) { this.blastEnemies(shot.x, shot.y, shot.blast, shot.dmg); shot.kill(); return; }
+    if (shot.blast) { this.detonate(shot); return; }
     e.hurt(shot.dmg, shot.x);
+    if (shot.chill) e.chill(shot.chill);
+    if (shot.chain) this.chainZap(e, shot);
     if (!shot.pierce) shot.kill();
+  }
+
+  /** Player explosive goes off. Singularity rounds drag nearby enemies in first, then burst. */
+  private detonate(shot: Shot) {
+    const { x, y, blast, dmg, color } = shot;
+    shot.kill();
+    if (!shot.pull) return this.blastEnemies(x, y, blast, dmg);
+    this.fx.glow(x, y, color, 2.6, 260);
+    this.fx.ring(x, y, color, 0.1, 10);
+    audio.sfx('blink');
+    for (const e of this.enemies) {
+      if (e.dead || e.def.heavy || e.def.boss || R.Distance.Between(x, y, e.x, e.cy) > blast * 2.2) continue;
+      const a = Math.atan2(y - e.cy, x - e.x);
+      e.body.setVelocity(Math.cos(a) * 330, e.def.flying ? Math.sin(a) * 330 : e.body.velocity.y);
+      e.chill(240);
+    }
+    this.time.delayedCall(240, () => { if (this.state !== 'dead') this.blastEnemies(x, y, blast, dmg); });
+  }
+
+  /** Lightning from a chain weapon hops between the closest enemies that have not been hit yet. */
+  private chainZap(from: Enemy, shot: Shot) {
+    let last = from;
+    for (let hop = 0; hop < shot.chain; hop++) {
+      let next: Enemy | null = null, best = 150;
+      for (const e of this.enemies) {
+        if (e.dead || shot.hit.has(e) || e.def.faction === 'prop') continue;
+        const d = R.Distance.Between(last.x, last.cy, e.x, e.cy);
+        if (d < best) { best = d; next = e; }
+      }
+      if (!next) break;
+      shot.hit.add(next);
+      this.fx.bolt(last.x, last.cy, next.x, next.cy, shot.color);
+      next.hurt(shot.dmg * 0.6, last.x);
+      last = next;
+    }
   }
 
   private onShotWall(a: object, b: object, mine: boolean) {
     const shot = (a instanceof Shot ? a : b) as Shot;
     if (!shot.active) return;
     if (shot.blast) {
-      if (mine) this.blastEnemies(shot.x, shot.y, shot.blast, shot.dmg);
-      else this.blastPlayer(shot.x, shot.y, shot.blast, shot.dmg);
+      if (mine) return this.detonate(shot);
+      this.blastPlayer(shot.x, shot.y, shot.blast, shot.dmg);
     } else this.fx.spark(shot.x, shot.y, shot.color, 3);
     shot.kill();
   }
@@ -433,13 +479,24 @@ export class GameScene extends Phaser.Scene {
     if (d.boss) return this.bossDeath(e);
     this.removeEnemy(e);
     const x = e.x, y = e.cy;
-    this.fx.explosion(x, y, Math.min(46, 20 * e.scale + d.hp * 0.08), d.faction === 'undead' ? 0x80e040 : d.faction === 'alien' ? 0xb070ff : 0xff9a30);
+    this.fx.explosion(x, y, Math.min(46, 20 * e.scale + d.hp * 0.08), d.faction === 'undead' || d.faction === 'mutant' ? 0x80e040 : d.faction === 'alien' ? 0xb070ff : 0xff9a30);
     if (d.ai === 'crate') {
-      this.dropPickup(Math.random() < 0.72 ? 'weapon' : 'health', x, y);
+      this.dropPickup(d.drops ?? (Math.random() < 0.72 ? 'weapon' : 'health'), x, y);
       for (let i = 0; i < 3; i++) this.dropPickup('chip', x, y);
       return;
     }
+    if (d.ai === 'barrel') { // toxic barrels hurt everyone nearby, and set off their neighbours
+      this.time.delayedCall(70, () => {
+        if (this.state === 'dead') return;
+        this.fx.explosion(x, y, 62, 0xa0ff40, true);
+        this.blastEnemies(x, y, 62, 70);
+        const p = this.player;
+        if (R.Distance.Between(x, y, p.x, p.centerY) < 62) this.hurtPlayer(15, x);
+      });
+      return;
+    }
     if (!byPlayer) return;
+    if (d.drops) this.dropPickup(d.drops, x, y);
     this.fx.hitstop(d.heavy ? 60 : 28);
     this.combo++;
     this.comboT = 3600;
@@ -455,7 +512,7 @@ export class GameScene extends Phaser.Scene {
     for (let i = R.Between(1, 3); i > 0; i--) this.dropPickup('chip', x, y);
     const low = run.hp < s.maxHp * 0.35;
     if (Math.random() < (low ? 0.2 : 0.06)) this.dropPickup('health', x, y);
-    if ((d.id === 'elite' || d.id === 'brute') && Math.random() < 0.4) this.dropPickup('weapon', x, y);
+    if ((d.id === 'elite' || d.id === 'brute' || d.id === 'bastion' || d.id === 'slug') && Math.random() < 0.4) this.dropPickup('weapon', x, y);
     if (s.blast) this.time.delayedCall(90, () => this.blastEnemies(x, y, s.blast, 26));
   }
 
@@ -526,7 +583,7 @@ export class GameScene extends Phaser.Scene {
     this.banner('OVERDRIVE', 900, '#ffd040');
     // shockwave: wipes enemy bullets and staggers everything on screen
     for (const s of this.eShots.getChildren() as Shot[]) if (s.active) { this.fx.spark(s.x, s.y, 0xffd040, 3); s.kill(); }
-    for (const e of [...this.enemies]) if (!e.dead && Math.abs(e.x - p.x) < 340 && e.def.ai !== 'crate') e.hurt(20, p.x);
+    for (const e of [...this.enemies]) if (!e.dead && Math.abs(e.x - p.x) < 340 && e.def.faction !== 'prop') e.hurt(20, p.x);
   }
 
   // ================================================================= pickups

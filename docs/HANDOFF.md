@@ -2,6 +2,32 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
+## Session 6 - 2026-11-15 (Claude Code, expansion library integrated into the game)
+
+### Completed
+- The campaign is now **7 stages**: city, **casino**, furnace, **fungal**, **abyss**, **orbital**, cathedral (ARCHON stays the finale). Stage data in `src/data/stages.ts`; new optional fields `hazard` (lava/volt/acid) and `decor` (scenery sprites), new weather kinds spores/bubbles/petals.
+- **38 of the 44 library designs are live.** `python tools/integrate_expansion.py` re-cuts them from `art/library/expansion/masters/` at in-game sizes (trimmed canvases, bosses cut large natively) into `public/assets/` and registers them in the manifest. Edit the `JOBS` table there to resize or add.
+- **16 new enemies** (`src/data/enemies.ts`, "EXPANSION ROSTER"): bastion (front shield, turns slowly - slide behind it), sniper (long warning, fast shot), hound, sawcrab, bell (ring of shots), mantis, sporeback/bellower/vendotron/slug (new `spitter` AI: lobs at marked floor spots), spiderling, knight, deepjaw, moth, jelly, totem (red/amber/green burst). Single-pose art: ground units rock side to side while walking, flyers hover.
+- **Props as enemies-array entries:** `locker` (always a weapon), `medstation` (always health), `barrel` (explodes, hurts both sides, chains), `egg`/`seaegg` (hatch a spiderling/deepjaw if you get close; shoot first). Scenery-only: street_terminal, scrap_barricade, power_cell, rift_anchor.
+- **4 new bosses, 2 new boss AIs** in `src/entities/Enemy.ts`: `boss_stomper` (TEACUP TYRANT, GLASS WIDOW: charge you must slide through, marked leap slam with floor shockwaves, lobs or shard fans, summons below 50%) and `boss_seer` (DROWNED QUEEN, STATIC ORACLE: sweeping rain of marked columns, aimed bursts, blink + rings, summons below 50%; drifts low between attacks as the damage window).
+- **8 new weapons** (`src/data/weapons.ts`), all in the drop pool with their pickup art: ARC CASTER (chain lightning), CRYO JET (freezes), SCRAPSTORM (11 pellets), SUNLANCE (rapid pierce), BUZZKILL (slow saw that re-hits), SPORE SPRAYER (arcing explosive), SINGULARITY (pulls enemies in, then bursts), TESLA BOLT (pierce + chain). New optional weapon fields: life, scale, gravity, chain, chill, pull, rehit.
+- PATCH the raccoon mechanic hosts the perk screen. `?stage=` now also accepts a stage id (`?stage=fungal&boss=1&god=1`); smoke tests use ids.
+
+### Verified
+- `npm.cmd run check` and `npm.cmd run build` pass. Full smoke: **30 scenarios pass** with no browser errors, including new `x-<stage>`, `x-<stage>-boss` (boss takes real fire, is pushed into rage phase), `x-roster` (every new enemy/prop uses its own art at scale 1), `x-weapons` (each new weapon damages targets) and boss-death transitions for all 7 stages. Reviewed the new-content screenshots.
+
+### Not verified / limits
+- **Balance is a first guess.** No normal-health playthrough of any stage. New boss HP (1700-2200) was set after seeing held SMG fire kill them in under 30s in god mode. Stages 2-6 difficulty ordering and perk scaling over 6 picks are untested.
+- Each boss AI is shared by two bosses; they differ by stats, colours, helpers and (stompers) lob vs fan volley. Good candidates for a unique third attack each.
+- Not used yet: the 5 extra operators (NOVA, MAKO, VESPER, FLINT, ECHO) - one pose each, they need full 8-pose sheets + muzzle offsets before they can be playable - and CRT Oracle/Teacup/Jelly small sprites (bosses only).
+- New weapons reuse existing SFX. Foreground pillars still hide action at times.
+- **Another session was adding `art/source/frontier/`, `art/library/frontier/`, `tools/process_frontier.py`, `src/data/frontierPack.ts` while this ran.** Left untouched and uncommitted by this session.
+
+### Next
+1. Play stages at normal health (`?stage=casino` etc. without `god`) and tune enemy HP/fire rates and encounter sizes.
+2. Give each boss one signature attack; add dedicated SFX for new weapons.
+3. Animation sheets for chosen new operators, then add them to `src/data/operators.ts`.
+
 ## Session 5 - 2026-11-15 (Codex, expansion asset library for Claude)
 
 ### Owner direction — read this first

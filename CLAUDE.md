@@ -23,7 +23,7 @@ npm run smoke -- city-boss   # one scenario (substring match on the names in too
 
 There is no unit-test suite. Verification = `npm run check` + `npm run smoke` + **looking at the screenshots in `tools/shots/`** (read them as images). Add a scenario to `tools/smoke.mjs` when you add a stage or boss.
 
-Debug URL params (handled in `src/scenes/Boot.ts`): `?stage=2` start on stage 2, `&boss=1` jump to the boss, `&god=1` near-unkillable, `&op=1` operator index, `&weapon=rocket`. Console handles: `window.__game`, `window.__run`.
+Debug URL params (handled in `src/scenes/Boot.ts`): `?stage=2` or `?stage=fungal` start on that stage (ids: city, casino, furnace, fungal, abyss, orbital, cathedral), `&boss=1` jump to the boss, `&god=1` near-unkillable, `&op=1` operator index, `&weapon=rocket`. Console handles: `window.__game`, `window.__run`.
 
 Python deps for the asset pipeline: `pip install pillow numpy scipy "rembg[cpu]"`.
 
@@ -32,7 +32,7 @@ Python deps for the asset pipeline: `pip install pillow numpy scipy "rembg[cpu]"
 **Content is data, behaviour is code.** Adding content should rarely need engine changes:
 
 - `src/data/stages.ts` — stage layouts: platforms, hazards, roaming enemies, encounters (wave lists), boss id, music track.
-- `src/data/enemies.ts` — enemy roster. Each entry picks an `ai` kind; the AI kinds are implemented in the `switch` in `src/entities/Enemy.ts` (bosses are the `heli` / `warden` / `core` methods there).
+- `src/data/enemies.ts` — enemy roster. Each entry picks an `ai` kind; the AI kinds are implemented in the `switch` in `src/entities/Enemy.ts` (bosses are the `heli` / `warden` / `core` / `stomper` / `seer` methods there; optional traits such as `shield`, `radial`, `adds`, `drops` are plain data).
 - `src/data/weapons.ts`, `src/data/operators.ts` (playable characters), perks in `src/systems/Run.ts`.
 
 **Scene flow:** `Boot` (loads `public/assets/manifest.json`, draws procedural textures) → `Title` (operator select) → `Game` + `Hud` in parallel → `Perk` (pick 1 of 3) → next `Game` … → `End`.
@@ -43,7 +43,7 @@ Python deps for the asset pipeline: `pip install pillow numpy scipy "rembg[cpu]"
 
 **Art fallback convention (important).** Enemies and operators name a preferred texture (`art`). If `public/assets` has `<art>_0.png…` (animation) or `<art>.png` it is used; otherwise a tinted stand-in sprite. So gangsters/zombies/aliens/demons/extra operators are already playable with stand-ins and upgrade automatically once real art is processed. Operators need `<art>_run0..3, _idle, _jump, _slide, _crouch`. See `docs/ART_PIPELINE.md`.
 
-**Asset pipeline.** Raw AI sheets live in `art/source/` (never edit them). `tools/process_assets.py` removes backgrounds (chroma key if flat colour, else `rembg` per grid cell), finds sprites, downsizes to game pixels, bakes a 1px team-coloured outline, and writes `public/assets/*.png` + `manifest.json`. New sheets need a `MANIFEST` entry in that script. Enemy source sprites face LEFT, hero faces RIGHT.
+**Asset pipeline.** Raw AI sheets live in `art/source/` (never edit them). `tools/process_assets.py` removes backgrounds (chroma key if flat colour, else `rembg` per grid cell), finds sprites, downsizes to game pixels, bakes a 1px team-coloured outline, and writes `public/assets/*.png` + `manifest.json`. New sheets need a `MANIFEST` entry in that script. The single-pose expansion library (`art/library/expansion`) is brought in by `python tools/integrate_expansion.py` instead (its `JOBS` table sets in-game sizes). Enemy source sprites face LEFT, hero faces RIGHT.
 
 ## Gotchas
 

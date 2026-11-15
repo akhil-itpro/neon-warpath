@@ -41,6 +41,18 @@ export class Fx {
     this.scene.tweens.add({ targets: r, alpha: 0, scale: to, duration: dur, ease: 'Cubic.out', onComplete: () => r.destroy() });
   }
 
+  /** Jagged lightning between two points (chain weapons). */
+  bolt(x1: number, y1: number, x2: number, y2: number, color: number) {
+    const g = this.scene.add.graphics().setDepth(DEPTH.fx).setBlendMode(ADD);
+    for (const [w, c] of [[3, color], [1, 0xffffff]] as const) {
+      g.lineStyle(w, c, 1).beginPath().moveTo(x1, y1);
+      for (let i = 1; i < 5; i++) g.lineTo(x1 + (x2 - x1) * i / 5 + Phaser.Math.Between(-7, 7), y1 + (y2 - y1) * i / 5 + Phaser.Math.Between(-7, 7));
+      g.lineTo(x2, y2).strokePath();
+    }
+    this.scene.tweens.add({ targets: g, alpha: 0, duration: 150, onComplete: () => g.destroy() });
+    this.glow(x2, y2, color, 0.5, 120);
+  }
+
   muzzle(x: number, y: number, color: number) {
     this.glow(x, y, color, 0.5, 70);
     this.glow(x, y, 0xffffff, 0.22, 50);

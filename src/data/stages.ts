@@ -16,7 +16,9 @@ export interface StageDef {
   bg: string;
   bgTint: number;
   accent: number; // UI / light colour for the stage
-  weather: 'rain' | 'embers' | 'data';
+  weather: 'rain' | 'embers' | 'data' | 'spores' | 'bubbles' | 'petals';
+  hazard?: 'lava' | 'volt' | 'acid'; // floor hazard look (default: volt in 'data' weather, else lava)
+  decor?: [string, number][]; // scenery sprites standing on the floor [textureKey, x]
   width: number;
   platforms: [number, number, number][];
   hazards: [number, number][];
@@ -45,6 +47,21 @@ export const STAGES: StageDef[] = [
     music: { bpm: 128, root: 40, bass: [0, 0, 12, 0, 0, 0, 10, 0, 0, 0, 12, 0, 3, 3, 5, 7], lead: [12, N, 15, N, 19, N, 15, 12, N, 10, N, 12, N, 15, N, N], prog: [0, 0, -4, -2] },
   },
   {
+    id: 'casino', name: 'NEON CASINO', tagline: 'The house always wins. Burn the house down.',
+    bg: 'bg_casino', bgTint: 0x9a94c0, accent: 0xff50c8, weather: 'rain', width: 5400,
+    platforms: [[460, 250, 4], [760, 195, 3], [1500, 250, 5], [1760, 190, 3], [2600, 250, 4], [2840, 195, 4], [3700, 250, 5], [4000, 190, 3], [4860, 240, 3], [5160, 240, 3]],
+    hazards: [],
+    decor: [['street_terminal', 300], ['scrap_barricade', 900], ['street_terminal', 1400], ['scrap_barricade', 2250], ['street_terminal', 2950], ['scrap_barricade', 3600], ['street_terminal', 4450]],
+    roamers: [['totem', 520], ['gangster', 640], ['crate', 720], ['vendotron', 900], ['barrel', 1180], ['gangster', 1250], ['totem', 1560], ['locker', 1700], ['bell', 1850], ['slug', 2500], ['gangster', 2600], ['barrel', 2700], ['totem', 2780], ['vendotron', 3550], ['medstation', 3760], ['bastion', 3900], ['gangster', 4000]],
+    encounters: [
+      { x: 1050, waves: [['totem', 'totem', 'gangster'], ['vendotron', 'gangster', 'gangster', 'drone']] },
+      { x: 2150, waves: [['gangster', 'gangster', 'totem', 'bell'], ['slug', 'totem', 'kamikaze', 'kamikaze'], ['bastion', 'gangster', 'gangster']] },
+      { x: 3250, waves: [['vendotron', 'totem', 'totem', 'bell'], ['bastion', 'slug', 'drone', 'drone'], ['elite', 'vendotron', 'jet']] },
+    ],
+    boss: 'tyrant', bossIntro: 'THE HOUSE SENDS ITS CHAMPION',
+    music: { bpm: 124, root: 43, bass: [0, 12, 0, 12, 3, 15, 0, 12, 5, 17, 0, 12, 7, 19, 10, 22], lead: [12, N, 12, 15, N, 12, 19, N, 17, N, 15, 12, N, 10, 12, N], prog: [0, 0, 5, 3] },
+  },
+  {
     id: 'furnace', name: 'FURNACE DISTRICT', tagline: 'The dead still work the night shift.',
     bg: 'bg_furnace', bgTint: 0xa89a9a, accent: 0xff8a30, weather: 'embers', width: 5600,
     platforms: [[380, 250, 3], [900, 245, 3], [1040, 185, 3], [1750, 250, 6], [2500, 245, 3], [2680, 185, 3], [2860, 245, 3], [3700, 250, 6], [4300, 245, 3], [5060, 240, 3], [5360, 240, 3]],
@@ -57,6 +74,51 @@ export const STAGES: StageDef[] = [
     ],
     boss: 'warden', bossIntro: 'THE FOUNDRY DEFENDS ITSELF',
     music: { bpm: 140, root: 38, bass: [0, 0, 0, 12, 0, 0, 3, 0, 0, 0, 0, 12, 0, 7, 6, 3], lead: [12, 15, N, 12, 18, N, 15, N, 12, 15, N, 12, 19, N, 18, N], prog: [0, 0, 3, -2] },
+  },
+  {
+    id: 'fungal', name: 'FUNGAL DEPTHS', tagline: 'Something grew down here. It is hungry.',
+    bg: 'bg_fungal', bgTint: 0xa0b0b8, accent: 0x40ffc0, weather: 'spores', hazard: 'acid', width: 5600,
+    platforms: [[400, 250, 3], [940, 245, 3], [1090, 185, 3], [1800, 250, 6], [2560, 245, 3], [2740, 185, 3], [2920, 245, 3], [3760, 250, 6], [4380, 245, 3], [5060, 240, 3], [5360, 240, 3]],
+    hazards: [[900, 320], [2540, 500], [4340, 200]],
+    decor: [['rift_anchor', 320], ['rift_anchor', 2200], ['rift_anchor', 4100]],
+    roamers: [['spiderling', 460], ['spiderling', 520], ['egg', 640], ['sporeback', 760], ['crate', 820], ['moth', 1100], ['egg', 1320], ['egg', 1380], ['barrel', 1450], ['bellower', 1560], ['spiderling', 1900], ['locker', 2000], ['zombie', 2100], ['zombie', 2160], ['sporeback', 2300], ['moth', 2750], ['bellower', 3200], ['egg', 3560], ['barrel', 3620], ['egg', 3680], ['medstation', 3800], ['sporeback', 3950], ['moth', 4400]],
+    encounters: [
+      { x: 1600, waves: [['spiderling', 'spiderling', 'spiderling', 'spiderling'], ['sporeback', 'sporeback', 'moth'], ['bellower', 'spiderling', 'spiderling', 'zombie', 'zombie']] },
+      { x: 3400, waves: [['sporeback', 'spiderling', 'spiderling', 'moth'], ['bellower', 'bellower', 'kamikaze', 'kamikaze'], ['brute', 'sporeback', 'spiderling', 'spiderling', 'spiderling']] },
+      { x: 4620, waves: [['moth', 'moth', 'spiderling', 'spiderling', 'spiderling', 'spiderling'], ['bellower', 'sporeback', 'sporeback', 'moth']] },
+    ],
+    boss: 'widow', bossIntro: 'THE NEST IS AWAKE',
+    music: { bpm: 112, root: 36, bass: [0, N, 0, 3, N, 0, 7, N, 0, N, 0, 3, N, 6, 5, 3], lead: [N, 12, N, 15, 13, N, 12, N, N, 18, N, 15, 13, N, 12, N], prog: [0, 1, 0, -2] },
+  },
+  {
+    id: 'abyss', name: 'ABYSS STATION', tagline: 'Six miles down. The hull is not the only thing leaking.',
+    bg: 'bg_abyss', bgTint: 0xa0acc8, accent: 0x40a0ff, weather: 'bubbles', hazard: 'volt', width: 5800,
+    platforms: [[420, 250, 4], [680, 190, 3], [1260, 250, 3], [1460, 190, 3], [1660, 250, 3], [2460, 245, 5], [3360, 250, 3], [3540, 190, 4], [3760, 250, 3], [4560, 245, 5], [5260, 240, 3], [5560, 240, 3]],
+    hazards: [[1240, 480], [3340, 480]],
+    decor: [['power_cell', 260], ['power_cell', 1000], ['street_terminal', 2100], ['power_cell', 2900], ['street_terminal', 4200], ['power_cell', 4900]],
+    roamers: [['deepjaw', 500], ['jelly', 650], ['crate', 740], ['hound', 900], ['hound', 960], ['seaegg', 1100], ['jelly', 1350], ['jelly', 1560], ['turret', 1950], ['deepjaw', 2100], ['locker', 2480], ['sawcrab', 2650], ['seaegg', 2800], ['bell', 2950], ['turret', 3150], ['jelly', 3500], ['deepjaw', 3900], ['deepjaw', 3960], ['medstation', 4100], ['sawcrab', 4300], ['barrel', 4380], ['hound', 4700]],
+    encounters: [
+      { x: 1040, waves: [['deepjaw', 'deepjaw', 'jelly', 'jelly'], ['sawcrab', 'hound', 'hound', 'bell']] },
+      { x: 2360, waves: [['hound', 'hound', 'hound', 'jelly'], ['turret', 'deepjaw', 'deepjaw', 'bell'], ['sawcrab', 'sawcrab', 'jelly', 'jelly', 'kamikaze']] },
+      { x: 4060, waves: [['deepjaw', 'deepjaw', 'deepjaw', 'bell', 'bell'], ['bastion', 'hound', 'hound', 'jelly', 'jelly'], ['sawcrab', 'deepjaw', 'deepjaw', 'jet']] },
+    ],
+    boss: 'queen', bossIntro: 'PRESSURE ALARM - SOMETHING IS INSIDE',
+    music: { bpm: 118, root: 35, bass: [0, 0, N, 0, 0, N, 7, 0, 0, 0, N, 0, 8, N, 7, 5], lead: [12, N, N, 19, N, 15, N, 14, 12, N, N, 20, N, 19, 15, N], prog: [0, -4, -2, 0] },
+  },
+  {
+    id: 'orbital', name: 'ORBITAL GARDEN', tagline: 'The machines are growing something up here.',
+    bg: 'bg_orbital', bgTint: 0xa8a4c0, accent: 0xff6080, weather: 'petals', hazard: 'volt', width: 5900,
+    platforms: [[420, 250, 4], [660, 190, 3], [1220, 250, 3], [1420, 190, 3], [1620, 250, 3], [2420, 245, 5], [2700, 185, 3], [3320, 250, 3], [3500, 190, 4], [3720, 250, 3], [4520, 245, 5], [5360, 240, 3], [5660, 240, 3]],
+    hazards: [[1200, 460], [3300, 460]],
+    decor: [['rift_anchor', 300], ['power_cell', 1050], ['rift_anchor', 2150], ['power_cell', 3000], ['rift_anchor', 4250], ['power_cell', 5000]],
+    roamers: [['mantis', 500], ['sniper', 700], ['crate', 760], ['moth', 950], ['mantis', 1100], ['sniper', 1480], ['bell', 1650], ['knight', 1950], ['locker', 2440], ['sniper', 2760], ['mantis', 2850], ['mantis', 2900], ['turret', 3120], ['alien', 3500], ['bastion', 3900], ['medstation', 4050], ['knight', 4350], ['sniper', 4700], ['moth', 4800]],
+    encounters: [
+      { x: 1020, waves: [['mantis', 'mantis', 'sniper', 'moth'], ['elite', 'mantis', 'bell', 'bell']] },
+      { x: 2320, waves: [['sniper', 'sniper', 'mantis', 'mantis'], ['knight', 'moth', 'moth', 'alien'], ['bastion', 'mantis', 'mantis', 'kamikaze', 'kamikaze']] },
+      { x: 4060, waves: [['mantis', 'mantis', 'mantis', 'bell', 'alien'], ['knight', 'sniper', 'sniper', 'moth', 'jet'], ['knight', 'bastion', 'elite', 'kamikaze', 'kamikaze']] },
+    ],
+    boss: 'oracle', bossIntro: 'THE ORACLE HAS SEEN YOUR DEATH',
+    music: { bpm: 144, root: 39, bass: [0, 0, 12, 0, 7, 0, 12, 0, 0, 0, 12, 0, 8, 8, 7, 5], lead: [19, N, 15, N, 12, 15, N, 19, 20, N, 19, N, 15, 12, N, 14], prog: [0, -4, 3, -2] },
   },
   {
     id: 'cathedral', name: 'SERVER CATHEDRAL', tagline: 'It called them from the void. End it.',

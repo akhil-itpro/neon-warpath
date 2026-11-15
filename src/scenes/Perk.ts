@@ -26,6 +26,12 @@ export class PerkScene extends Phaser.Scene {
     this.add.tileSprite(0, 0, W, H, next.bg).setOrigin(0).setTint(0x30344a);
     this.txt(W / 2, 40, 'FIELD UPGRADE', 24, '#ffd040');
     this.txt(W / 2, 66, 'CHOOSE ONE', 8, '#c0c8d8');
+    if (this.textures.exists('npc_patch')) {
+      const patch = this.add.image(58, H - 2, 'npc_patch').setOrigin(0.5, 1);
+      this.tweens.add({ targets: patch, scaleY: 1.03, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+      const lines = ['PATCH: PICK ONE, HOTSHOT.', 'PATCH: ALL SALES FINAL.', 'PATCH: TRY NOT TO BREAK IT.', 'PATCH: I FIXED IT. MOSTLY.'];
+      this.txt(118, H - 46, Phaser.Utils.Array.GetRandom(lines), 8, '#ffd040').setOrigin(0, 0.5);
+    }
     this.txt(W / 2, H - 22, `NEXT: STAGE ${run.stage + 1} - ${next.name}`, 8, '#9fe8ff');
 
     this.picks = Phaser.Utils.Array.Shuffle(PERKS.filter((p) => !run.perks.includes(p.id))).slice(0, 3);

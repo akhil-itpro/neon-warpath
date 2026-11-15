@@ -18,12 +18,13 @@ export class BootScene extends Phaser.Scene {
   create() {
     this.makeTextures();
     // Debug shortcuts (used by tools/smoke.mjs and for playtesting):
-    //   ?stage=2        start on stage 2 (1-based)      &boss=1  jump straight to the boss
+    //   ?stage=2        start on stage 2 (1-based) or ?stage=furnace (stage id)      &boss=1  jump straight to the boss
     //   &god=1          near-unkillable                 &op=1    operator index     &weapon=rocket
     const q = new URLSearchParams(location.search);
     if (q.has('stage')) {
       newRun(Number(q.get('op') ?? 0));
-      run.stage = Phaser.Math.Clamp(Number(q.get('stage')) - 1, 0, STAGES.length - 1);
+      const byId = STAGES.findIndex((s) => s.id === q.get('stage')); // ?stage=fungal or ?stage=4
+      run.stage = byId >= 0 ? byId : Phaser.Math.Clamp((Number(q.get('stage')) || 1) - 1, 0, STAGES.length - 1);
       const st = STAGES[run.stage];
       if (q.has('boss')) { run.checkpoint = st.encounters.length; run.checkpointX = st.width - 560; }
       if (q.has('god')) { run.stats.maxHp = 9999; run.hp = 9999; }
@@ -91,6 +92,17 @@ export class BootScene extends Phaser.Scene {
     this.canvas('lava', 32, 10, (c) => {
       px(c, '#fff0a0', 0, 0, 32, 2); px(c, '#ffb020', 0, 2, 32, 3); px(c, '#ff5a10', 0, 5, 32, 3); px(c, '#a01808', 0, 8, 32, 2);
       px(c, '#ffffff', 4, 0, 5, 1); px(c, '#ffffff', 19, 1, 6, 1); px(c, '#ffd040', 10, 4, 4, 1); px(c, '#ffd040', 25, 5, 4, 1);
+    });
+    this.canvas('acid', 32, 10, (c) => {
+      px(c, '#f0ffb0', 0, 0, 32, 1); px(c, '#a0ff40', 0, 1, 32, 3); px(c, '#40b020', 0, 4, 32, 3); px(c, '#104010', 0, 7, 32, 3);
+      px(c, '#ffffff', 5, 1, 3, 1); px(c, '#ffffff', 17, 2, 4, 1); px(c, '#d0ff80', 26, 3, 3, 2); px(c, '#d0ff80', 10, 4, 2, 2);
+    });
+    // spinning saw blade (BUZZKILL)
+    this.canvas('saw', 16, 16, (c) => {
+      c.fillStyle = '#fff';
+      for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2; c.beginPath(); c.moveTo(8 + Math.cos(a) * 8, 8 + Math.sin(a) * 8); c.lineTo(8 + Math.cos(a + 0.5) * 5, 8 + Math.sin(a + 0.5) * 5); c.lineTo(8 + Math.cos(a - 0.3) * 5, 8 + Math.sin(a - 0.3) * 5); c.fill(); }
+      c.beginPath(); c.arc(8, 8, 6, 0, 7); c.fill();
+      c.fillStyle = '#606878'; c.beginPath(); c.arc(8, 8, 2, 0, 7); c.fill();
     });
     this.canvas('volt', 32, 10, (c) => {
       px(c, '#e0ffff', 0, 0, 32, 1); px(c, '#40e0ff', 0, 1, 32, 3); px(c, '#1060c0', 0, 4, 32, 3); px(c, '#081840', 0, 7, 32, 3);
