@@ -13,6 +13,11 @@ const BINDS = {
   ability: [K.E, K.F],
   pause: [K.ESC, K.P],
   mute: [K.M],
+  settings: [K.O],
+  resume: [K.R],
+  quit: [K.T],
+  menuUp: [K.UP, K.W],
+  menuDown: [K.DOWN, K.S],
 };
 type Action = keyof typeof BINDS;
 
@@ -54,12 +59,15 @@ export class Controls {
       if (pad.left || sx < -0.4) this.now.left = true;
       if (pad.right || sx > 0.4) this.now.right = true;
       if (pad.down || sy > 0.6) this.now.down = true;
+      if (pad.down || sy > 0.6) this.now.menuDown = true;
+      if (pad.up || sy < -0.6) this.now.menuUp = true;
       if (pad.A) this.now.jump = true;
       if (pad.X || pad.R2 > 0.3) { this.now.fire = true; Controls.mouseAim = false; }
       if (pad.B || pad.R1) this.now.slide = true;
       if (pad.Y || pad.L1) this.now.overdrive = true;
       if (pad.L2 > 0.3) this.now.ability = true;
       if (pad.buttons[9]?.pressed) this.now.pause = true;
+      if (pad.buttons[8]?.pressed) this.now.settings = true;
     }
   }
 

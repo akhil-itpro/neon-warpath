@@ -2,14 +2,16 @@
 // for a few seconds with held inputs, saves screenshots to tools/shots/, and fails on any runtime error.
 //   npm run smoke            run everything
 //   npm run smoke -- city    only scenarios whose name contains "city"
-import { createServer } from 'vite';
+import { createServer, preview } from 'vite';
 import { chromium } from 'playwright-core';
 import { mkdirSync } from 'node:fs';
 import { KIT_SCENARIOS } from './kit-scenarios.mjs';
+import { RELEASE_SCENARIOS } from './release-scenarios.mjs';
 
 const filter = process.argv[2] ?? '';
 const SCENARIOS = [
   ...KIT_SCENARIOS,
+  ...RELEASE_SCENARIOS,
   { name: 'art-finish', url: '?stage=city&god=1', steps: [
     ['wait', 2800],
     ['eval', `var g = window.__game.scene.getScene('Game');
@@ -373,8 +375,11 @@ const SCENARIOS = [
 ];
 
 mkdirSync('tools/shots', { recursive: true });
-const server = await createServer({ server: { port: 5199, strictPort: false }, logLevel: 'error' });
-await server.listen();
+const built = process.env.SMOKE_BUILD === '1';
+const server = built
+  ? await preview({ preview: { port: 5199, strictPort: false }, logLevel: 'error' })
+  : await createServer({ server: { port: 5199, strictPort: false }, logLevel: 'error' });
+if (!built) await server.listen();
 const base = server.resolvedUrls.local[0];
 let browser;
 for (const channel of ['chrome', 'msedge']) {
@@ -398,6 +403,11 @@ for (const sc of SCENARIOS.filter((s) => filter.split('|').some(f => s.name.incl
   try {
   for (const [op, arg] of sc.steps) {
     if (op === 'wait') await page.waitForTimeout(arg);
+    else if (op === 'reload') {
+      await page.reload();
+      await page.waitForFunction(() => window.__game?.scene.isActive('Title'), null, { timeout: 15000 });
+      await page.waitForTimeout(300);
+    }
     else if (op === 'down') await page.keyboard.down(arg);
     else if (op === 'up') await page.keyboard.up(arg);
     else if (op === 'tap') await page.keyboard.press(arg, { delay: 60 });
@@ -439,5 +449,6 @@ for (const sc of SCENARIOS.filter((s) => filter.split('|').some(f => s.name.incl
   await page.close();
 }
 await browser.close();
-await server.close();
+if (built) await new Promise(resolve => server.httpServer.close(resolve));
+else await server.close();
 process.exit(failed ? 1 : 0);

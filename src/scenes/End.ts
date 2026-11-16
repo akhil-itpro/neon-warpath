@@ -5,6 +5,7 @@ import { audio } from '../systems/Audio';
 import { Controls } from '../systems/Controls';
 import { LORE } from '../data/story';
 import { pickEnding } from '../systems/Story';
+import { clearCampaign } from '../systems/CampaignSave';
 
 // Victory screen after the last stage.
 export class EndScene extends Phaser.Scene {
@@ -14,6 +15,7 @@ export class EndScene extends Phaser.Scene {
   constructor() { super('End'); }
 
   create() {
+    clearCampaign();
     this.ready = false;
     this.controls = new Controls(this);
     audio.playMusic(null);

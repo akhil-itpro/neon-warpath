@@ -4,6 +4,8 @@ import { run } from '../systems/Run';
 import { WEAPONS } from '../data/weapons';
 import { audio } from '../systems/Audio';
 import { Controls } from '../systems/Controls';
+import { settings } from '../systems/Settings';
+import { saveCampaign } from '../systems/CampaignSave';
 import type { Line, Choice, ChoiceOption } from '../data/story';
 import { condOk, filterLines, portraitKey, speakerColor, speakerName } from '../systems/Story';
 import type { GameScene } from './Game';
@@ -61,7 +63,7 @@ export class HudScene extends Phaser.Scene {
     this.shownScore = run.score;
     this.hpLag = run.hp;
     this.controls = new Controls(this);
-    this.red = this.add.rectangle(0, 0, W, H, 0xff0000, 0).setOrigin(0);
+    this.red = this.add.rectangle(0, 0, W, H, 0xff0000, 1).setOrigin(0).setAlpha(0);
     this.g = this.add.graphics();
     this.txt(12, 8, run.op.name, 8, '#9fe8ff');
     this.weapon = this.txt(12, 40, '');
@@ -105,6 +107,13 @@ export class HudScene extends Phaser.Scene {
     this.cross.setVisible(aiming).setPosition(Math.round(ptr.x), Math.round(ptr.y)).setTint(run.od >= 100 ? 0xffd040 : 0xffffff);
     this.input.setDefaultCursor(aiming ? 'none' : 'default');
     if (this.paused) {
+      if (this.controls.pressed('settings') || this.controls.pressed('overdrive')) { this.scene.pause(); this.scene.launch('Options', { back: 'Hud' }); return; }
+      if (this.controls.pressed('quit')) {
+        if (!saveCampaign('Game', { hold: gs.hold })) {
+          this.banner('SAVE UNAVAILABLE', 1600, '#ff8060'); return;
+        }
+        audio.playMusic(null); this.scene.stop('Game'); this.scene.start('Title'); return;
+      }
       if (this.controls.pressed('pause') || this.controls.pressed('fire')) this.setPaused(false);
       return;
     }
@@ -342,6 +351,7 @@ export class HudScene extends Phaser.Scene {
   }
 
   hurtFlash() {
+    if (!settings.flashes) return;
     this.red.setAlpha(0.35);
     this.tweens.add({ targets: this.red, alpha: 0, duration: 320 });
   }
@@ -382,7 +392,7 @@ export class HudScene extends Phaser.Scene {
   setPaused(on: boolean) {
     this.paused = on;
     if (on) {
-      this.panel([['PAUSED', 24, '#ffffff'], ['A/D MOVE   SPACE / PAD A DOUBLE JUMP', 8, '#c0c8d8'], ['MOUSE FIRE / J AUTO-AIM   SHIFT SLIDE', 8, '#c0c8d8'], [`E / PAD LT: ${run.op.ability.name}`, 8, '#9fe8ff'], [run.op.ability.desc, 8, '#c0c8d8'], ['Q / PAD Y OVERDRIVE   M MUTE', 8, '#c0c8d8'], ['PRESS ESC TO RESUME', 8, '#9fe8ff']]);
+      this.panel([['PAUSED', 24, '#ffffff'], ['A/D MOVE   SPACE / PAD A DOUBLE JUMP', 8, '#c0c8d8'], ['MOUSE FIRE / J AUTO-AIM   SHIFT SLIDE', 8, '#c0c8d8'], [`E / PAD LT: ${run.op.ability.name}`, 8, '#9fe8ff'], [run.op.ability.desc, 8, '#c0c8d8'], ['Q / PAD Y OVERDRIVE   M MUTE', 8, '#c0c8d8'], ['O / Y: OPTIONS   T: SAVE + TITLE', 8, '#9fe8ff'], ['ESC: RESUME', 8, '#9fe8ff']]);
     } else {
       this.overlay.setVisible(false);
       this.scene.resume('Game');

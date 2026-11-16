@@ -1,5 +1,6 @@
 // All sound is synthesised at runtime with WebAudio: no audio files, no licences, tiny download.
 // SFX are short recipes in `sfx()`. Music is a 16-step sequencer driven by TrackDef data.
+import { settings } from './Settings';
 
 export interface TrackDef {
   bpm: number;
@@ -35,10 +36,10 @@ class AudioSys {
       const comp = this.ctx.createDynamicsCompressor();
       this.master.connect(comp).connect(this.ctx.destination);
       this.sfxBus = this.ctx.createGain();
-      this.sfxBus.gain.value = 0.55;
+      this.sfxBus.gain.value = 0.55 * settings.effects;
       this.sfxBus.connect(this.master);
       this.musicBus = this.ctx.createGain();
-      this.musicBus.gain.value = 0.32;
+      this.musicBus.gain.value = 0.32 * settings.music;
       this.musicBus.connect(this.master);
       const len = this.ctx.sampleRate;
       this.noiseBuf = this.ctx.createBuffer(1, len, len);
@@ -52,6 +53,12 @@ class AudioSys {
   setMuted(m: boolean) {
     this.muted = m;
     if (this.ctx) this.master.gain.value = m ? 0 : 1;
+  }
+
+  applySettings() {
+    if (!this.ctx) return;
+    this.sfxBus.gain.setTargetAtTime(0.55 * settings.effects, this.ctx.currentTime, 0.02);
+    this.musicBus.gain.setTargetAtTime(0.32 * settings.music, this.ctx.currentTime, 0.02);
   }
 
   private tone(type: OscillatorType, f0: number, f1: number, dur: number, vol: number, bus = this.sfxBus, at = 0) {

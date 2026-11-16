@@ -13,6 +13,7 @@ import { Shot } from '../entities/Shot';
 import { STORY, CHOICES, HOLD, type Line } from '../data/story';
 import { condOk, filterLines, applyChoice } from '../systems/Story';
 import { Gimmicks } from '../systems/Gimmicks';
+import { saveCampaign } from '../systems/CampaignSave';
 import type { HudScene } from './Hud';
 
 const R = Phaser.Math;
@@ -80,7 +81,7 @@ export class GameScene extends Phaser.Scene {
   private get hud() { return this.scene.get('Hud') as HudScene; }
   banner(text: string, ms = 1600, color = '#ffffff') { this.hud.banner?.(text, ms, color); }
 
-  create(data?: { retry?: boolean; hold?: boolean }) {
+  create(data?: { retry?: boolean; hold?: boolean; resume?: boolean }) {
     this.hold = !!data?.hold;
     if (this.hold) { // the finale reuses the cathedral's boss arena
       run.stage = STAGES.length - 1;
@@ -90,7 +91,7 @@ export class GameScene extends Phaser.Scene {
     const st = (this.stage = STAGES[run.stage]);
     this.enemies = []; this.pickups = []; this.flows = []; this.fogs = []; this.shards = [];
     this.bossMarks = new Set(); this.seeT = 0; this.bgDrift = 0; this.choosing = false;
-    if (run.checkpoint === 0 && !data?.retry) run.eggsShot = 0;
+    if (run.checkpoint === 0 && !data?.retry && !data?.resume) run.eggsShot = 0;
     if (st.id === 'fungal') run.flags.nest_truce = run.eggsShot < 3;
     const comms = STORY[st.id]?.comms ?? [];
     this.xTriggers = comms.filter((c) => c.on.startsWith('x:')).map((c) => Number(c.on.slice(2)));
@@ -225,6 +226,7 @@ export class GameScene extends Phaser.Scene {
 
     this.scene.launch('Hud');
     audio.playMusic(st.music);
+    saveCampaign('Game', { hold: this.hold });
     if (this.hold) { this.startHold(); return; }
     this.time.delayedCall(350, () => {
       if (run.checkpoint === 0) this.hud.stageIntro?.(`STAGE ${run.stage + 1}`, st.name, st.tagline);
@@ -363,6 +365,7 @@ export class GameScene extends Phaser.Scene {
       this.wave = 0; this.waveGap = 500;
       if (enc.boss) {
         run.checkpointX = enc.x - 120;
+        saveCampaign('Game');
         this.bossActive = true;
         audio.intense = true;
         this.hud.bossWarning?.(st.bossIntro);
@@ -393,6 +396,7 @@ export class GameScene extends Phaser.Scene {
     this.encIndex++;
     run.checkpoint = this.encIndex;
     run.checkpointX = this.player.x;
+    saveCampaign('Game');
     this.bounds = { left: 0, right: st.width };
     cam.setBounds(0, 0, st.width, H);
     this.hud.go?.();
@@ -1015,7 +1019,7 @@ export class GameScene extends Phaser.Scene {
   /** In-level choice (STORY B5): the world drops to slow motion, the HUD shows two cards and a timer. */
   slowChoice(id: string) {
     const c = CHOICES[id];
-    if (!c || this.choosing) return;
+    if (!c || this.choosing || c.options.some(o => run.choices.includes(o.record))) return;
     this.choosing = true;
     this.physics.world.timeScale = 5; // Arcade: higher = slower
     this.time.timeScale = 0.2; this.tweens.timeScale = 0.2;
@@ -1026,6 +1030,7 @@ export class GameScene extends Phaser.Scene {
       this.choosing = false;
       this.physics.world.timeScale = 1;
       this.time.timeScale = 1; this.tweens.timeScale = 1;
+      saveCampaign('Game', { hold: this.hold });
       this.hud.comms?.(filterLines(o.reply));
     });
   }

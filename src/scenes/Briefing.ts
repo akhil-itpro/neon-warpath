@@ -6,6 +6,7 @@ import { STORY, type Choice, type ChoiceOption, type Line } from '../data/story'
 import { applyChoice, condOk, filterLines, portraitKey, speakerColor, speakerName } from '../systems/Story';
 import { audio } from '../systems/Audio';
 import { Controls } from '../systems/Controls';
+import { saveCampaign } from '../systems/CampaignSave';
 
 type Step = { line: Line } | { choice: Choice };
 const HOLD_SKIP = 600; // ms of holding fire/jump that skips to the next choice (or the end)
@@ -42,6 +43,7 @@ export class BriefingScene extends Phaser.Scene {
 
   create(data: { next?: string }) {
     this.next = data?.next ?? 'Perk';
+    saveCampaign('Briefing', { next: this.next });
     this.line = null; this.choice = null; this.cards = []; this.leaving = false; this.needRelease = false;
     this.shown = 0; this.hold = 0; this.wait = 450; this.sel = 0;
     this.controls = new Controls(this);

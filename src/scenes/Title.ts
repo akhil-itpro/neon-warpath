@@ -6,6 +6,8 @@ import { audio } from '../systems/Audio';
 import { Controls } from '../systems/Controls';
 import { CharacterRig } from '../systems/CharacterRig';
 import { LORE } from '../data/story';
+import { STAGES } from '../data/stages';
+import { campaignSnapshot, restoreCampaign } from '../systems/CampaignSave';
 
 export class TitleScene extends Phaser.Scene {
   private bg!: Phaser.GameObjects.TileSprite;
@@ -46,13 +48,21 @@ export class TitleScene extends Phaser.Scene {
     this.info = [this.txt(W / 2, 260, '', 16, '#9fe8ff'), this.txt(W / 2, 278, '', 8, '#ffd040'), this.txt(W / 2, 292, '', 8, '#c0c8d8'), this.txt(W / 2, 307, '', 8, '#9fe8ff')];
     this.refresh();
 
-    const press = this.txt(W / 2, 322, 'CLICK OR PRESS ENTER TO DEPLOY', 8);
+    const checkpoint = campaignSnapshot();
+    const press = this.txt(W / 2, 322, checkpoint ? 'ENTER: NEW RUN (REPLACES CHECKPOINT)' : 'CLICK OR PRESS ENTER TO DEPLOY', 8);
+    if (checkpoint) {
+      const label = this.add.text(12, 104, `CONTINUE [R]\n${checkpoint.operator.toUpperCase()} - STAGE ${Math.min(checkpoint.state.stage + 1, STAGES.length)}`,
+        { fontFamily: FONT, fontSize: '8px', color: '#80ffb0', lineSpacing: 8, stroke: '#000', strokeThickness: 3 }).setInteractive({ useHandCursor: true });
+      label.on('pointerdown', () => this.continueRun());
+    }
     this.tweens.add({ targets: press, alpha: 0.15, duration: 500, yoyo: true, repeat: -1 });
     this.txt(W / 2, 344, 'A/D MOVE  SPACE DOUBLE JUMP  MOUSE FIRE  SHIFT SLIDE  E SKILL  Q OVERDRIVE', 8, '#a0a8bc').setScale(0.75);
     // ARCHIVE: lore unlocked by data shards (Tab or click)
     const arch = this.add.text(8, 8, `ARCHIVE [TAB]  ${save.archive.length}/${LORE.length}`, { fontFamily: FONT, fontSize: '8px', color: '#ff90e0', stroke: '#000', strokeThickness: 3 }).setInteractive({ useHandCursor: true });
     arch.on('pointerdown', () => this.openArchive());
     this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.TAB).on('down', () => this.openArchive());
+    const opts = this.add.text(8, 25, 'OPTIONS [O]', { fontFamily: FONT, fontSize: '8px', color: '#9fe8ff', stroke: '#000', strokeThickness: 3 }).setInteractive({ useHandCursor: true });
+    opts.on('pointerdown', () => this.openOptions());
     if (save.best > 0) this.add.text(W - 8, 8, `BEST ${save.best}`, { fontFamily: FONT, fontSize: '8px', color: '#ffd040', stroke: '#000', strokeThickness: 3 }).setOrigin(1, 0);
     this.cameras.main.fadeIn(400);
   }
@@ -62,6 +72,21 @@ export class TitleScene extends Phaser.Scene {
     this.started = true;
     audio.unlock(); audio.sfx('ui');
     this.scene.start('Archive');
+  }
+
+  private openOptions() {
+    if (this.started) return;
+    audio.unlock(); this.scene.pause(); this.scene.launch('Options', { back: 'Title' });
+  }
+
+  private continueRun() {
+    if (this.started) return;
+    const checkpoint = restoreCampaign();
+    if (!checkpoint) return;
+    this.started = true;
+    audio.unlock(); audio.sfx('select');
+    this.rig?.destroy(); this.rig = null;
+    this.scene.start(checkpoint.scene, checkpoint.data);
   }
 
   private refresh() {
@@ -88,12 +113,14 @@ export class TitleScene extends Phaser.Scene {
     const c = this.controls;
     c.poll();
     if (this.started) return;
+    if (c.pressed('resume') || c.pressed('pause')) { this.continueRun(); return; }
+    if (c.pressed('settings')) { this.openOptions(); return; }
     if (c.pressed('mute')) { audio.unlock(); audio.setMuted(!audio.muted); save.muted = audio.muted; persist(); }
     let move = (c.pressed('right') ? 1 : 0) - (c.pressed('left') ? 1 : 0);
     // clicking beside the operator browses; clicking anywhere else deploys
     const ptr = c.pointer;
     const sideClick = c.pressed('fire') && ptr.isDown && Math.abs(ptr.x - W / 2) > 70 && ptr.y > 110 && ptr.y < 300;
-    if (c.pressed('fire') && ptr.isDown && ptr.y < 24 && ptr.x < 200) return; // the ARCHIVE link handles this click
+    if (c.pressed('fire') && ptr.isDown && ptr.y < 40 && ptr.x < 200) return; // menu links handle these clicks
     if (sideClick) move = ptr.x < W / 2 ? -1 : 1;
     if (move) {
       audio.unlock();

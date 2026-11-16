@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { DEPTH, FONT } from '../config';
 import { audio } from './Audio';
+import { settings } from './Settings';
 
 type Emitter = Phaser.GameObjects.Particles.ParticleEmitter;
 const ADD = Phaser.BlendModes.ADD;
@@ -77,10 +78,13 @@ export class Fx {
   }
 
   shake(power: number) {
+    power *= settings.shake;
+    if (power <= 0) return;
     this.scene.cameras.main.shake(60 + power * 22, power * 0.0022, false);
   }
 
   flash(color = 0xffffff, dur = 90) {
+    if (!settings.flashes) return;
     const c = Phaser.Display.Color.IntegerToColor(color);
     this.scene.cameras.main.flash(dur, c.red, c.green, c.blue, false);
   }

@@ -10,6 +10,7 @@ import { EndScene } from './scenes/End';
 import { CreditsScene } from './scenes/Credits';
 import { BriefingScene } from './scenes/Briefing';
 import { ArchiveScene } from './scenes/Archive';
+import { OptionsScene } from './scenes/Options';
 
 async function start() {
   // Canvas text is drawn once and cached, so the pixel font must be ready before any scene runs.
@@ -25,7 +26,7 @@ async function start() {
     scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
     physics: { default: 'arcade', arcade: { gravity: { x: 0, y: GRAVITY }, debug: false } },
     input: { gamepad: true },
-    scene: [BootScene, TitleScene, GameScene, HudScene, BriefingScene, PerkScene, EndScene, CreditsScene, ArchiveScene],
+    scene: [BootScene, TitleScene, GameScene, HudScene, BriefingScene, PerkScene, EndScene, CreditsScene, ArchiveScene, OptionsScene],
   });
   (window as any).__game = game; // handle for tools/smoke.mjs and console debugging
 }

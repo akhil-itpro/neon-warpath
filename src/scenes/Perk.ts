@@ -4,11 +4,13 @@ import { run, PERKS, PerkDef } from '../systems/Run';
 import { STAGES } from '../data/stages';
 import { audio } from '../systems/Audio';
 import { Controls } from '../systems/Controls';
+import { saveCampaign } from '../systems/CampaignSave';
+import { RESUPPLY } from '../data/supplies';
 
 // Between stages: pick 1 of 3 upgrades. This is the "build" layer that makes every run different.
 export class PerkScene extends Phaser.Scene {
   private controls!: Controls;
-  private picks: PerkDef[] = [];
+  private picks: (PerkDef | typeof RESUPPLY)[] = [];
   private cards: Phaser.GameObjects.Container[] = [];
   private sel = 1;
   private done = false;
@@ -20,6 +22,7 @@ export class PerkScene extends Phaser.Scene {
   }
 
   create() {
+    saveCampaign('Perk');
     this.done = false; this.sel = 1; this.cards = [];
     this.controls = new Controls(this);
     const next = STAGES[run.stage];
@@ -40,6 +43,7 @@ export class PerkScene extends Phaser.Scene {
 
     const count = run.bonusCards > 0 ? 4 : 3; // selling the ledger stocks Patch's van for three perk screens
     this.picks = Phaser.Utils.Array.Shuffle(PERKS.filter((p) => !run.perks.includes(p.id))).slice(0, count);
+    if (!this.picks.length) this.picks = [RESUPPLY];
     const hw = count === 4 ? 66 : 82, gap = count === 4 ? 146 : 190;
     this.sel = Math.floor((this.picks.length - 1) / 2);
     this.picks.forEach((p, i) => {
@@ -76,8 +80,8 @@ export class PerkScene extends Phaser.Scene {
     if (c.pressed('fire') || c.pressed('jump')) {
       this.done = true;
       const p = this.picks[this.sel];
-      p.apply(run.stats);
-      run.perks.push(p.id);
+      if ('apply' in p) { p.apply(run.stats); run.perks.push(p.id); }
+      else { run.hp = run.stats.maxHp; run.od = 100; }
       if (run.bonusCards > 0) run.bonusCards--;
       if (p.id === 'plating') run.hp = run.stats.maxHp;
       audio.sfx('weapon');

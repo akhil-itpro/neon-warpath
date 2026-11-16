@@ -12,12 +12,20 @@ Owner requested completion, missing art/animation, double jump, rechargeable def
 - Seven new browser smoke scenarios verify jumps/perk, protection at normal health, real projectile absorption, allied/prop safety, expiry, held input, cooldown, pause and retry. `check` passes. Initial kit run passed 6/7 and exposed a real UPDRAFT bug: Arcade max velocity limits both directions. Fixed with a descent-only clamp and preserving the launch when jump is not held; focused `kit-gale` now passes. Viewed shield and pause screenshots. Full regression pending after assets.
 - Integrated 23 finished art textures from five built-in imagegen sources: HALCYON's eight poses, three props, twelve portraits. Originals/exact prompts in `art/source/campaign_finish/`; deterministic rebuild `python -B tools/process_campaign_finish.py`. Preview contact sheet and animated run GIF in `art/preview/` (ignored).
 - HALCYON no longer borrows KESTREL. Measured muzzle offsets drive the duel's shots. Full-frame animation, not a part rig. Props preserve the previous physics scale and collision dimensions. ARCHON keeps its glyph.
-- Viewed the full processed contact sheet, in-game props/HALCYON and painted radio/briefing portraits. `story-halcyon` passes; focused asset regression is running.
+- Viewed the full processed contact sheet, in-game props/HALCYON and painted radio/briefing portraits. `story-halcyon` passes; all eight focused asset/story scenarios pass (including HALCYON).
+
+### Working step: save/options and campaign gaps
+- Added browser checkpoint saves (`CampaignSave.ts`) at combat checkpoints, in-level choice completion, Briefing and Perk. R/Start on Title continues; pause T saves + returns to Title. Restore rebuilds operator/perk stats from current definitions; JSON is validated; malformed saves are ignored. God/debug stage URLs do not overwrite real campaigns. A failed save keeps play paused and shows SAVE UNAVAILABLE. Finished campaigns clear the continue slot.
+- Save resumes at a combat checkpoint, not an exact world snapshot. Story and perk screens resume before their unresolved decision; HOLD retries that finale. New runs explicitly replace the campaign slot. No cloud save or save export.
+- Options (O on Title/Pause, View on pad Title, Y on pad Pause): independent music/effects volume, camera shake strength, full-screen flash toggle. These settings persist separately. Enemy warning flashes remain visible; this is not a full reduced-motion mode. Fixed the damage flash rectangle whose fill was entirely transparent.
+- Found and fixed a late-campaign blocker: the Sovereign bonus can exhaust all 11 unique perks before the last perk screen. It now offers FIELD RESUPPLY (full HP/overdrive), with content in `src/data/supplies.ts`.
+- Fixed repeated FREIGHT CARS choices after retry: already-recorded options suppress re-prompting/rewards.
+- Seven `release-*` smoke scenarios pass: reload at checkpoints, choices, perks and HOLD; completed-run cleanup; malformed save/settings JSON; denied writes; exhausted perks; repeated choice prevention; options persistence and effect suppression. Simulated pad mapping verifies jump/LT edges only, not physical controller feel. Viewed options, continue, resupply and restore screenshots.
 
 ### Next in this session / if interrupted
-1. Finish HALCYON eight poses and three prop replacements, preserve reproducible source processing.
-2. Run full smoke + build, inspect screenshots; update this entry with final evidence.
-3. Remaining release limitations: human normal-health playthrough, physical gamepad/audio evaluation, vertical spire/lava layouts, portrait and additional rig polish, accessibility/options and packaging. Do not call this release-ready just because smoke passes.
+1. Full smoke is running; log is `tools/smoke-session17.log`. Review failures, check production build and production smoke; inspect gameplay screenshots. Do not infer a full pass from the targeted runs above.
+2. Package verified web build, update this entry and commit remaining working steps.
+3. Release limitations: human normal-health campaign playthrough, physical gamepad and listening checks; vertical spire/lava layouts still differ from STORY; optional operator/boss rig polish; remappable controls, full reduced-motion and store release work remain. This is a playable campaign build, not a commercially playtested release.
 
 ## Session 16 - 2026-11-16 (Claude Code, check Codex's work + HOLD finale + bot-found bugs) — NEXT AGENT START HERE
 
