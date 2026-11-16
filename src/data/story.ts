@@ -418,9 +418,9 @@ export const STORY: Record<string, StageStory> = {
         options: [
           { label: 'COLLAPSE IT', hint: 'Safe. Final.', set: { rift_choice: 'collapse' }, record: 'YOU COLLAPSED THE RIFT.', reply: [juno('...Done. The sky is just sky again.')] },
           {
-            label: 'HOLD IT OPEN', hint: 'Use the Tide Pearl. Let them go home.', set: { rift_choice: 'hold' }, record: 'YOU HELD THE RIFT OPEN WITH THE TIDE PEARL.',
+            label: 'HOLD IT OPEN', hint: 'Survive 60 seconds. Let them go home.', set: { rift_choice: 'hold' }, record: 'YOU HELD THE RIFT OPEN WITH THE TIDE PEARL.',
             requires: { sovereign_spared: true }, locked: 'NO WAY TO HOLD IT',
-            reply: [{ who: 'sovereign', text: '...the pearl sings... the door is still...' }, juno("They're walking through. All of them. Going home.")],
+            reply: [{ who: 'sovereign', text: '...the pearl sings... the door is still...' }, juno("Something's pushing back from the other side. Hold the door for sixty seconds!")],
           },
         ],
       },
@@ -470,6 +470,23 @@ export const LORE: Lore[] = [
   { id: 'cathedral-2', title: 'JUNO, PERSONAL', text: 'I gave it his patterns because he was the best man I knew. I thought the best man would make the best city.' },
   { id: 'cathedral-3', title: 'HALCYON, LAST', text: 'Whoever finds this: you were the best squad I ever had. If I go wrong, do not hesitate. You never did.' },
 ];
+
+// ---- HOLD IT OPEN: the last 60-second survival fight at the Rift (GameScene hold mode, after choice C7 = hold)
+export const HOLD: Record<'start' | 'half' | 'end', Line[]> = {
+  start: [
+    juno("They're walking through behind you. Don't let anything reach them."),
+    { who: 'serrik', text: 'Varkesh! Guard the door!', if: { varkesh_freed: true } },
+    { who: 'quill', text: 'Corvane are flying cover. Go home, all of you!', if: { quill_rescued: true } },
+  ],
+  half: [
+    juno('Thirty seconds! Half of them are through!'),
+    { who: 'halcyon', text: 'Keep firing, kid. I have your back.', if: { halcyon_saved: true } },
+  ],
+  end: [
+    juno("They're through. All of them. Going home."),
+    { who: 'sovereign', text: '...the door is still... thank you, little warrior...' },
+  ],
+};
 
 // ---- in-level choices (slow motion overlay in the HUD; see StageDef.choiceAt)
 export const CHOICES: Record<string, Choice> = {

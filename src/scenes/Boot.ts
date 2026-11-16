@@ -19,6 +19,7 @@ export class BootScene extends Phaser.Scene {
     this.makeTextures();
     // Debug shortcuts (used by tools/smoke.mjs and for playtesting):
     //   ?stage=2        start on stage 2 (1-based) or ?stage=furnace (stage id)      &boss=1  jump straight to the boss
+    //   &hold=1  the HOLD IT OPEN survival finale
     //   &god=1          near-unkillable                 &op=1    operator index     &weapon=rocket
     const q = new URLSearchParams(location.search);
     if (q.has('stage')) {
@@ -29,6 +30,7 @@ export class BootScene extends Phaser.Scene {
       if (q.has('boss')) { run.checkpoint = st.encounters.length; run.checkpointX = st.width - 560; }
       if (q.has('god')) { run.stats.maxHp = 9999; run.hp = 9999; }
       if (q.has('weapon')) { run.weapon = q.get('weapon')!; run.ammo = 999; }
+      if (q.has('hold')) { run.flags.rift_choice = 'hold'; this.scene.start('Game', { hold: true }); return; } // &hold=1 : the HOLD IT OPEN finale
       this.scene.start('Game');
       return;
     }

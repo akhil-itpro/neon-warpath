@@ -149,7 +149,9 @@ export class BriefingScene extends Phaser.Scene {
     if (this.leaving) return;
     this.leaving = true;
     this.cameras.main.fadeOut(350);
-    this.time.delayedCall(370, () => this.scene.start(this.next));
+    // HOLD IT OPEN: one last 60-second survival fight at the Rift before the ending
+    const hold = this.next === 'End' && run.flags.rift_choice === 'hold' && !run.flags.hold_done;
+    this.time.delayedCall(370, () => (hold ? this.scene.start('Game', { hold: true }) : this.scene.start(this.next)));
   }
 
   update(_t: number, dt: number) {

@@ -302,8 +302,28 @@ const SCENARIOS = [
     ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp * 9, g.player.x)'],
     ['until', 'window.__game.scene.isActive("Briefing")'], ['press', ['Enter', '!!window.__game.scene.getScene("Briefing").choice']], ['wait', 500],
     ['tap', 'ArrowRight'], ['wait', 200], ['shot'], ['tap', 'Enter'],
-    ['press', ['Enter', 'window.__game.scene.isActive("End")']], ['wait', 1500], ['shot'],
+    ['press', ['Enter', 'window.__game.scene.isActive("Game")']], ['wait', 4000], ['shot'], // HOLD IT OPEN survival finale
+    ['assert', 'var g = window.__game.scene.getScene("Game"); g.hold && g.holdT > 0 && g.holdT < 60000'],
+    ['eval', 'window.__game.scene.getScene("Game").holdT = 1200'],
+    ['until', 'window.__game.scene.isActive("End")'], ['wait', 1500], ['shot'],
     ['assert', 'window.__run.flags.rift_choice === "hold" && JSON.parse(localStorage.getItem("neon-warpath-save-v1")).endings.includes("OPEN DOOR")'],
+  ] },
+  { name: 'story-hold', url: '?stage=cathedral&hold=1&god=1&weapon=smg', steps: [
+    ['eval', 'Object.assign(window.__run.flags, { varkesh_freed: true, quill_rescued: true, halcyon_saved: true, sovereign_spared: true })'],
+    ['down', 'KeyJ'], ['wait', 9000], ['shot'],
+    ['assert', 'var g = window.__game.scene.getScene("Game"); g.hold && g.state === "play" && g.holdT < 52000'],
+    ['assert', 'window.__game.scene.getScene("Game").enemies.some(e => e.def.ally)'],
+    ['assert', 'window.__run.kills > 0 || window.__game.scene.getScene("Game").enemies.some(e => !e.dead && e.tag === "enc")'],
+    ['eval', 'window.__game.scene.getScene("Game").holdT = 31000'], ['wait', 8000], ['shot'], // late, harder waves + half-way comm
+    ['eval', 'window.__game.scene.getScene("Game").holdT = 600'], ['wait', 2500], ['shot'], ['up', 'KeyJ'],
+    ['assert', 'window.__run.flags.hold_done === true && window.__game.scene.getScene("Game").state === "clear"'],
+    ['until', 'window.__game.scene.isActive("End")'], ['wait', 1500], ['shot'],
+    ['assert', 'window.__run.stage === 12'],
+  ] },
+  { name: 'story-hold-death', url: '?stage=cathedral&hold=1', steps: [ // dying in the finale retries the finale, not the boss
+    ['eval', 'window.__run.hp = 1'], ['wait', 12000], ['shot'],
+    ['press', ['Enter', '!!window.__game.scene.getScene("Game").hold && window.__game.scene.getScene("Game").state === "play" && window.__run.hp > 1']],
+    ['wait', 1500], ['shot'], ['assert', 'var g = window.__game.scene.getScene("Game"); g.hold && g.holdT > 55000'],
   ] },
   { name: 'death', url: '?stage=1', steps: [['eval', 'window.__run.hp = 1'], ['down', 'KeyD'], ['wait', 9000], ['shot']] },
   // Force lethal damage only to exercise transitions, not to claim combat balance is verified.

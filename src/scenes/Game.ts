@@ -10,7 +10,7 @@ import { Fx } from '../systems/Fx';
 import { Player } from '../entities/Player';
 import { Enemy } from '../entities/Enemy';
 import { Shot } from '../entities/Shot';
-import { STORY, CHOICES, type Line } from '../data/story';
+import { STORY, CHOICES, HOLD, type Line } from '../data/story';
 import { condOk, filterLines, applyChoice } from '../systems/Story';
 import { Gimmicks } from '../systems/Gimmicks';
 import type { HudScene } from './Hud';
@@ -18,6 +18,11 @@ import type { HudScene } from './Hud';
 const R = Phaser.Math;
 type Pickup = Phaser.Physics.Arcade.Image & { kind: string; wid?: string; age: number; taken?: boolean; glow?: Phaser.GameObjects.Image };
 type Shard = { id: string; img: Phaser.GameObjects.Image; glow: Phaser.GameObjects.Image; y0: number };
+// HOLD IT OPEN finale (docs/STORY.md C7): survive this long in the ARCHON arena while the species walk home
+const HOLD_MS = 60000;
+const HOLD_POOL = ['alien', 'trooper', 'kamikaze', 'drone', 'zombie', 'elite', 'alien', 'demon', 'jet', 'kamikaze', 'brute', 'elite']; // unlocks left to right over time
+const WALKERS = ['varkesh', 'kharrix', 'ferrivor', 'myrrhkin', 'thren', 'vitreon', 'lithurn', 'corvane', 'nacreth', 'cirrid', 'asterid'];
+const FLYING_WALKERS = new Set(['nacreth', 'cirrid', 'asterid']);
 type ShotOpts = { tex?: string; color?: number; gravity?: boolean; blast?: number; life?: number; scale?: number };
 
 // The whole stage: world building, combat rules, encounters, scoring.
@@ -42,6 +47,12 @@ export class GameScene extends Phaser.Scene {
   aim: { x: number; y: number } | null = null; // world point under the mouse crosshair; null = keyboard/gamepad auto-aim
   gimmicks!: Gimmicks;
   choosing = false; // an in-level slow-motion choice is on screen
+  hold = false; // HOLD IT OPEN survival finale (Briefing starts Game with { hold: true })
+  holdT = 0;
+  private holdSpawn = 0;
+  private holdHalf = false;
+  private walkT = 0;
+  private gateX = 0;
   pShots!: Phaser.Physics.Arcade.Group;
   eShots!: Phaser.Physics.Arcade.Group;
 
@@ -69,7 +80,13 @@ export class GameScene extends Phaser.Scene {
   private get hud() { return this.scene.get('Hud') as HudScene; }
   banner(text: string, ms = 1600, color = '#ffffff') { this.hud.banner?.(text, ms, color); }
 
-  create(data?: { retry?: boolean }) {
+  create(data?: { retry?: boolean; hold?: boolean }) {
+    this.hold = !!data?.hold;
+    if (this.hold) { // the finale reuses the cathedral's boss arena
+      run.stage = STAGES.length - 1;
+      run.checkpoint = 99; // past every encounter: no camera locks, no roamers
+      run.checkpointX = STAGES[run.stage].width - W + 140;
+    }
     const st = (this.stage = STAGES[run.stage]);
     this.enemies = []; this.pickups = []; this.flows = []; this.fogs = []; this.shards = [];
     this.bossMarks = new Set(); this.seeT = 0; this.bgDrift = 0; this.choosing = false;
@@ -78,6 +95,7 @@ export class GameScene extends Phaser.Scene {
     const comms = STORY[st.id]?.comms ?? [];
     this.xTriggers = comms.filter((c) => c.on.startsWith('x:')).map((c) => Number(c.on.slice(2)));
     this.seeIds = new Set(comms.filter((c) => c.on.startsWith('see:')).map((c) => c.on.slice(4)));
+    if (this.hold) { this.xTriggers = []; this.seeIds = new Set(); }
     this.state = 'play'; this.combo = 0; this.comboT = 0; this.mult = 1;
     this.aim = null;
     this.boss = null; this.bossActive = false; this.locked = false; this.canRetry = false;
@@ -173,7 +191,7 @@ export class GameScene extends Phaser.Scene {
 
     // ---- data shards (collected ones stay collected through retries)
     for (const [id, x, y] of st.shards ?? []) {
-      if (run.shards.includes(id)) continue;
+      if (run.shards.includes(id) || this.hold) continue;
       const glow = this.add.image(x, y, 'glow').setBlendMode(Phaser.BlendModes.ADD).setTint(0xff60d0).setScale(0.8).setAlpha(0.7).setDepth(DEPTH.shot - 1);
       const img = this.add.image(x, y, 'shard').setDepth(DEPTH.shot);
       this.shards.push({ id, img, glow, y0: y });
@@ -207,6 +225,7 @@ export class GameScene extends Phaser.Scene {
 
     this.scene.launch('Hud');
     audio.playMusic(st.music);
+    if (this.hold) { this.startHold(); return; }
     this.time.delayedCall(350, () => {
       if (run.checkpoint === 0) this.hud.stageIntro?.(`STAGE ${run.stage + 1}`, st.name, st.tagline);
       else this.banner('CHECKPOINT', 1200, '#80ffb0');
@@ -308,6 +327,7 @@ export class GameScene extends Phaser.Scene {
     if (this.state !== 'play') return;
     this.stageTime += dt;
     if (this.comboT > 0) { this.comboT -= dt; if (this.comboT <= 0) { this.combo = 0; this.mult = 1; } }
+    if (this.hold) return this.tickHold(dt);
     this.tickEncounter(dt);
     this.tickStory(dt);
   }
@@ -600,7 +620,7 @@ export class GameScene extends Phaser.Scene {
     run.hp = run.stats.maxHp;
     run.weapon = run.op.weapon;
     run.ammo = 0;
-    this.scene.restart({ retry: true });
+    this.scene.restart({ retry: true, hold: this.hold });
   }
 
   killEnemy(e: Enemy, byPlayer = true) {
@@ -725,6 +745,83 @@ export class GameScene extends Phaser.Scene {
         this.scene.stop('Hud');
         this.scene.start('Briefing', { next: run.stage >= STAGES.length ? 'End' : 'Perk' });
       });
+    });
+  }
+
+  // ================================================================= HOLD IT OPEN finale
+  private startHold() {
+    const left = this.stage.width - W;
+    this.locked = true; this.bossActive = true;
+    this.bounds = { left, right: left + W };
+    this.cameras.main.setBounds(left, 0, W, H);
+    this.holdT = HOLD_MS; this.holdSpawn = 3000; this.holdHalf = false; this.walkT = 600;
+    // the Rift, held still by the Tide Pearl: a pale gate at the arena's left edge
+    const gx = (this.gateX = left + 40), gy = GROUND_Y - 78;
+    const halo = this.add.image(gx, gy, 'glow').setDisplaySize(120, 230).setTint(0x60ffd0).setAlpha(0.7).setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH.world - 2);
+    const core = this.add.ellipse(gx, gy, 30, 156, 0xd0fff4, 0.5).setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH.world - 2);
+    this.add.ellipse(gx, gy, 40, 166).setStrokeStyle(2, 0x80ffe0, 0.8).setDepth(DEPTH.world - 2);
+    this.tweens.add({ targets: [halo, core], alpha: { from: 0.75, to: 0.35 }, scaleX: { from: 1, to: 1.12 }, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+    audio.intense = true;
+    this.time.delayedCall(350, () => { this.hud.holdTimer?.(this.holdT); this.banner('HOLD THE DOOR', 1800, '#80ffe0'); audio.sfx('warn'); });
+    this.time.delayedCall(1500, () => this.hud.comms?.(filterLines(HOLD.start)));
+    this.time.delayedCall(2500, () => { if (run.flags.varkesh_freed) [0, 1].forEach((k) => this.spawnAlly('varkesh_ally', left + 90 + k * 50)); });
+  }
+
+  private tickHold(dt: number) {
+    this.holdT -= dt;
+    this.hud.holdTimer?.(Math.max(0, this.holdT));
+    if ((this.walkT -= dt) <= 0) { this.walkT = R.Between(450, 850); this.spawnWalker(); }
+    if (!this.holdHalf && this.holdT < HOLD_MS / 2) { this.holdHalf = true; this.hud.comms?.(filterLines(HOLD.half)); }
+    if (this.holdT <= 0) return this.holdDone();
+    if ((this.holdSpawn -= dt) > 0) return;
+    const elapsed = HOLD_MS - this.holdT;
+    const alive = this.enemies.filter((e) => !e.dead && e.tag === 'enc').length;
+    if (alive >= 5 + Math.floor(elapsed / 20000)) { this.holdSpawn = 400; return; }
+    const pool = HOLD_POOL.slice(0, 4 + Math.floor(elapsed / 10000) * 2);
+    const n = 1 + Math.floor(elapsed / 25000) + (Math.random() < 0.35 ? 1 : 0);
+    this.spawnWave(Array.from({ length: n }, () => R.RND.pick(pool)));
+    this.holdSpawn = R.Linear(2800, 1600, elapsed / HOLD_MS);
+  }
+
+  /** A freed species walking (or drifting) home through the gate, behind the fight. Pure scenery, no physics. */
+  private spawnWalker(fast = false) {
+    const ids = WALKERS.filter((k) => this.textures.exists(`sp_${k}_0`));
+    if (!ids.length) return;
+    const k = R.RND.pick(ids), fly = FLYING_WALKERS.has(k);
+    const x0 = this.bounds.right + 40, y = fly ? R.Between(120, 190) : GROUND_Y + 1;
+    const img = this.add.image(x0, y, `sp_${k}_0`).setOrigin(0.5, fly ? 0.5 : 1).setDepth(DEPTH.bg + 2).setTintFill(0x80ffe0).setAlpha(0.22).setScale(0.75); // a pale far-off silhouette, never mistaken for a target
+    const dur = ((x0 - this.gateX) / (fast ? 140 : R.Between(55, 80))) * 1000;
+    this.tweens.add({
+      targets: img, x: this.gateX, duration: dur,
+      onUpdate: () => img.setTexture(`sp_${k}_${Math.floor(this.time.now / 140) % 4}`),
+      onComplete: () => {
+        this.fx.ring(this.gateX, img.y - (fly ? 0 : img.displayHeight / 2), 0x80ffe0, 0.8, 250);
+        this.tweens.add({ targets: img, alpha: 0, scaleX: 0.05, duration: 260, onComplete: () => img.destroy() });
+      },
+    });
+  }
+
+  private holdDone() {
+    const p = this.player;
+    this.state = 'clear';
+    run.flags.hold_done = true;
+    this.hud.holdTimer?.(null);
+    for (const e of this.enemies) if (!e.dead && !e.def.ally) { this.fx.explosion(e.x, e.cy, 22); this.removeEnemy(e); }
+    for (const s of this.eShots.getChildren() as Shot[]) if (s.active) s.kill();
+    this.fx.flash(0xd0fff4, 500);
+    this.fx.shake(5);
+    audio.sfx('clear');
+    audio.intense = false;
+    this.banner('THE DOOR HOLDS', 2800, '#80ffe0');
+    this.addScore(20000, p.x, p.y - 80, 'THEY MADE IT HOME');
+    for (let i = 0; i < 10; i++) this.time.delayedCall(i * 260, () => this.spawnWalker(true));
+    this.time.delayedCall(1200, () => this.hud.comms?.(filterLines(HOLD.end)));
+    this.time.delayedCall(8500, () => {
+      run.stage = STAGES.length;
+      save.best = Math.max(save.best, run.score);
+      persist();
+      this.cameras.main.fadeOut(400);
+      this.time.delayedCall(420, () => { this.scene.stop('Hud'); this.scene.start('End'); });
     });
   }
 

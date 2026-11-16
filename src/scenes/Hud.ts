@@ -45,6 +45,7 @@ export class HudScene extends Phaser.Scene {
   // in-level slow-motion choice
   private pick: { c: Choice; cb: (o: ChoiceOption) => void; box: Phaser.GameObjects.Container; cards: Phaser.GameObjects.Container[]; sel: number; left: number; tick: number; bar: Phaser.GameObjects.Rectangle; release: boolean } | null = null;
 
+  private holdTxt?: Phaser.GameObjects.Text;
   constructor() { super('Hud'); }
 
   private get gs() { return this.scene.get('Game') as GameScene; }
@@ -54,6 +55,7 @@ export class HudScene extends Phaser.Scene {
 
   create() {
     this.intro = undefined;
+    this.holdTxt = undefined;
     this.paused = false;
     this.shownScore = run.score;
     this.hpLag = run.hp;
@@ -282,6 +284,14 @@ export class HudScene extends Phaser.Scene {
   }
 
   // ---- called by GameScene (all optional-chained there because this scene starts a frame later)
+  /** HOLD IT OPEN countdown under the comms band; null removes it. */
+  holdTimer(ms: number | null) {
+    if (ms === null) { this.holdTxt?.destroy(); this.holdTxt = undefined; return; }
+    this.holdTxt ??= this.txt(W / 2, 66, '', 16, '#80ffe0').setOrigin(0.5, 0);
+    const s = Math.ceil(ms / 1000);
+    this.holdTxt.setText(`HOLD  ${s}`).setColor(s <= 10 ? '#ffd040' : '#80ffe0');
+  }
+
   banner(text: string, ms = 1600, color = '#ffffff') {
     this.tweens.killTweensOf(this.bannerTxt);
     this.bannerTxt.setText(text).setColor(color).setAlpha(1).setScale(1.5);
