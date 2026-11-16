@@ -11,6 +11,9 @@ import { mkdirSync } from 'node:fs';
 mkdirSync('tools/shots', { recursive: true });
 
 const filter = process.argv[2] ?? '';
+// REAL=1 npm run balance : normal armor and the real difficulty rules (self-repair, mercy); the bot retries when it
+// dies and the report counts deaths instead of damage. DIFF=0|1|2 picks EASY / NORMAL / HARD (default NORMAL).
+const REAL = process.env.REAL === '1', DIFF = Number(process.env.DIFF ?? 1);
 const IDS = ['city', 'casino', 'railyard', 'furnace', 'engine', 'fungal', 'abyss', 'tidal', 'orbital', 'prism', 'spire', 'cathedral'];
 const STAGE_CAP = 180000, BOSS_CAP = 150000;
 
@@ -32,9 +35,11 @@ async function probe(id, boss) {
   const page = await browser.newPage({ viewport: { width: 960, height: 540 } });
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e)));
+  await page.addInitScript((d) => { try { localStorage.setItem('neon-warpath-settings-v1', JSON.stringify({ difficulty: d })); } catch { /* fine */ } }, DIFF);
   await page.goto(`${base}?stage=${id}${boss ? '&boss=1' : ''}`);
   await page.waitForFunction(() => window.__game?.scene.getScene('Game')?.player, null, { timeout: 15000 });
-  await page.evaluate((h) => { window.__run.stats.maxHp = h; window.__run.hp = h; }, HUGE);
+  // damage mode: huge armor, and the classic rules (no self-repair) so the total is everything the bot was hit for
+  if (!REAL) await page.evaluate((h) => { window.__classic = true; window.__run.stats.maxHp = h; window.__run.hp = h; }, HUGE);
   await page.click('canvas');
   await page.mouse.move(900, 300);
   await page.mouse.down(); // mouse aim + hold to fire: the bot aims perfectly at the nearest enemy but never dodges
@@ -45,6 +50,7 @@ async function probe(id, boss) {
     await page.waitForTimeout(150);
     s = await page.evaluate(state);
     if (!s.scene.includes('Game') || s.state === 'clear') { result = 'clear'; break; }
+    if (s.state === 'dead') { await page.keyboard.press('Enter', { delay: 40 }); await page.waitForTimeout(400); continue; }
     if (!boss && s.boss) { result = 'reached boss'; break; }
     if (s.boss && !bossSeen) bossSeen = Date.now();
     k++;
@@ -60,7 +66,7 @@ async function probe(id, boss) {
     if (k % 15 === 0) await page.mouse.down(); // re-press in case a scene change ate it
   }
   const secs = Math.round((Date.now() - t0) / 1000);
-  const dmg = HUGE - s.hp;
+  const dmg = REAL ? await page.evaluate(() => window.__run.deaths) : HUGE - s.hp;
   if (result !== 'clear') await page.screenshot({ path: `tools/shots/balance-${id}-${boss ? 'boss' : 'stage'}.png` }).catch(() => {});
   await page.close();
   return { id, part: boss ? 'boss' : 'stage', result, x: Math.round(s.x), secs, dmg, bossLeft: boss ? Math.round(s.bossHp * 100) + '%' : '', dps: +(dmg / Math.max(1, secs) * 60).toFixed(0), errors: errors.length };
@@ -73,7 +79,8 @@ for (const id of IDS.filter((i) => i.includes(filter))) {
     catch (e) { console.log(JSON.stringify({ id, part: boss ? 'boss' : 'stage', error: String(e).slice(0, 200) })); }
   }
 }
-console.log('\nid         part   result        secs   dmg  dmg/min  boss left');
+console.log(REAL ? `\nREAL RULES (difficulty ${DIFF}): the "dmg" column is the number of DEATHS` : '\nDamage mode (classic rules, no self-repair)');
+console.log('id         part   result        secs   dmg  dmg/min  boss left');
 for (const r of rows) console.log(`${r.id.padEnd(10)} ${r.part.padEnd(6)} ${r.result.padEnd(13)} ${String(r.secs).padStart(4)} ${String(r.dmg).padStart(5)} ${String(r.dps).padStart(8)}  ${r.bossLeft}`);
 await browser.close();
 await server.close();

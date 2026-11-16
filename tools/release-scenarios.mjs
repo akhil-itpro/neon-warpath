@@ -34,12 +34,13 @@ export const RELEASE_SCENARIOS = [
   ] },
   { name: 'release-options', url: '', steps: [
     ['wait', 1000], ['tap', 'KeyO'], ['until', 'window.__game.scene.isActive("Options")'], ['wait', 300],
+    ['tap', 'ArrowLeft'], ['tap', 'ArrowDown'], // row 0 is DIFFICULTY: NORMAL -> EASY
     ['tap', 'ArrowLeft'], ['tap', 'ArrowDown'], ['tap', 'ArrowLeft'], ['tap', 'ArrowDown'],
     ...Array.from({length: 5}, () => [['tap', 'ArrowLeft'], ['wait', 70]]).flat(), ['tap', 'ArrowDown'], ['tap', 'Enter'], ['shot'],
-    ['assert', `var s = JSON.parse(localStorage.getItem('neon-warpath-settings-v1')); s.music === 0.4 && s.effects === 0.6 && s.shake === 0 && s.flashes === false`],
+    ['assert', `var s = JSON.parse(localStorage.getItem('neon-warpath-settings-v1')); s.difficulty === 0 && s.music === 0.4 && s.effects === 0.6 && s.shake === 0 && s.flashes === false`],
     ['tap', 'Escape'], ['assert', 'window.__game.scene.isActive("Title")'], ['reload'],
     ['tap', 'KeyO'], ['until', 'window.__game.scene.isActive("Options")'], ['wait', 300], ['shot'],
-    ['assert', `window.__game.scene.getScene('Options').rows[2].text.includes('0%') && window.__game.scene.getScene('Options').rows[3].text.includes('OFF')`],
+    ['assert', `window.__game.scene.getScene('Options').rows[0].text.includes('EASY') && window.__game.scene.getScene('Options').rows[3].text.includes('0%') && window.__game.scene.getScene('Options').rows[4].text.includes('OFF')`],
     ['tap', 'Escape'], ...deploy,
     ['tap', 'KeyE'], ['tap', 'Escape'], ['tap', 'KeyO'], ['until', 'window.__game.scene.isActive("Options")'], ['wait', 300],
     ['eval', `var p = window.__game.scene.getScene('Game').player; window.__pausedCd = p.abilityCd;`], ['wait', 300],

@@ -53,6 +53,7 @@ export interface RunState {
   deaths: number;
   checkpoint: number; // index of first encounter not yet cleared in current stage
   checkpointX: number;
+  strikes: number; // deaths since the last checkpoint was reached (mercy armor, see Settings.DIFFICULTIES); not saved
   // ---- story (docs/STORY.md): reset on a new run, survive stage restarts
   flags: Record<string, string | boolean>;
   shards: string[];        // lore ids collected this run
@@ -69,7 +70,7 @@ export function newRun(opIndex: number) {
   run = {
     op, stage: 0, score: 0, hp: op.hp, weapon: op.weapon, ammo: 0, od: 0, perks: [],
     stats: { maxHp: op.hp, dmg: op.dmg, rate: op.rate, speed: op.speed, jump: op.jump, airJumps: 1, lifesteal: 0, slideCd: 650, odGain: 1, blast: 0, ammo: 1, magnet: 90, armor: 1 },
-    kills: 0, maxCombo: 0, deaths: 0, checkpoint: 0, checkpointX: 80,
+    kills: 0, maxCombo: 0, deaths: 0, checkpoint: 0, checkpointX: 80, strikes: 0,
     flags: {}, shards: [], eggsShot: 0, bonusCards: 0, heard: [], choices: [],
   };
   (window as any).__run = run; // debugging / smoke-test handle

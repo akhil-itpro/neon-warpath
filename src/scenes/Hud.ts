@@ -4,13 +4,22 @@ import { run } from '../systems/Run';
 import { WEAPONS } from '../data/weapons';
 import { audio } from '../systems/Audio';
 import { Controls } from '../systems/Controls';
-import { settings } from '../systems/Settings';
+import { settings, difficulty } from '../systems/Settings';
 import { saveCampaign } from '../systems/CampaignSave';
 import type { Line, Choice, ChoiceOption } from '../data/story';
 import { condOk, filterLines, portraitKey, speakerColor, speakerName } from '../systems/Story';
 import type { GameScene } from './Game';
 
 const gsStage = (s: Phaser.Scene) => (s.scene.get('Game') as GameScene).stage;
+// shown one at a time on the K.I.A. screen: the things new players most often do not know
+const TIPS = [
+  'TIP: SLIDE (SHIFT / RIGHT CLICK) PASSES THROUGH BULLETS',
+  'TIP: BACK OFF FOR A FEW SECONDS AND YOUR ARMOR REPAIRS',
+  'TIP: E IS YOUR EMERGENCY SKILL - USE IT, IT RECHARGES',
+  'TIP: A GLOWING LIGHT MEANS AN ATTACK IS COMING - MOVE',
+  'TIP: Q FIRES OVERDRIVE AND WIPES EVERY BULLET ON SCREEN',
+  'TIP: TOO HARD? OPTIONS (PAUSE, THEN O) HAS AN EASY MODE',
+];
 const RANKS = ['', 'ROOKIE', 'DEADLY', 'SAVAGE', 'BRUTAL', 'WARLORD', 'UNSTOPPABLE', 'GODLIKE', 'LEGEND'];
 
 // Runs on top of GameScene with its own camera, so the HUD stays crisp (no bloom, no shake).
@@ -49,6 +58,10 @@ export class HudScene extends Phaser.Scene {
   private pick: { c: Choice; cb: (o: ChoiceOption) => void; box: Phaser.GameObjects.Container; cards: Phaser.GameObjects.Container[]; sel: number; left: number; tick: number; bar: Phaser.GameObjects.Rectangle; release: boolean } | null = null;
 
   private holdTxt?: Phaser.GameObjects.Text;
+  private vig!: Phaser.GameObjects.Image;      // red screen edges while armor is critical
+  private regenTxt!: Phaser.GameObjects.Text;  // "+" beside the armor bar while it repairs itself
+  private hintBox!: Phaser.GameObjects.Container;
+  private hintTxt!: Phaser.GameObjects.Text;
   constructor() { super('Hud'); }
 
   private get gs() { return this.scene.get('Game') as GameScene; }
@@ -64,7 +77,11 @@ export class HudScene extends Phaser.Scene {
     this.hpLag = run.hp;
     this.controls = new Controls(this);
     this.red = this.add.rectangle(0, 0, W, H, 0xff0000, 1).setOrigin(0).setAlpha(0);
+    this.vig = this.add.image(W / 2, H / 2, 'vignette').setDisplaySize(W, H).setTint(0xff1828).setAlpha(0);
     this.g = this.add.graphics();
+    this.regenTxt = this.txt(0, 20, '+', 8, '#a0ffc8').setVisible(false);
+    this.hintTxt = this.add.text(0, 0, '', { fontFamily: FONT, fontSize: '8px', color: '#ffe9a0', stroke: '#000000', strokeThickness: 3 }).setOrigin(0.5);
+    this.hintBox = this.add.container(W / 2 + 22, 78, [this.add.rectangle(0, 0, 524, 16, 0x05060a, 0.72), this.hintTxt]).setDepth(40).setAlpha(0);
     this.txt(12, 8, run.op.name, 8, '#9fe8ff');
     this.weapon = this.txt(12, 40, '');
     this.odTxt = this.txt(12, 52, '', 8, '#ffd040');
@@ -127,8 +144,17 @@ export class HudScene extends Phaser.Scene {
     g.fillStyle(0x000000, 0.75).fillRect(10, 19, bw + 4, 12);
     g.fillStyle(0xffffff, 0.9).fillRect(12, 21, bw * (this.hpLag / s.maxHp), 8);
     const low = run.hp < s.maxHp * 0.3;
-    g.fillStyle(low ? (Math.floor(this.time.now / 120) % 2 ? 0xff3030 : 0xff8080) : 0x40e0a0).fillRect(12, 21, bw * (run.hp / s.maxHp), 8);
+    const regen = gs.regenerating && gs.state === 'play';
+    const pulse = Math.floor(this.time.now / 120) % 2;
+    g.fillStyle(regen ? (pulse ? 0x40e0a0 : 0xa0ffd0) : low ? (pulse ? 0xff3030 : 0xff8080) : 0x40e0a0).fillRect(12, 21, bw * (run.hp / s.maxHp), 8);
     g.fillStyle(0xffffff, 0.25).fillRect(12, 21, bw * (run.hp / s.maxHp), 2);
+    // armor repairs itself up to this mark (only drawn when the difficulty caps it below full)
+    const cap = difficulty().regenCap;
+    if (cap > 0 && cap < 1) g.fillStyle(0xffffff, 0.8).fillRect(12 + Math.round(bw * cap), 20, 1, 10);
+    this.regenTxt.setVisible(regen).setPosition(bw + 18, 20).setAlpha(pulse ? 1 : 0.5);
+    // critical armor: the screen edges pulse red, and clear as the armor comes back
+    const danger = gs.state === 'play' && low ? 0.5 + Math.sin(this.time.now / 180) * 0.14 : 0;
+    this.vig.setAlpha(this.vig.alpha + (danger - this.vig.alpha) * Math.min(1, delta / 200));
 
     // overdrive meter
     const p = gs.player;
@@ -312,6 +338,15 @@ export class HudScene extends Phaser.Scene {
     this.holdTxt.setText(`HOLD  ${s}`).setColor(s <= 10 ? '#ffd040' : '#80ffe0');
   }
 
+  /** Small instruction line under the comms band (tutorial tips, mercy armor notice). */
+  hint(text: string, ms = 5000, color = '#ffe9a0') {
+    this.tweens.killTweensOf(this.hintBox);
+    this.hintTxt.setText(text).setColor(color);
+    this.hintBox.setAlpha(0);
+    this.tweens.add({ targets: this.hintBox, alpha: 1, duration: 200 });
+    this.tweens.add({ targets: this.hintBox, alpha: 0, delay: ms, duration: 400 });
+  }
+
   banner(text: string, ms = 1600, color = '#ffffff') {
     this.tweens.killTweensOf(this.bannerTxt);
     this.bannerTxt.setText(text).setColor(color).setAlpha(1).setScale(1.5);
@@ -352,8 +387,10 @@ export class HudScene extends Phaser.Scene {
 
   hurtFlash() {
     if (!settings.flashes) return;
-    this.red.setAlpha(0.35);
-    this.tweens.add({ targets: this.red, alpha: 0, duration: 320 });
+    // a light wash plus red screen edges: the old 35% full-screen red hid the very bullets you needed to see next
+    this.red.setAlpha(0.12);
+    this.tweens.add({ targets: this.red, alpha: 0, duration: 260 });
+    this.vig.setAlpha(0.95);
   }
 
   private panel(lines: [string, number, string][]) {
@@ -376,6 +413,7 @@ export class HudScene extends Phaser.Scene {
       ['K.I.A.', 32, '#ff3030'],
       ['-20% SCORE', 8, '#ff9080'],
       ['PRESS FIRE TO GET BACK IN THE FIGHT', 8, '#ffffff'],
+      [TIPS[(run.deaths - 1 + TIPS.length) % TIPS.length], 8, '#ffe9a0'],
     ]));
   }
 
@@ -392,7 +430,7 @@ export class HudScene extends Phaser.Scene {
   setPaused(on: boolean) {
     this.paused = on;
     if (on) {
-      this.panel([['PAUSED', 24, '#ffffff'], ['A/D MOVE   SPACE / PAD A DOUBLE JUMP', 8, '#c0c8d8'], ['MOUSE FIRE / J AUTO-AIM   SHIFT SLIDE', 8, '#c0c8d8'], [`E / PAD LT: ${run.op.ability.name}`, 8, '#9fe8ff'], [run.op.ability.desc, 8, '#c0c8d8'], ['Q / PAD Y OVERDRIVE   M MUTE', 8, '#c0c8d8'], ['O / Y: OPTIONS   T: SAVE + TITLE', 8, '#9fe8ff'], ['ESC: RESUME', 8, '#9fe8ff']]);
+      this.panel([['PAUSED', 24, '#ffffff'], ['A/D MOVE   SPACE / PAD A DOUBLE JUMP', 8, '#c0c8d8'], ['MOUSE FIRE / J AUTO-AIM   SHIFT SLIDE', 8, '#c0c8d8'], [`E / PAD LT: ${run.op.ability.name}`, 8, '#9fe8ff'], [run.op.ability.desc, 8, '#c0c8d8'], ['Q / PAD Y OVERDRIVE   M MUTE', 8, '#c0c8d8'], [`O / Y: OPTIONS (DIFFICULTY: ${difficulty().name})   T: SAVE + TITLE`, 8, '#9fe8ff'], ['ESC: RESUME', 8, '#9fe8ff']]);
     } else {
       this.overlay.setVisible(false);
       this.scene.resume('Game');

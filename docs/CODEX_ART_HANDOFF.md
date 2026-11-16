@@ -1,106 +1,182 @@
-# CODEX ART HANDOFF — images still needed for the 12-stage game
+# CODEX ART + ANIMATION HANDOFF
 
-Written 2026-11-16 (Claude Code, Session 14). The full 12-stage campaign is now playable end to end in code.
-Everything below already has a **stand-in** in the game, so nothing is blocked; each item makes the game look
-finished. Work top to bottom. Read `CLAUDE.md` and `docs/ART_PIPELINE.md` first.
+Rewritten 2026-11-16 (Claude Code, Session 19). Read `CLAUDE.md` and the top entry of `docs/HANDOFF.md` first.
 
-## How to install any image (same for every item)
+The game is complete in code: 12 stages, 12 bosses, 5 operators, story, saves, options, difficulty levels.
+What still makes it look unfinished is **animation** and **how well the characters stand out**. Everything
+below already has a stand-in, so nothing is blocked. Work top to bottom; each numbered job is one commit.
 
-1. Keep the raw generated sheet in `art/source/` (never edit it) and save the exact prompt next to it, as before.
-2. Produce the game-sized PNG at `public/assets/<key>.png` (transparent background for sprites, RGB for backdrops).
-3. Add `<key>` to the `images` list in `public/assets/manifest.json`. The game loads every key in that list.
-4. Easiest route: add a line to `JOBS` in `tools/integrate_campaign.py` (copies library sprites and swaps the outline)
-   or to `JOBS` in `tools/integrate_expansion.py` (cuts from a high-resolution master at a given height), then run it.
-5. Outline rule (Session 12 A1): enemies, bosses and props get a near-black 1 px outline `#0b0d14`
-   (`ENEMY_OUTLINE`); operators get the muted cool rim `HERO_OUTLINE` (83,125,145). No red outlines.
-6. Facing rule: enemy and boss source sprites face **LEFT**; operators (including HALCYON) face **RIGHT**.
-7. Verify: `npm.cmd run check`, then the named smoke scenario, then **look at** `tools/shots/<scenario>-*.png`.
+Jobs finished earlier (do not redo): three world backdrops (`bg_tidal`, `bg_prism`, `bg_spire`), HALCYON's
+eight poses, the cage / pylon / slot machine props, twelve painted portraits, ROOK's eight-part rig.
 
-The code picks the real art automatically once the key exists (stand-ins are only used when it is missing).
+## The honest state of the art (looked at in game, Session 19)
 
-## 1. Three world backdrops (highest impact)
+| Part | State | Verdict |
+|---|---|---|
+| Backdrops (12) | Painted, detailed, consistent | Good. Keep. |
+| Portraits (12) | Painted, one style | Good. Keep. |
+| ROOK | Eight-part puppet, animated in code | Moves well, but he is small and charcoal on dark streets. Needs brighter colours (job 1). |
+| VIPER, TITAN, SERRIK, QUILL | Eight still poses each, four-frame run | Stiff next to ROOK (job 2). |
+| 17 enemies + turret, drone, jet | ONE still picture each; they rock or hover | The biggest visible weakness (job 3). |
+| 7 older bosses | ONE still picture each | Second biggest (job 4). |
+| Floors and girders | Drawn in code, plain | Fine, could be richer (job 6). |
+| Depth | One flat backdrop layer per stage | Parallax would add a lot (job 5). |
 
-**Completed 2026-11-16 (Codex):** all three PNGs are live. Immutable sources and exact prompts are in
-`art/source/campaign_worlds/`; rebuild with `python -B tools/process_campaign_worlds.py`. The outputs are
-1280 x 360 RGB mirrored strips, following the existing world pipeline. Separate parallax layers remain optional.
-`Boot.makeBackdrops` retains procedural fallbacks for missing PNGs. **Sections 2-4 are now complete; optional rig polish remains in section 5.**
+## Rules for every image (unchanged, they work)
 
-| Key | World | Look | Smoke to check |
+1. Keep the raw generated image in `art/source/<batch>/` and never edit it. Save the exact prompt next to it as `<name>_prompt.txt`.
+2. Write a small rebuild script like `tools/process_campaign_finish.py` (copy it): cut, scale to game pixels, harden alpha, reduce colours, bake the outline, write `public/assets/<key>.png`, and add `<key>` to `images` in `public/assets/manifest.json` without touching other entries.
+3. Outline: enemies, bosses and props get a near-black 1 px outline `#0b0d14`. Operators get the muted cool rim (83,125,145). No red outlines.
+4. Facing: enemies and bosses face **LEFT**. Operators face **RIGHT**.
+5. Feet on the bottom edge of the canvas for ground units. Flyers centred.
+6. **Generate every frame of one animation in ONE image.** Frames generated separately never match (Session 11 audit). When a still already exists, give it to the image tool as the reference and ask for the same character.
+7. In the script, pin the feet baseline and the hip x across frames, and use ONE scale for the whole sheet.
+8. Verify: `npm.cmd run check`, the named smoke scenario, then **open** `tools/shots/<scenario>-*.png`.
+
+Style line to end every sprite prompt with:
+
+> Detailed 16-bit pixel art, strict side view, 2D action game sprite, hard pixel edges, no anti-aliasing blur, strong cool rim light on the top and back edges, saturated readable colours that stand out against a dark night background, near-black outline, flat solid magenta #FF00FF background, no glow, no cast shadow, no text, no grid lines, generous empty space between poses, nothing touching or overlapping.
+
+## Job 1. Make ROOK readable (one small image, big effect)
+
+ROOK's parts are charcoal navy on dark streets, so the player loses sight of their own character. The code
+now puts a soft light behind him, but the sprite itself should carry more colour. Regenerate the eight-part
+atlas with the **same layout and proportions**, brighter.
+
+- Source of truth for layout: `art/source/rigs/README.md` (the exact prompt is there) and `tools/process_rook_rig.py`.
+- Output keys (unchanged): `rook_rig_head`, `_torso`, `_arm`, `_support`, `_thigh`, `_shin`, `_far_thigh`, `_far_shin`.
+- Keep every part the same size and pivot so `src/data/rigs.ts` needs no change. If a part's size changes, re-measure its pivot.
+
+Prompt: use the ROOK prompt in `art/source/rigs/README.md` and replace the colour sentence with:
+
+> mid-grey steel-blue tactical armor that reads clearly against a dark background, BRIGHT teal glowing shoulder stripe, teal visor band, teal knee and boot trims, light skin tones on the face and forearms, pale steel pistol with a bright slide. Value range from near-black shadows to near-white highlights; the character must be the brightest thing in a dark city street.
+
+Check: `npm.cmd run smoke -- rook-rig` and `rules-hints`. ROOK must be clearly visible at a glance in `tools/shots/rules-hints-0.png`.
+
+## Job 2. Eight-part puppets for VIPER, TITAN, SERRIK, QUILL
+
+Same method as ROOK, one atlas per operator, 4 columns x 2 rows, 1536x1024, transparent or magenta background.
+Cells in order: head, torso (no head, arms or legs), aiming arm with gun (pointing right, horizontal), far
+support arm, front thigh, front shin with boot, far thigh (darker), far shin with boot (darker).
+
+Then: add `<OP>_RIG` to `src/data/rigs.ts` (copy `ROOK_RIG`, measure pivots, leg lengths and the barrel
+point), set `rig: <OP>_RIG` on the operator in `src/data/operators.ts`, and process with a copy of
+`tools/process_rook_rig.py`. The Title screen and the player pick the puppet up automatically.
+
+Prompt template (fill the brackets):
+
+> Create a production sprite parts atlas for an ORIGINAL 2D side scrolling pixel art action game, character [NAME]: [DESCRIPTION]. Strict SIDE VIEW FACING RIGHT. This is NOT an animation sheet: eight SEPARATE DISCONNECTED puppet pieces, one in each cell of a perfectly regular 4 columns x 2 rows atlas on a 1536x1024 canvas. Every cell contains EXACTLY ONE isolated piece centred with huge clear margins. No assembled full body, no labels. ORDER: top row cell 1 HEAD with neck, upright facing right; cell 2 TORSO with chest, waist and belt, NO HEAD NO ARMS NO LEGS; cell 3 AIMING ARM AND WEAPON, one connected piece from rounded shoulder on the left through a nearly horizontal forearm to the weapon pointing RIGHT, barrel horizontal; cell 4 FAR SUPPORT ARM, bent, horizontal, pointing right, NO GUN. Bottom row cell 1 FRONT THIGH from rounded hip at top to rounded knee at bottom, hanging straight down; cell 2 FRONT SHIN WITH BOOT, knee at top, toe pointing right; cell 3 FAR THIGH same size, darker; cell 4 FAR SHIN WITH BOOT same size, darker. All pieces belong to the SAME character at the SAME scale, as if assembled into a 320px tall figure: head about 70px, torso 130px, thighs 85px, shins with boots 90px, gun arm 170px long. Opaque pieces with complete rounded overlapping ends so rotation never opens holes. No gore. [STYLE LINE]
+
+| Operator | [DESCRIPTION] |
+|---|---|
+| VIPER | lean female infiltrator, short asymmetric magenta-streaked black hair, fitted dark violet stealth suit with BRIGHT magenta light strips on the arms and thighs, light grey chest rig, twin-barrel machine pistol. Accent colour magenta. |
+| TITAN | huge heavy trooper, shaved head, thick orange-and-gunmetal powered armor with BRIGHT amber chest light and shoulder plates, heavy hand cannon held one-handed. Accent colour amber. Parts about 20% wider than a normal human, same heights. |
+| SERRIK | Varkesh reptilian soldier (original species): green scaled skin, short snout, head crest of blunt spines, digitigrade look kept simple (thigh + shin still work as two straight pieces), scavenged bronze armor plates, BRIGHT green cloth sash, long rifle. Accent colour green. |
+| QUILL | Corvane crow-like scout (original species): black-blue feathers, pale curved beak, bright sky-blue goggles, light padded flight vest with BRIGHT sky-blue straps, slim legs with bird feet shaped like boots, compact carbine. Accent colour sky blue. |
+
+Check: `npm.cmd run smoke -- art-viper`, `art-titan`, `title`, `kit-`. Look at the run in motion (add a
+preview GIF like `tools/preview_rook_rig.py`).
+
+## Job 3. Give every one-picture enemy a walk or fly cycle and an attack pose
+
+The code needs **no change** for this. For any enemy:
+
+- `<art>_0.png … <art>_3.png` (four frames) are used as a looping walk / fly cycle the moment they are in the manifest (the lone `<art>.png` is then ignored).
+- `<art>_atk.png` (optional, one frame) is shown automatically while the enemy winds up and fires.
+
+Keep the **same canvas size and the same body size as the existing still** (table), so hitboxes still fit.
+Feed the existing `public/assets/<art>.png` to the image tool as the reference.
+
+Prompt template:
+
+> Using the attached sprite as the exact character reference, create a five-frame animation sheet of the SAME creature, same proportions, same colours, same size in every frame, in ONE row of five equal cells. Frames 1 to 4: a [walk / hover] cycle ([CYCLE NOTES]). Frame 5: ATTACK pose ([ATTACK NOTES]). Facing LEFT. Feet on the same baseline in every frame; the body centre stays in the same place in every cell. [STYLE LINE]
+
+| `<art>` key | Canvas (w x h) | Cycle notes | Attack notes |
 |---|---|---|---|
-| `bg_tidal` | THE TIDAL VAULT (stage 8) | Underwater throne room built by shell people: tall carved shell pillars, god-rays from far above, teal and deep blue, bioluminescent dots. | `x-tidal`, `gim-water` |
-| `bg_prism` | PRISM WASTES (stage 10) | The alien world on the far side of the Rift: grey-violet crystal spires, a pale dying sun, drained colours ("it used to be green"), a few faint green remnants. | `x-prism`, `gim-pylon` |
-| `bg_spire` | THE LATTICE SPIRE (stage 11) | A data tower above the clouds at night: lattice girders, server towers with blinking red and violet lights, stars. | `x-spire`, `gim-chase` |
+| `riot_bastion` | 68 x 66 | heavy slow shield walk, shield held forward | braces, gun pokes over the shield, muzzle bright |
+| `coil_sniper` | 69 x 64 | careful crouched walk, long rifle level | kneels, rifle coil glowing cyan |
+| `welder_hound` | 71 x 44 | four-legged gallop: contact, gather, push, stretch | jaws open, welding torch lit |
+| `saw_crab` | 63 x 48 | six-leg scuttle, saw arms idle | both saws raised and spinning |
+| `bell_drone` | 30 x 44 | hover: bell swings left, centre, right, centre | bell flared, ring of light at the rim |
+| `scrap_mantis` | 71 x 60 | fast stalking walk, blades folded | blades spread wide, lunging forward |
+| `sporeback` | 63 x 64 | hunched waddle, spore sacs wobble | rears back, sacs swollen and glowing |
+| `acid_bellower` | 61 x 58 | slow stomp, throat sac deflated | throat sac inflated, mouth wide open |
+| `glass_widow` (spiderling) | 60 x 44 | eight-leg skitter, alternate leg sets | front legs raised, fangs out |
+| `cinder_knight` | 67 x 70 | heavy armored march, sword low | sword raised overhead, embers flare |
+| `deepjaw` | 66 x 64 | lurching run, arms swinging | jaw unhinged wide, leaning in |
+| `lantern_moth` | 55 x 46 | wing flap: up, mid, down, mid | lantern abdomen blazing, wings spread |
+| `umbrella_jelly` | 44 x 50 | bell pulse: open, half, closed, half | tentacles spread, core bright |
+| `vendotron` | 64 x 66 | waddling walk on short legs | front hatch open, can loaded in the launcher |
+| `traffic_totem` | 58 x 66 | stiff hop-walk | all three lamps lit, leaning forward |
+| `disco_slug` | 67 x 48 | slug ripple: stretch, bunch, stretch, bunch | mirror-ball back flaring, head raised |
+| `drone` | 68 x 36 | hover: rotor blur in four positions, slight tilt | gun barrel extended, red eye bright |
+| `turret` | 68 x 64 | (static) idle scan: barrel sweeps four small angles | barrel recoiling, muzzle flash vents open |
+| `jet` | 108 x 58 | flight: afterburner flicker in four lengths | bomb bay open |
 
-- Size **1280 x 360**, must tile seamlessly left-to-right (it scrolls). Same painted-pixel style as `public/assets/bg_city.png`.
-- Keep the lower 60 px dark and plain: the floor strip is drawn on top of it. Keep everything **darker and less
-  saturated than the characters** (the game also darkens it by 32%).
-- Optional later (A5): each world as 3 parallax layers (`bg_<id>_sky`, `_far`, `_near`) plus a foreground strip. That
-  needs a small code change; ask Claude.
+Check: `npm.cmd run smoke -- art-enemies` plus the stage that uses the enemy (`casino`, `x-engine`, `x-tidal`, `gim-dark`…). Do three or four enemies per commit.
 
-## 2. HALCYON — the rival operator / stage 11 boss
+## Job 4. Four state pictures for the seven older bosses
 
-Today HALCYON borrows the Frontier operator KESTREL's frames (`public/assets/halcyon_*.png`, copied by
-`tools/integrate_campaign.py`). Story: male squad commander in his 50s, grey crew cut, a cybernetic eye with a scar,
-neural jack at the neck, long dark combat coat over armour, gold commander pips, a rifle. Warm, tired face.
+The four newest bosses already switch between `<art>_idle`, `<art>_windup`, `<art>_attack`, `<art>_exposed`
+(`Enemy.stateArt`). Do the same for the older seven. Then add `states: true` to the boss in
+`src/data/enemies.ts` (this also makes "exposed" take 1.4x damage and "attack" 0.75x, so re-check the fight
+with `npm.cmd run balance -- <stage id>`).
 
-- Eight poses on a **96 x 72** canvas each, feet on the bottom edge, facing **RIGHT**, same pixel density as ROOK
-  (about 56 px tall): `halcyon_run0`, `halcyon_run1`, `halcyon_run2`, `halcyon_run3`, `halcyon_idle`, `halcyon_jump`,
-  `halcyon_slide`, `halcyon_crouch`. Generate the whole run in ONE image from one master (Session 11 audit: separate
-  generations drift). Remove the KESTREL lines for `halcyon_*` from `tools/integrate_campaign.py` when you add these.
-- Best option: an eight-part cut-out rig like ROOK (`art/source/rigs/`, `src/data/rigs.ts`); then tell Claude so the
-  boss can use `CharacterRig`.
-- Check with `npm.cmd run smoke -- story-halcyon` and `x-spire-boss`.
+Prompt template:
 
-**Completed Session 17:** HALCYON now has his own eight-pose sheet, generated as one source
-with shared-scale processing. KESTREL copying was removed. Rifle muzzle offsets are measured
-in `artMuzzles.ts` and used by the duel's standing and airborne shots. This is a full-frame
-animation, not a part rig. Sources/prompts: `art/source/campaign_finish/`.
+> Using the attached boss sprite as the exact reference, create a four-state sheet of the SAME machine/creature at the same size, in ONE row of four equal cells, facing LEFT: 1 IDLE (neutral, menacing), 2 WINDUP (gathering power, warning lights glowing, body pulled back), 3 ATTACK (weapons firing or body lunging forward), 4 EXPOSED (stunned, armor plates open, glowing weak point clearly visible, sparks). The body centre and the ground line stay in the same place in every cell. [STYLE LINE]
 
-## 3. Three props (small, quick)
+| `<art>` key | Boss | Canvas | Weak point for EXPOSED |
+|---|---|---|---|
+| `vulture` | VULTURE GUNSHIP (stage 1) | 170 x 56 | open engine cowling, orange core |
+| `boss_tyrant` | TEACUP TYRANT (stage 2) | 147 x 118 | cracked cup, pink reactor inside |
+| `warden` | FURNACE WARDEN (stage 4) | 85 x 64 (drawn at 2.3x) | open furnace door, white-hot grate |
+| `boss_widow` | GLASS WIDOW (stage 6) | 142 x 104 | cracked glass abdomen, blue glow |
+| `boss_jelly` | DROWNED QUEEN (stage 7) | 108 x 124 | bell folded back, bright heart |
+| `boss_oracle` | STATIC ORACLE (stage 9) | 109 x 116 | screen-face shattered, green core |
+| `archon` | ARCHON CORE (stage 12) | 96 x 96 | shield segments apart, red eye wide |
 
-| Key | What | Size (game px) | Stand-in today | Smoke |
-|---|---|---|---|---|
-| `quill_cage` | A hanging bird cage / cell with a glowing red lock. QUILL (a crow-like Corvane scout) visible inside. | about 40 x 56 | tinted ammo locker | `story-cage` |
-| `prism_pylon` | A crystal pylon on a stone base, cyan facets, that bends light beams. | about 28 x 64 | tinted rift anchor | `gim-pylon` |
-| `slot_machine` | A tall neon casino slot machine with a gun-barrel coin slot, pink and gold. Faces LEFT. | about 36 x 64 | tinted street terminal | `gim-roulette` |
+Check: `npm.cmd run smoke -- city-boss`, `casino`, `furnace-boss`, `gim-dark`, `x-`, `cathedral-boss`, `story-final`.
 
-Neutral prop outline is fine for these (`GREY` in `integrate_expansion.py`), or `#0b0d14`.
+## Job 5. Parallax layers (depth)
 
-**Completed Session 17:** all three prop textures are live. Their physics scaling and hitboxes
-are preserved; only the image changes. Rebuild: `python -B tools/process_campaign_finish.py`.
+The code already supports this, no change needed. For any stage id, add either or both of:
 
-## 4. Portraits (comms panel + briefings)
+- `bg_<id>_far.png`  — 1280 x 360, **transparent** PNG, distant silhouettes (skyline, far towers). Scrolls at 0.42 of the camera.
+- `bg_<id>_near.png` — 1280 x 360, **transparent** PNG, closer structures in the lower two thirds only (pipes, railings, gantries, rubble). Scrolls at 0.7.
 
-Procedural 48 x 48 busts are drawn in `Boot.makePortraits`. Replace with **64 x 64** painted-pixel busts in one
-consistent style, shoulders up, facing slightly right, plain dark background with a thin coloured rim.
+Both must tile seamlessly left to right, stay darker than the characters, and leave the top third mostly
+empty so the painted sky (`bg_<id>`, unchanged, scrolls at 0.22) shows through. The game tints and shades
+them like the main backdrop.
 
-Keys: `portrait_rook`, `portrait_viper`, `portrait_titan`, `portrait_serrik`, `portrait_quill` (the operators),
-`portrait_juno`, `portrait_patch`, `portrait_croupier`, `portrait_oracle`, `portrait_myrrhkin`, `portrait_sovereign`,
-`portrait_halcyon`. ARCHON stays a code glyph (`portrait_archon`, do not replace).
+Prompt template:
 
-To swap: just add the PNG (any size, square) and its manifest key. The code already skips the procedural bust when the texture exists and scales portraits to 48 px (HUD) and 96 px (Briefing).
-Character notes are in `docs/STORY.md` section 2. Check with `story-comms` and `title`.
+> A seamless horizontally tiling 2:0.56 wide parallax layer for a 2D pixel art action game, [WORLD DESCRIPTION], ONLY the [far skyline silhouettes / near foreground structures], dark desaturated colours with a few small lights, everything else flat solid magenta #FF00FF, left and right edges match exactly, no characters, no text, detailed 16-bit pixel art.
 
-**Completed Session 17:** all twelve requested portraits now use a consistent painted-pixel
-atlas, exported to 64x64 PNGs. ARCHON remains its procedural glyph. Exact source/prompt and
-rebuild script are shared with the campaign finishing batch.
+Do `city` first (far: distant towers and antenna masts; near: rooftop water tanks, railings, neon sign frames),
+look at `npm.cmd run smoke -- city`, then the other eleven. Stage ids and looks: `docs/STORY.md` section 3.
 
-## 5. Animation rigs still on the old method (A3/A4)
+## Job 6. Painted floor and girder tiles
 
-- **VIPER and TITAN**: eight-part rigs like ROOK. The owner has still not reviewed ROOK; ask first if possible.
-- **SERRIK and QUILL** (now unlockable operators): they use the species library's four-frame stills
-  (`public/assets/serrik_*`, `quill_*`). Rigs would make them match ROOK.
-- **Bosses (A4)**: the four new bosses already have four state pictures each (idle / windup / attack / exposed) and the
-  code switches between them (`Enemy.stateArt`). Part rigs (rotor, claws, wings, cannon, weak point) would still look better.
+No code change needed: a PNG in the manifest replaces the code-drawn tile.
 
-## 6. Nice to have
+- `ground_<id>.png` — 64 x 40, tiles left to right, the top 2 px are the bright walking edge.
+- `plat_<id>.png` — 32 x 12, tiles left to right, a metal girder / ledge seen from the side.
 
-- A5 parallax layers for all 12 worlds (see 1).
-- A6 shared palette (`art/palette.png`, 32 to 48 colours) and a pass that quantises every sprite to it.
-- Stage-specific floor/girder tiles are drawn in code (`Boot.makeStageTiles`); painted 32 x 40 floor and 32 x 12
-  girder tiles per stage (`ground_<id>`, `plat_<id>`) would replace them if added to the manifest (code change: skip the
-  canvas when the texture exists).
+Prompt: `A seamless horizontally tiling floor tile strip for a 2D pixel art action game, [WORLD] theme, side view cross-section: a bright worn top edge then dark layered structure below, 16-bit pixel art, no perspective, no text.` Cut one clean repeat from it.
+
+## Job 7. Store and title art (needed to publish)
+
+| File | Size | Content |
+|---|---|---|
+| `art/store/cover.png` | 630 x 500 | itch.io cover: ROOK in the foreground firing right, neon city in rain, VULTURE gunship searchlight behind, logo "NEON WARPATH" top |
+| `art/store/banner.png` | 960 x 540 | wide key art: all five operators in a line-up, ARCHON's red eye in the sky |
+| `art/store/icon.png` | 256 x 256 | ROOK's head in profile, teal rim light, dark background |
+| 4 screenshots | 1280 x 720 | take them from `tools/shots/` after jobs 1 to 4 |
+
+These are illustrations, not sprites: painted pixel-art style matching the backdrops, no magenta background.
 
 ## What NOT to make
 
-No audio (all sound is synthesised). No new enemies or weapons. Do not recreate existing games' characters or levels.
+No audio (all sound is synthesised in `src/systems/Audio.ts`). No new enemies, weapons, stages or operators.
+Do not recreate any existing game's characters, levels or look; every design here is original and must stay so.

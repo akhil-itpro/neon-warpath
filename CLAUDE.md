@@ -20,11 +20,12 @@ npm run assets   # python tools/process_assets.py --preview : rebuild public/ass
 npm run smoke    # headless playthrough of every stage/boss in system Chrome/Edge; screenshots -> tools/shots/
 npm run smoke -- city-boss   # one scenario (substring match on the names in tools/smoke.mjs)
 npm run balance  # difficulty probe: non-dodging bot plays every stage/boss, prints damage taken (compare stages)
+REAL=1 npm run balance -- city   # same bot with normal armor and the real rules; prints DEATHS (DIFF=0|1|2 = EASY/NORMAL/HARD)
 ```
 
 There is no unit-test suite. Verification = `npm run check` + `npm run smoke` + **looking at the screenshots in `tools/shots/`** (read them as images). Add a scenario to `tools/smoke.mjs` when you add a stage or boss.
 
-Debug URL params (handled in `src/scenes/Boot.ts`): `?stage=2` or `?stage=fungal` start on that stage (ids, in story order: city, casino, railyard, furnace, engine, fungal, abyss, tidal, orbital, prism, spire, cathedral), `&boss=1` jump to the boss, `&god=1` near-unkillable, `&hold=1` (with `stage=cathedral`) the HOLD IT OPEN finale, `&op=1` operator index, `&weapon=rocket`. Console handles: `window.__game`, `window.__run`.
+Debug URL params (handled in `src/scenes/Boot.ts`): `?stage=2` or `?stage=fungal` start on that stage (ids, in story order: city, casino, railyard, furnace, engine, fungal, abyss, tidal, orbital, prism, spire, cathedral), `&boss=1` jump to the boss, `&god=1` near-unkillable, `&hold=1` (with `stage=cathedral`) the HOLD IT OPEN finale, `&op=1` operator index, `&weapon=rocket`, `&regen=0` no armor self-repair. Console handles: `window.__game`, `window.__run`.
 
 Python deps for the asset pipeline: `pip install pillow numpy scipy "rembg[cpu]"`.
 
@@ -48,7 +49,11 @@ Python deps for the asset pipeline: `pip install pillow numpy scipy "rembg[cpu]"
 
 **Asset pipeline.** Raw AI sheets live in `art/source/` (never edit them). `tools/process_assets.py` removes backgrounds (chroma key if flat colour, else `rembg` per grid cell), finds sprites, downsizes to game pixels, bakes a 1px team-coloured outline, and writes `public/assets/*.png` + `manifest.json`. New sheets need a `MANIFEST` entry in that script. The single-pose expansion library (`art/library/expansion`) is brought in by `python tools/integrate_expansion.py` instead (its `JOBS` table sets in-game sizes); the Frontier and species libraries by `python tools/integrate_campaign.py` (copies + outline swap). Outstanding art requests for Codex: `docs/CODEX_ART_HANDOFF.md`. Enemy source sprites face LEFT, hero faces RIGHT.
 
-**Aiming.** Two modes, switched by whichever device was used last (`Controls.mouseAim`): mouse = free aim at the crosshair (`GameScene.aim`, hero faces it), fire key / gamepad = auto-aim cone in `playerFire`. The crosshair is drawn by `HudScene`.
+**Survivability rules (Session 19).** `src/systems/Settings.ts` `DIFFICULTIES` holds everything: damage multiplier, armor self-repair (delay / rate / cap, run by `GameScene.tickRegen`), and mercy (each death at the same checkpoint, `run.strikes`, cuts damage until the checkpoint is passed). All damage goes through `GameScene.hurtPlayer`. Smoke scenarios run under the original rules (`window.__classic`, set by the runner) unless they declare `rules: true`, so their exact-damage asserts stay valid.
+
+**Art hooks that need no code (see `docs/CODEX_ART_HANDOFF.md`).** `<art>_0..3` walk cycle, `<art>_atk` attack picture, boss `<art>_idle/_windup/_attack/_exposed` with `states: true`, parallax `bg_<id>_far` / `bg_<id>_near`, painted tiles `ground_<id>` / `plat_<id>`.
+
+**Aiming.** Three modes, switched by whichever device was used last (`Controls.mouseAim`, `Controls.aimPoint`): mouse = free aim at the crosshair (`GameScene.aim`, hero faces it); gamepad right stick pushed = free aim along the stick; fire key / gamepad without the right stick = auto-aim cone (58 degrees) in `playerFire`. The crosshair is drawn by `HudScene`.
 
 ## Gotchas
 

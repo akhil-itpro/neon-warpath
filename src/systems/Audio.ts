@@ -127,6 +127,7 @@ class AudioSys {
       case 'rally': [0, 4, 7].forEach((n, i) => this.tone('triangle', midi(67 + n), midi(67 + n), 0.3, 0.18, this.sfxBus, this.ctx!.currentTime + i * 0.08)); break;
       case 'gale': this.noise(0.45, 0.22, 500, 4200, 'highpass'); this.tone('sine', 350, 1050, 0.35, 0.18); break;
       case 'shieldHit': this.tone('sine', 1100, 400, 0.08, 0.12); break;
+      case 'regen': this.tone('sine', 330, 660, 0.35, 0.09); break;
       case 'ready': this.tone('triangle', 660, 1320, 0.15, 0.1); break;
       case 'death': this.tone('sawtooth', 380, 28, 0.95, 0.6); this.noise(0.6, 0.5, 2200, 80); break;
       case 'clear': [0, 4, 7, 12, 16].forEach((n, i) => this.tone('square', midi(64 + n), midi(64 + n), 0.2, 0.2, this.sfxBus, this.ctx!.currentTime + i * 0.09)); break;

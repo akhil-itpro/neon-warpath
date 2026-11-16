@@ -1,10 +1,11 @@
 # AGENTS.md (for Codex and any other AI coding agent)
 
-This project is developed mainly with Claude Code; you are covering for it. Work the same way:
+This project is developed by Claude Code and Codex in turns (from Session 19 the owner uses Codex most of the time). Work the same way:
 
 1. Read `CLAUDE.md` (commands, architecture, gotchas) — it is the source of truth for how this repo works.
 2. Read `docs/HANDOFF.md` (current state, verified vs. unverified, prioritised next tasks).
 3. Skim `docs/GDD.md` before changing gameplay and `docs/ART_PIPELINE.md` before touching art.
+4. Art and animation jobs, with exact prompts, are in `docs/CODEX_ART_HANDOFF.md`. Do them top to bottom.
 
 Rules:
 - The owner is non-technical. Decide for them, explain results in plain language, never ask them to edit code.

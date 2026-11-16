@@ -7,14 +7,18 @@ Current implementation status (2026-11-16); detailed evidence is in HANDOFF.md.
 - Twelve stages and bosses, interactive choices, three endings, HOLD survival finale.
 - Five operators with double jump, distinct rechargeable skills, weapon drops and perk builds.
 - Browser checkpoint save/continue; music/effects, shake and full-screen flash options.
+- Forgiving survival rules (Session 19): armor repairs itself out of combat, EASY / NORMAL / HARD,
+  mercy after repeated deaths, first-stage tips. All numbers in `src/systems/Settings.ts`.
 - Painted worlds, operator/enemy art, HALCYON's own animation, campaign props and cast portraits.
 - Automated browser coverage of every stage/boss and story flow. Smoke tests do not establish
   normal-health beatability or replace a full human playthrough.
 
 ## Release gates
 
-1. Play the complete campaign at normal health with several outside testers. Focus on the Widow,
-   Regent, Abyss and late stages; the new defensive skills need balance feedback.
+1. Play the complete campaign on NORMAL with several outside testers. Focus on the Widow,
+   Regent, Abyss and late stages; self-repair, mercy and the defensive skills need balance feedback.
+   Art and animation gaps (the most visible weakness) are listed with prompts in
+   `docs/CODEX_ART_HANDOFF.md`.
 2. Check physical gamepads, audio mix, low-end performance and keyboard/mouse comfort.
 3. Decide whether to retain the implemented horizontal Spire and local lava section or build the
    vertical camera/levels described in STORY. The vertical versions are not implemented.

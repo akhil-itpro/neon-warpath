@@ -41,6 +41,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private art: string;     // texture prefix of the body frames (`rook_b` when the arm is rigged, else `rook`)
   private baseTint: number;
   private aura: Phaser.GameObjects.Image;
+  private backlight: Phaser.GameObjects.Image; // soft rim light behind the hero so the dark armor never melts into a dark backdrop
   arm: Phaser.GameObjects.Image | null = null;
   rig: CharacterRig | null = null;
   armAng = 0;       // current (smoothed) world angle of the gun arm
@@ -66,6 +67,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.body.setMaxVelocityY(900);
     this.aura = gs.add.image(x, y, 'glow').setBlendMode(Phaser.BlendModes.ADD).setTint(0xffc040).setDepth(DEPTH.player - 1).setVisible(false);
     this.abilityFx = gs.add.graphics().setDepth(DEPTH.player + 0.2);
+    this.backlight = gs.add.image(x, y - 30, 'glow').setBlendMode(Phaser.BlendModes.ADD).setTint(0xa8d8ff).setAlpha(0.3).setDisplaySize(84, 104).setDepth(DEPTH.player - 2);
 
     if (op.rig && CharacterRig.available(gs, op.rig)) {
       this.rig = new CharacterRig(gs, op.rig);
@@ -146,6 +148,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   /** Keep the arm sprite glued to the body and pointed at the aim target. */
   preUpdate(time: number, delta: number) {
     super.preUpdate(time, delta);
+    this.backlight.setPosition(this.x, this.y - this.body.height / 2 - 2).setVisible(!this.dead);
     const arm = this.arm;
     if (!arm) return;
     const g = ARMS[this.texture.key];
@@ -324,6 +327,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.rig = null;
     this.arm?.destroy();
     this.aura?.destroy();
+    this.backlight?.destroy();
     this.abilityFx?.destroy();
     super.destroy(fromScene);
   }

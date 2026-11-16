@@ -14,6 +14,7 @@ import { STORY, CHOICES, HOLD, type Line } from '../data/story';
 import { condOk, filterLines, applyChoice } from '../systems/Story';
 import { Gimmicks } from '../systems/Gimmicks';
 import { saveCampaign } from '../systems/CampaignSave';
+import { difficulty } from '../systems/Settings';
 import type { HudScene } from './Hud';
 
 const R = Phaser.Math;
@@ -61,6 +62,7 @@ export class GameScene extends Phaser.Scene {
   private oneways!: Phaser.Physics.Arcade.StaticGroup;
   private hazards!: Phaser.Physics.Arcade.StaticGroup;
   private bg!: Phaser.GameObjects.TileSprite;
+  private layers: { img: Phaser.GameObjects.TileSprite; k: number }[] = []; // optional parallax art: bg_<id>_far / bg_<id>_near
   private flows: Phaser.GameObjects.TileSprite[] = [];
   private fogs: Phaser.GameObjects.TileSprite[] = [];
   private encounters: (Encounter & { boss?: boolean })[] = [];
@@ -75,6 +77,10 @@ export class GameScene extends Phaser.Scene {
   private bossMarks = new Set<string>();
   private bgDrift = 0;
   private allyWaves: Record<number, string[]> = {};
+  private sinceHurt = 0;   // ms since the player last took damage (armor self-repair, CoD style)
+  private regenAcc = 0;    // fractional armor carried between frames so run.hp stays a whole number
+  regenerating = false;    // read by the HUD
+  private hints: [number, string][] = [];
 
   constructor() { super('Game'); }
 
@@ -101,14 +107,19 @@ export class GameScene extends Phaser.Scene {
     this.aim = null;
     this.boss = null; this.bossActive = false; this.locked = false; this.canRetry = false;
     this.stageKills = 0; this.stageTime = 0; this.wave = 0; this.waveGap = 0;
+    this.sinceHurt = 0; this.regenAcc = 0; this.regenerating = false;
     this.physics.world.resume();
     this.physics.world.timeScale = 1;
+    this.time.timeScale = 1; this.tweens.timeScale = 1; // a death during a slow-motion choice must not leave the retry in slow motion
     this.physics.world.setBounds(-800, -400, st.width + 1600, H + 800);
     this.controls = new Controls(this);
     this.fx = new Fx(this);
 
     // ---- backdrop
     this.bg = this.add.tileSprite(0, 0, W, H, st.bg).setOrigin(0).setScrollFactor(0).setDepth(DEPTH.bg).setTint(st.bgTint);
+    // optional parallax layers (transparent 1280x360 PNGs, docs/CODEX_ART_HANDOFF.md job 5): they sit between the sky and the shade
+    this.layers = ([['far', 0.42], ['near', 0.7]] as const).filter(([n]) => this.textures.exists(`${st.bg}_${n}`))
+      .map(([n, k], i) => ({ k, img: this.add.tileSprite(0, 0, W, H, `${st.bg}_${n}`).setOrigin(0).setScrollFactor(0).setDepth(DEPTH.bg + 0.2 + i * 0.2).setTint(st.bgTint) }));
     const shade = this.add.graphics().setScrollFactor(0).setDepth(DEPTH.bg + 1);
     // Quiet the painted scenery without dimming actors, projectiles or telegraphs.
     shade.fillStyle(0x0b0d14, 0.32).fillRect(0, 0, W, H);
@@ -162,9 +173,11 @@ export class GameScene extends Phaser.Scene {
     }
     // two drifting fog layers at different speeds, in front of the backdrop and behind the action
     this.fogs = [0.35, 0.6].map((sf, i) => this.add.tileSprite(0, H - 150 + i * 20, W, 96, 'fog').setOrigin(0).setScrollFactor(0).setTint(st.accent).setAlpha(0.13 + i * 0.05).setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH.bg + 2 + i));
+    // ground haze: a band of stage-coloured light behind everyone standing on the floor, so dark sprites read as silhouettes
+    this.add.image(W / 2, GROUND_Y - 6, 'glow').setDisplaySize(W * 1.7, 190).setScrollFactor(0).setTint(st.accent).setAlpha(0.2).setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH.bg + 4);
     // foreground silhouettes scroll faster than the world for depth
     for (let x = 500; x < st.width * 1.6; x += R.Between(620, 980)) {
-      this.add.image(x, 0, 'pillar').setOrigin(0.5, 0).setScrollFactor(1.6, 1).setDepth(DEPTH.front).setAlpha(0.4); // see-through so it never hides a threat
+      this.add.image(x, 0, 'pillar').setOrigin(0.5, 0).setScrollFactor(1.6, 1).setDepth(st.dark ? DEPTH.fx - 2 : DEPTH.front).setAlpha(0.4); // see-through so it never hides a threat; under the darkness in dark stages (it showed as a pale column on top of it)
     }
     this.makeWeather(st);
 
@@ -229,10 +242,34 @@ export class GameScene extends Phaser.Scene {
     saveCampaign('Game', { hold: this.hold });
     if (this.hold) { this.startHold(); return; }
     this.time.delayedCall(350, () => {
-      if (run.checkpoint === 0) this.hud.stageIntro?.(`STAGE ${run.stage + 1}`, st.name, st.tagline);
+      if (data?.retry) this.banner(run.checkpoint === 0 ? 'BACK IN THE FIGHT' : 'CHECKPOINT', 1200, '#80ffb0'); // the full stage title plays once, not after every death
+      else if (run.checkpoint === 0) this.hud.stageIntro?.(`STAGE ${run.stage + 1}`, st.name, st.tagline);
       else this.banner('CHECKPOINT', 1200, '#80ffb0');
     });
     this.time.delayedCall(data?.retry ? 1200 : 2900, () => { this.comm('start'); if (data?.retry) this.comm('death'); });
+    // first stage, first attempt: teach the three things that keep a new player alive
+    const d = difficulty();
+    this.hints = run.stage === 0 && run.checkpoint === 0 && !data?.retry && !data?.resume ? [
+      [3600, 'SHIFT / RIGHT CLICK: SLIDE - NOTHING CAN HIT YOU WHILE SLIDING'],
+      [9500, d.regenRate > 0 ? 'HURT? STAY OUT OF FIRE A FEW SECONDS - YOUR ARMOR REPAIRS ITSELF' : 'S / DOWN: CROUCH UNDER HIGH SHOTS'],
+      [15500, `E: ${run.op.ability.name} - YOUR EMERGENCY SKILL, IT RECHARGES`],
+      [21500, 'HOLD S + SPACE: DROP THROUGH A PLATFORM'],
+    ] : [];
+    const cut = Math.min(d.mercyMax, run.strikes * d.mercy);
+    if (data?.retry && cut > 0) this.time.delayedCall(1500, () => this.hud.hint?.(`BACKUP PLATING: -${Math.round(cut * 100)}% DAMAGE UNTIL YOU GET PAST THIS`, 4200, '#80ffb0'));
+  }
+
+  /** Armor repairs itself after a few seconds without taking a hit (rates per difficulty in Settings.ts). */
+  private tickRegen(dt: number) {
+    const d = difficulty(), s = run.stats;
+    this.sinceHurt += dt;
+    const cap = Math.ceil(s.maxHp * d.regenCap);
+    if ((window as any).__noRegen || this.player.dead || this.sinceHurt < d.regenDelay || run.hp >= cap) { this.regenerating = false; this.regenAcc = 0; return; }
+    if (!this.regenerating) { this.regenerating = true; audio.sfx('regen'); }
+    this.regenAcc += s.maxHp * d.regenRate / 100 * dt / 1000;
+    const whole = Math.floor(this.regenAcc);
+    if (whole > 0) { this.regenAcc -= whole; run.hp = Math.min(cap, run.hp + whole); }
+    if (run.hp >= cap) { this.regenerating = false; this.fx.ring(this.player.x, this.player.centerY, 0x60ff90, 1, 240); audio.sfx('ready'); }
   }
 
   /** Plays a story comms trigger once per run (radio overlay in the HUD; never pauses play). */
@@ -307,6 +344,7 @@ export class GameScene extends Phaser.Scene {
     const cam = this.cameras.main;
 
     this.bg.tilePositionX = cam.scrollX * 0.22 + this.bgDrift;
+    for (const l of this.layers) l.img.tilePositionX = cam.scrollX * l.k + this.bgDrift * (l.k / 0.22);
     for (const f of this.flows) f.tilePositionX += dt * 0.03;
     this.fogs.forEach((f, i) => { f.tilePositionX = cam.scrollX * (0.35 + i * 0.25) + this.time.now * (0.012 + i * 0.01); });
 
@@ -315,7 +353,7 @@ export class GameScene extends Phaser.Scene {
     for (let i = this.pickups.length - 1; i >= 0; i--) if (this.pickups[i].taken) { this.pickups[i].glow?.destroy(); this.pickups[i].destroy(); this.pickups.splice(i, 1); }
 
     const p = this.player;
-    this.aim = c.aimPoint(cam);
+    this.aim = c.aimPoint(cam, p.x, p.centerY);
     this.gimmicks.tick(dt);
     if (!this.choosing) p.tick(dt, c);
     if (!p.dead) {
@@ -330,6 +368,8 @@ export class GameScene extends Phaser.Scene {
     if (this.state !== 'play') return;
     this.stageTime += dt;
     if (this.comboT > 0) { this.comboT -= dt; if (this.comboT <= 0) { this.combo = 0; this.mult = 1; } }
+    if (!this.choosing) this.tickRegen(dt);
+    while (this.hints.length && this.stageTime >= this.hints[0][0]) this.hud.hint?.(this.hints.shift()![1]);
     if (this.hold) return this.tickHold(dt);
     this.tickEncounter(dt);
     this.tickStory(dt);
@@ -396,6 +436,7 @@ export class GameScene extends Phaser.Scene {
     this.encIndex++;
     run.checkpoint = this.encIndex;
     run.checkpointX = this.player.x;
+    run.strikes = 0;
     saveCampaign('Game');
     this.bounds = { left: 0, right: st.width };
     cam.setBounds(0, 0, st.width, H);
@@ -472,7 +513,7 @@ export class GameScene extends Phaser.Scene {
       const ty = e.body.center.y; // aim at the hitbox, not the picture: low wide crawlers (kharrix) were shot over
       const dist = R.Distance.Between(m.x, m.y, e.x, ty);
       const off = Math.abs(R.Angle.Wrap(Math.atan2(ty - m.y, e.x - m.x) - base));
-      if (dist < best && off < R.DegToRad(38) && Math.abs(e.x - this.cameras.main.midPoint.x) < 330) { best = dist; target = e; }
+      if (dist < best && off < R.DegToRad(58) && Math.abs(e.x - this.cameras.main.midPoint.x) < 330) { best = dist; target = e; }
     }
     if (target) base = Math.atan2(target.body.center.y - m.y, target.x - m.x);
     p.noteShot(base);
@@ -608,14 +649,17 @@ export class GameScene extends Phaser.Scene {
 
   hurtPlayer(dmg: number, srcX: number) {
     const p = this.player;
-    if (p.dead || p.invuln > 0 || this.state !== 'play') return;
+    if (p.dead || p.invuln > 0 || this.state !== 'play' || this.choosing) return; // frozen at a story choice = untouchable
     const protection = p.ability?.damageTaken ?? 1;
     if (protection === 0) {
       this.fx.spark(p.x, p.centerY, run.op.ability.color, 3);
       audio.sfx('shieldHit');
       return;
     }
-    run.hp -= Math.max(1, Math.round(dmg * run.stats.armor * protection));
+    const d = difficulty();
+    const mercy = 1 - Math.min(d.mercyMax, run.strikes * d.mercy);
+    run.hp -= Math.max(1, Math.round(dmg * run.stats.armor * protection * d.dmg * mercy));
+    this.sinceHurt = 0; this.regenerating = false;
     this.combo = 0; this.mult = 1; this.comboT = 0;
     p.invuln = 900;
     p.flashWhite();
@@ -641,6 +685,7 @@ export class GameScene extends Phaser.Scene {
 
   private retry() {
     run.score = Math.floor(run.score * 0.8);
+    run.strikes++;
     run.hp = run.stats.maxHp;
     run.weapon = run.op.weapon;
     run.ammo = 0;
@@ -760,6 +805,7 @@ export class GameScene extends Phaser.Scene {
       run.stage++;
       run.checkpoint = 0;
       run.checkpointX = 80;
+      run.strikes = 0;
       run.hp = Math.min(run.stats.maxHp, run.hp + Math.round(run.stats.maxHp * 0.3));
       save.cleared = Math.max(save.cleared, run.stage);
       save.best = Math.max(save.best, run.score);

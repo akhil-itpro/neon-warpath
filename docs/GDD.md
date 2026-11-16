@@ -44,6 +44,21 @@ and use their own meter, separate from kill-powered Overdrive. Numbers live in `
 
 This keeps the action campaign and perk builds; no grind or inventory interruption is needed.
 
+## Survival rules (implemented 2026-11-16, Session 19)
+
+The owner's first long playtest verdict was "very difficult", so pillar 2 now reads **fair and forgiving**:
+skill is rewarded with score and combos, not required to see the story.
+
+- **Armor repairs itself.** No damage for a few seconds and the bar refills on its own; any hit interrupts it.
+  This replaces attrition between arenas: every fight starts healthy, and backing off is always a valid move.
+- **Difficulty levels** (Options): EASY 0.55x damage, NORMAL 0.85x (default), HARD 1.15x with repair to half only.
+- **Mercy.** Each death at the same checkpoint reduces damage taken (10% per death, max 30% on NORMAL) until
+  the player gets past it. Nobody stays stuck on one boss.
+- **Teach it.** Stage 1 shows four short tips; the K.I.A. screen rotates tips.
+- Health pickups and FIELD SURGEON still heal instantly, which matters mid-fight.
+
+All numbers: `src/systems/Settings.ts` (`DIFFICULTIES`). Tune there first, enemy numbers last.
+
 ## Player kit
 - Slide: 0.3s, fast, fully invulnerable, skims over hazards, 0.65s cooldown. The signature move.
 - Crouch: ducks under high shots and the gunship's low pass.

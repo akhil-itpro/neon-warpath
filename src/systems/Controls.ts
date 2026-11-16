@@ -26,6 +26,7 @@ export class Controls {
   static mouseAim = false;
   private lastX = 0;
   private lastY = 0;
+  private stick: { x: number; y: number } | null = null; // gamepad right stick, when pushed: free aim direction
   private keys = {} as Record<Action, Phaser.Input.Keyboard.Key[]>;
   private now = {} as Record<Action, boolean>;
   private prev = {} as Record<Action, boolean>;
@@ -54,8 +55,11 @@ export class Controls {
     if (ptr.isDown || ptr.x !== this.lastX || ptr.y !== this.lastY) Controls.mouseAim = true;
     this.lastX = ptr.x; this.lastY = ptr.y;
     if (ptr.isDown) { if (ptr.rightButtonDown()) this.now.slide = true; else this.now.fire = true; }
+    this.stick = null;
     if (pad) {
       const sx = pad.leftStick.x, sy = pad.leftStick.y;
+      const rx = pad.rightStick?.x ?? 0, ry = pad.rightStick?.y ?? 0;
+      if (Math.hypot(rx, ry) > 0.45) { this.stick = { x: rx, y: ry }; Controls.mouseAim = false; }
       if (pad.left || sx < -0.4) this.now.left = true;
       if (pad.right || sx > 0.4) this.now.right = true;
       if (pad.down || sy > 0.6) this.now.down = true;
@@ -71,8 +75,10 @@ export class Controls {
     }
   }
 
-  /** Where the mouse points in the world, or null when the player is not aiming with the mouse. */
-  aimPoint(cam: Phaser.Cameras.Scene2D.Camera) {
+  /** Where the player is aiming in the world: the mouse crosshair, or a point along the gamepad right stick
+   *  measured from (ox, oy). Null = no free aim, shots use the auto-aim cone. */
+  aimPoint(cam: Phaser.Cameras.Scene2D.Camera, ox = 0, oy = 0) {
+    if (this.stick) { const m = Math.hypot(this.stick.x, this.stick.y); return { x: ox + this.stick.x / m * 170, y: oy + this.stick.y / m * 170 }; }
     if (!Controls.mouseAim) return null;
     const v = this.scene.input.activePointer.positionToCamera(cam) as Phaser.Math.Vector2;
     return { x: v.x, y: v.y };

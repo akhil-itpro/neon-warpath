@@ -365,6 +365,63 @@ const SCENARIOS = [
       ['tap', 'Enter'], ['until', 'window.__game.scene.isActive("Title")'], ['wait', 600], ['shot'],
     ]),
   ] })),
+  // ---- survivability rules (armor self-repair, difficulty, mercy). `rules: true` = real settings, not the classic test rules.
+  { name: 'rules-regen', url: '?stage=1', rules: true, steps: [
+    ['wait', 1200], ['eval', 'var g = window.__game.scene.getScene("Game"); for (const e of [...g.enemies]) g.removeEnemy(e); g.player.invuln = 0; window.__run.hp = 100; g.hurtPlayer(20, g.player.x - 20);'],
+    ['assert', 'window.__run.hp === 83 /* NORMAL: 20 x 0.85 = 17 */'],
+    ['eval', 'window.__run.hp = 20'], ['wait', 1500], ['shot'], // critical armor: red screen edges
+    ['assert', 'window.__run.hp === 20 && !window.__game.scene.getScene("Game").regenerating && window.__game.scene.getScene("Hud").vig.alpha > 0.2 /* no repair yet, danger vignette on */'],
+    ['until', 'window.__game.scene.getScene("Game").regenerating'], ['wait', 600], ['shot'],
+    ['assert', 'window.__run.hp > 20 && Number.isInteger(window.__run.hp)'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); g.player.invuln = 0; window.__hp = window.__run.hp; g.hurtPlayer(10, g.player.x - 20);'], ['wait', 1200],
+    ['assert', 'var g = window.__game.scene.getScene("Game"); !g.regenerating && window.__run.hp === window.__hp - 9 /* a hit stops the repair */'],
+    ['until', 'window.__run.hp === window.__run.stats.maxHp'], ['wait', 300],
+    ['assert', '!window.__game.scene.getScene("Game").regenerating && window.__game.scene.getScene("Hud").vig.alpha < 0.05'],
+  ] },
+  { name: 'rules-difficulty', url: '?stage=1', rules: true, steps: [
+    ['wait', 1200],
+    ['eval', `(async () => { const m = await import('/src/systems/Settings.ts'); window.__set = m.settings; })()`], ['wait', 200],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); for (const e of [...g.enemies]) g.removeEnemy(e); window.__set.difficulty = 0; g.player.invuln = 0; window.__run.hp = 100; g.hurtPlayer(20, g.player.x - 20);'],
+    ['assert', 'window.__run.hp === 89 /* EASY: 20 x 0.55 = 11 */'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); window.__set.difficulty = 2; g.player.invuln = 0; window.__run.hp = 100; g.hurtPlayer(20, g.player.x - 20); window.__run.hp = 10;'],
+    ['assert', 'window.__run.hp === 10'], ['wait', 12500], ['shot'],
+    ['assert', 'window.__run.hp === 50 /* HARD repairs to half only */'],
+    // mercy: every death at the same checkpoint cuts damage (NORMAL: 10% each, max 30%)
+    ['eval', 'var g = window.__game.scene.getScene("Game"); window.__set.difficulty = 1; window.__run.strikes = 2; g.player.invuln = 0; window.__run.hp = 100; g.hurtPlayer(20, g.player.x - 20);'],
+    ['assert', 'window.__run.hp === 86 /* 20 x 0.85 x 0.8 = 13.6 */'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); g.player.invuln = 0; g.hurtPlayer(10000, g.player.x - 20)'],
+    ['until', 'window.__game.scene.getScene("Game").canRetry'], ['wait', 300], ['shot'], ['tap', 'Enter'], ['wait', 2200], ['shot'],
+    ['assert', 'window.__run.strikes === 3 && window.__game.scene.getScene("Hud").hintTxt.text.includes("-30%")'],
+  ] },
+  { name: 'rules-hints', url: '', rules: true, steps: [
+    ['press', ['Enter', 'window.__game.scene.isActive("Game")']], ['wait', 4600], ['shot'],
+    ['assert', 'window.__game.scene.getScene("Hud").hintTxt.text.includes("SLIDE") && window.__game.scene.getScene("Hud").hintBox.alpha > 0.9'],
+  ] },
+  { name: 'rules-choice-safe', url: '?stage=railyard', rules: true, steps: [ // frozen at a story choice = untouchable; dying in slow motion must not leak into the retry
+    ['wait', 2800], ['eval', 'var g = window.__game.scene.getScene("Game"); for (const e of [...g.enemies]) g.removeEnemy(e); window.__tp(4830, 300)'],
+    ['until', 'window.__game.scene.getScene("Hud").choosing'], ['wait', 300],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); g.player.invuln = 0; window.__hp = window.__run.hp; g.hurtPlayer(30, g.player.x - 20);'],
+    ['assert', 'window.__run.hp === window.__hp'], ['wait', 8600],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); g.time.timeScale = 0.2; g.tweens.timeScale = 0.2; g.player.invuln = 0; g.hurtPlayer(10000, g.player.x - 20)'],
+    ['until', 'window.__game.scene.getScene("Game").canRetry'], ['tap', 'Enter'], ['wait', 1000],
+    ['assert', 'var g = window.__game.scene.getScene("Game"); g.state === "play" && g.time.timeScale === 1 && g.tweens.timeScale === 1 && g.physics.world.timeScale === 1'],
+  ] },
+  // art hooks Codex relies on (docs/CODEX_ART_HANDOFF.md jobs 3 and 5): parallax layers and the `<art>_atk` attack picture
+  { name: 'art-hooks', url: '?stage=1&god=1', steps: [
+    ['wait', 800],
+    ['eval', `var g = window.__game.scene.getScene('Game');
+      var far = g.textures.createCanvas('bg_city_far', 1280, 360), c = far.getContext(); c.fillStyle = '#243050';
+      for (var i = 0; i < 16; i++) c.fillRect(i * 80 + 10, 120 + (i * 37) % 90, 44, 240); far.refresh();
+      var atk = g.textures.createCanvas('drone_atk', 68, 36), d = atk.getContext(); d.fillStyle = '#ff3030'; d.fillRect(8, 6, 52, 24); atk.refresh();
+      g.scene.restart();`],
+    ['wait', 1500],
+    ['assert', 'var g = window.__game.scene.getScene("Game"); g.layers.length === 1 && g.layers[0].img.displayTexture.key === "bg_city_far"'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); for (const e of [...g.enemies]) g.removeEnemy(e); window.__d = g.spawnEnemy("drone", g.player.x + 150, 150, ""); window.__d.awake = true; window.__d.t = 0;'],
+    ['until', 'window.__d.texture.key === "drone_atk"'], ['shot'],
+    ['wait', 900], ['assert', 'window.__d.dead || window.__d.texture.key === "drone" /* back to the normal picture after the shot */'],
+    ['eval', 'window.__tp(900, 300)'], ['wait', 600], ['shot'],
+    ['assert', 'var g = window.__game.scene.getScene("Game"); g.layers[0].img.tilePositionX > g.bg.tilePositionX /* nearer layer scrolls faster */'],
+  ] },
   { name: 'flow-retry', url: '?stage=1', steps: [
     ['wait', 800], ['eval', 'window.__run.score = 1000; var g = window.__game.scene.getScene("Game"); g.player.invuln = 0; g.hurtPlayer(10000, g.player.x - 20)'],
     ['until', 'window.__game.scene.getScene("Game").canRetry'], ['wait', 400], ['shot'], ['tap', 'Enter'], ['wait', 1000],
@@ -393,6 +450,9 @@ for (const sc of SCENARIOS.filter((s) => filter.split('|').some(f => s.name.incl
   const errors = [];
   // teleport helper for scenarios: skips arenas already passed so the camera lock does not pull the player back
   await page.addInitScript(() => { window.__tp = (x, y) => { const g = window.__game.scene.getScene('Game'); const k = g.encounters.findIndex((e) => e.x > x); if (k > g.encIndex) g.encIndex = k; g.player.body.reset(x, y); g.cameras.main.centerOn(x, 180); }; });
+  // Scenarios written before armor self-repair / difficulty assert exact damage: they run under the original rules.
+  // A scenario with `rules: true` plays with the real difficulty settings.
+  if (!sc.rules) await page.addInitScript(() => { window.__classic = true; });
   page.on('pageerror', (e) => errors.push(String(e.stack ?? e)));
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('response', (r) => { if (r.status() >= 400) errors.push(`HTTP ${r.status()} ${r.url()}`); });

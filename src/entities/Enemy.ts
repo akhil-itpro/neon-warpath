@@ -49,6 +49,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private artState = 'idle';
   private lastMode = '';
   private busyAt = 0;
+  private atkKey?: string; // optional `<art>_atk` picture shown while winding up and firing
+  private atkUntil = 0;
 
   constructor(readonly gs: GameScene, readonly def: EnemyDef, x: number, y: number) {
     const art = resolveArt(gs, def);
@@ -69,6 +71,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.body.setOffset((this.width - bw) / 2, this.height - bh);
     }
     this.t = 600 + Math.random() * (def.fireRate ?? 1500);
+    if (gs.textures.exists(`${def.art}_atk`)) this.atkKey = `${def.art}_atk`;
     if (def.ai === 'jet' || def.boss) this.awake = true;
     if (def.ai === 'jet') {
       this.dir = x < gs.cameras.main.midPoint.x ? 1 : -1;
@@ -175,6 +178,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           const mx = () => this.x + this.dir * fx * this.scale, my = () => this.y - fy * this.scale;
           const wind = d.windup ?? 260, col = d.shotColor ?? 0xff5040;
           this.gs.telegraph(mx(), my(), d.shotColor ?? 0xff4030, wind, wind > 500 ? 0.9 : 0.55);
+          this.atkUntil = now + wind + (d.burst ?? 1) * 120 + 120;
           for (let i = 0; i < (d.burst ?? 1); i++) {
             this.later(wind + i * 120, () => {
               let a = Math.atan2(p.centerY - my(), p.x - mx());
@@ -192,7 +196,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           this.face();
           this.body.setVelocityX(this.dir * d.speed);
           this.walkAnim(dt, true);
-          if (Math.abs(dx) < 86 && this.st <= 0) { this.mode = 'wind'; this.st = 300; this.body.setVelocityX(0); this.setTintFill(0xffffff); }
+          if (Math.abs(dx) < 86 && this.st <= 0) { this.mode = 'wind'; this.st = 300; this.atkUntil = now + 630; this.body.setVelocityX(0); this.setTintFill(0xffffff); }
         } else if (this.mode === 'wind') {
           if (Math.floor(now / 60) % 2) this.setTint(this.baseTint); else this.setTintFill(0xff8080);
           if (this.st <= 0) { this.mode = 'lunge'; this.st = 330; this.setTint(this.baseTint); this.body.setVelocityX(this.dir * 290); this.gs.fx.dustPuff(this.x, this.y, 4); }
@@ -203,10 +207,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.face();
         this.hoverTo(p.x - this.dir * (110 + this.seed % 70), 150 + Math.sin((now + this.seed * 9) / 500) * 34, d.speed); // seed spreads a flock out
         this.setRotation(this.body.velocity.x * 0.0006);
+        this.walkAnim(dt, true); // multi-frame flyers flap; single pictures are left alone
         if (this.t <= 0 && this.onScreen() && !p.dead) {
           this.t = (d.fireRate ?? 1900) * R.FloatBetween(0.8, 1.2);
           const wind = d.windup ?? 300, col = d.shotColor ?? 0xff5040;
           this.gs.telegraph(this.x, this.y + 8, d.shotColor ?? 0xff4030, wind, d.radial ? 0.9 : 0.55);
+          this.atkUntil = now + wind + 220;
           this.later(wind, () => {
             if (d.radial) for (let i = 0; i < d.radial; i++) this.shoot(this.x, this.y, (i / d.radial) * Math.PI * 2 + this.seed, d.shotSpeed ?? 140, 10, { color: col });
             else this.shoot(this.x, this.y + 8, Math.atan2(p.centerY - this.y, p.x - this.x), d.shotSpeed ?? 180, 10, { color: col });
@@ -247,6 +253,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           this.gs.fx.glow(this.x, this.y, 0xb070ff, 1.2, 240);
           audio.sfx('blink');
           this.gs.telegraph(this.x, this.y, 0xc080ff, 380);
+          this.atkUntil = now + 600;
           this.later(380, () => {
             const a = Math.atan2(p.centerY - this.y, p.x - this.x);
             for (const o of [-0.26, 0, 0.26]) this.shoot(this.x, this.y, a + o, d.shotSpeed ?? 190, 10, { color: 0xc080ff });
@@ -261,6 +268,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         if (this.t <= 0 && this.onScreen() && !p.dead) {
           this.t = (d.fireRate ?? 2000) * R.FloatBetween(0.85, 1.2);
           this.gs.telegraph(this.x, this.y, 0xff7020, 300);
+          this.atkUntil = now + 520;
           this.later(300, () => this.lob(p.x + p.body.velocity.x * 0.3, GROUND_Y - 6, 0.95));
         }
         break;
@@ -276,6 +284,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           const col = d.shotColor ?? 0xff7020, wind = d.windup ?? 420;
           const sx = () => this.x + this.dir * 12, sy = () => this.y - this.displayHeight * 0.72;
           this.gs.telegraph(sx(), sy(), col, wind);
+          this.atkUntil = now + wind + (d.burst ?? 1) * 230 + 120;
           for (let i = 0; i < (d.burst ?? 1); i++) {
             this.later(wind + i * 230, () => {
               const tx = p.x + p.body.velocity.x * 0.3 + (i ? R.Between(-70, 70) : 0);
@@ -306,6 +315,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           this.t = (d.fireRate ?? 2500) * R.FloatBetween(0.9, 1.15);
           const mx = () => this.x + this.dir * 32 * this.scale, my = () => this.y - 41 * this.scale;
           this.gs.telegraph(mx(), my(), 0xffa020, 420);
+          this.atkUntil = now + 420 + (d.burst ?? 5) * 85 + 120;
           for (let i = 0; i < (d.burst ?? 5); i++) {
             this.later(420 + i * 85, () => { this.shoot(mx(), my(), this.dir > 0 ? 0 : Math.PI, d.shotSpeed ?? 240); this.gs.fx.muzzle(mx(), my(), 0xffa020); });
           }
@@ -331,6 +341,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       case 'spawner': this.spawner(); break;
       case 'pylon': this.pylon(); break;
       case 'crate': case 'barrel': break;
+    }
+    if (this.atkKey) { // attack picture wins over the walk cycle while an attack is in progress
+      if (now < this.atkUntil) { if (this.texture.key !== this.atkKey) this.setTexture(this.atkKey); }
+      else if (this.texture.key === this.atkKey) this.setTexture(this.frames[0]);
     }
     if (d.states) this.stateArt();
   }

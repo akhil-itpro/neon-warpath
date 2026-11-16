@@ -9,11 +9,13 @@ Pixel-art run-and-gun action game. TypeScript + Phaser 3 + Vite.
 
 Controls: A/D move · Space double jump · S crouch · J fire · Shift slide · Q overdrive · Esc pause · M mute.
 
+**Staying alive:** your armor repairs itself when you avoid damage for a few seconds (like a modern shooter), sliding makes you untouchable, and every death at the same spot makes you a little tougher until you get past it. Press **O** on the title or pause screen to pick EASY, NORMAL or HARD.
+
 Every character has a rechargeable skill. ROOK has a three-second shield; VIPER phases, TITAN blasts, SERRIK heals and QUILL launches into a glide. Gamepad: A double jump, LT skill, Y overdrive.
 
 The game autosaves combat checkpoints, story briefings and perk screens in this browser. Press **R** on the title screen to continue. In the pause menu, **T** saves and returns to the title; it resumes from your last combat checkpoint, not your exact position. Starting a new run replaces that campaign save. Debug stage links never overwrite your campaign.
 
-Press **O** on the title or pause screen for music/effects volume, camera shake and full-screen flash settings. Gamepad: View/Back opens options from Title; Y opens them from Pause; Start continues a saved run from Title. Options persist on this device. Attack warnings still animate with screen flashes disabled.
+Press **O** on the title or pause screen for difficulty, music/effects volume, camera shake and full-screen flash settings. Gamepad: View/Back opens options from Title; Y opens them from Pause; Start continues a saved run from Title. Options persist on this device. Attack warnings still animate with screen flashes disabled.
 
 ## Build and verification
 

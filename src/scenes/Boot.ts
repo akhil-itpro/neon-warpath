@@ -29,6 +29,7 @@ export class BootScene extends Phaser.Scene {
       const st = STAGES[run.stage];
       if (q.has('boss')) { run.checkpoint = st.encounters.length; run.checkpointX = st.width - 560; }
       if (q.has('god')) { run.stats.maxHp = 9999; run.hp = 9999; }
+      if (q.get('regen') === '0') (window as any).__noRegen = true;
       if (q.has('weapon')) { run.weapon = q.get('weapon')!; run.ammo = 999; }
       if (q.has('hold')) { run.flags.rift_choice = 'hold'; this.scene.start('Game', { hold: true }); return; } // &hold=1 : the HOLD IT OPEN finale
       this.scene.start('Game');
@@ -64,7 +65,8 @@ export class BootScene extends Phaser.Scene {
     const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
     for (const st of STAGES) {
       const [hi, lip, face, dark, deep, det, trim] = T[st.id] ?? T.city;
-      this.canvas(`ground_${st.id}`, 32, 40, (c) => {
+      // painted tiles in the manifest (ground_<id>.png, plat_<id>.png) replace these code-drawn ones
+      if (!this.textures.exists(`ground_${st.id}`)) this.canvas(`ground_${st.id}`, 32, 40, (c) => {
         px(c, deep, 0, 0, 32, 40); px(c, dark, 0, 7, 32, 14); px(c, face, 0, 2, 32, 6);
         px(c, lip, 0, 1, 32, 1); px(c, hi, 0, 0, 32, 1);
         px(c, hi, 3, 0, 7, 1); px(c, '#ffffff', 5, 0, 2, 1);
@@ -74,7 +76,7 @@ export class BootScene extends Phaser.Scene {
         px(c, trim, 20, 4, 6, 1);                                                // trim light
         px(c, dark, 0, 21, 32, 1); px(c, deep, 0, 26, 32, 14);
       });
-      this.canvas(`plat_${st.id}`, 32, 12, (c) => {
+      if (!this.textures.exists(`plat_${st.id}`)) this.canvas(`plat_${st.id}`, 32, 12, (c) => {
         px(c, deep, 0, 0, 32, 12); px(c, hi, 0, 0, 32, 1); px(c, lip, 0, 1, 32, 1); px(c, face, 0, 2, 32, 4); px(c, dark, 0, 6, 32, 6);
         c.strokeStyle = det; c.lineWidth = 1; c.beginPath(); c.moveTo(0.5, 6); c.lineTo(15.5, 11.5); c.lineTo(31.5, 6); c.stroke();
         px(c, trim, 0, 2, 4, 1); px(c, trim, 16, 2, 4, 1); px(c, hi, 8, 3, 1, 1); px(c, hi, 24, 3, 1, 1);
@@ -238,6 +240,12 @@ export class BootScene extends Phaser.Scene {
       g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(0.55, 'rgba(0,0,0,0.92)'); g.addColorStop(1, 'rgba(0,0,0,0)');
       c.fillStyle = g; c.fillRect(0, 0, 128, 128);
       c.globalCompositeOperation = 'source-over';
+    });
+    // screen-edge vignette (HUD tints it red while armor is critical): clear centre, solid corners
+    this.canvas('vignette', 320, 180, (c) => {
+      const g = c.createRadialGradient(160, 90, 70, 160, 90, 190);
+      g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.6, 'rgba(255,255,255,0.35)'); g.addColorStop(1, 'rgba(255,255,255,0.95)');
+      c.fillStyle = g; c.fillRect(0, 0, 320, 180);
     });
     // ARCHON control collar: a red ring floating over collared species
     this.canvas('collar', 18, 8, (c) => {
