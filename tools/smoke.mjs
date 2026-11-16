@@ -239,6 +239,11 @@ const SCENARIOS = [
     ['down', 'KeyD'], ['until', '!!window.__game.scene.getScene("Game").boss'], ['up', 'KeyD'], ['wait', 300],
     ['assert', 'var b = window.__game.scene.getScene("Game").boss; b.hp <= b.maxHp * 0.6 + 1 /* bridge blown: Colossus starts wrecked */'], ['wait', 2500], ['shot'],
   ] },
+  { name: 'story-freight-heldfire', url: '?stage=railyard&god=1', steps: [ // holding fire through the choice must not freeze it
+    ['wait', 2800], ['eval', 'var g = window.__game.scene.getScene("Game"); for (const e of g.enemies) g.removeEnemy(e)'], ['down', 'KeyJ'], ['eval', 'window.__tp(4830, 300)'],
+    ['until', 'window.__game.scene.getScene("Hud").choosing'], ['wait', 9000],
+    ['assert', '!window.__game.scene.getScene("Hud").choosing && window.__run.flags.varkesh_freed === false'], ['up', 'KeyJ'],
+  ] },
   { name: 'gim-flip', url: '?stage=engine&god=1', steps: [
     ['wait', 2800], ['eval', 'var g = window.__game.scene.getScene("Game"); for (const e of g.enemies) g.removeEnemy(e); window.__tp(1400, 300); g.gimmicks.flipT = 1700'],
     ['wait', 700], ['shot'], ['wait', 1400],

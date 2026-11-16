@@ -19,11 +19,12 @@ npm run build    # typecheck + production build to dist/ (zip dist/ for itch.io)
 npm run assets   # python tools/process_assets.py --preview : rebuild public/assets from art/source
 npm run smoke    # headless playthrough of every stage/boss in system Chrome/Edge; screenshots -> tools/shots/
 npm run smoke -- city-boss   # one scenario (substring match on the names in tools/smoke.mjs)
+npm run balance  # difficulty probe: non-dodging bot plays every stage/boss, prints damage taken (compare stages)
 ```
 
 There is no unit-test suite. Verification = `npm run check` + `npm run smoke` + **looking at the screenshots in `tools/shots/`** (read them as images). Add a scenario to `tools/smoke.mjs` when you add a stage or boss.
 
-Debug URL params (handled in `src/scenes/Boot.ts`): `?stage=2` or `?stage=fungal` start on that stage (ids, in story order: city, casino, railyard, furnace, engine, fungal, abyss, tidal, orbital, prism, spire, cathedral), `&boss=1` jump to the boss, `&god=1` near-unkillable, `&op=1` operator index, `&weapon=rocket`. Console handles: `window.__game`, `window.__run`.
+Debug URL params (handled in `src/scenes/Boot.ts`): `?stage=2` or `?stage=fungal` start on that stage (ids, in story order: city, casino, railyard, furnace, engine, fungal, abyss, tidal, orbital, prism, spire, cathedral), `&boss=1` jump to the boss, `&god=1` near-unkillable, `&hold=1` (with `stage=cathedral`) the HOLD IT OPEN finale, `&op=1` operator index, `&weapon=rocket`. Console handles: `window.__game`, `window.__run`.
 
 Python deps for the asset pipeline: `pip install pillow numpy scipy "rembg[cpu]"`.
 

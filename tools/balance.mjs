@@ -7,6 +7,8 @@
 // HP is set very high so the bot never dies; "dmg" is what a normal player would have lost (ROOK has 100).
 import { createServer } from 'vite';
 import { chromium } from 'playwright-core';
+import { mkdirSync } from 'node:fs';
+mkdirSync('tools/shots', { recursive: true });
 
 const filter = process.argv[2] ?? '';
 const IDS = ['city', 'casino', 'railyard', 'furnace', 'engine', 'fungal', 'abyss', 'tidal', 'orbital', 'prism', 'spire', 'cathedral'];
@@ -24,7 +26,7 @@ if (!browser) { console.error('No Chrome or Edge found'); process.exit(2); }
 const HUGE = 100000;
 const state = `(() => { const g = window.__game.scene.getScene('Game'); const r = window.__run;
   return { scene: window.__game.scene.getScenes(true).map((s) => s.scene.key).join('+'), x: g?.player?.x ?? 0, w: g?.stage?.width ?? 1,
-    boss: !!g?.boss, bossHp: g?.boss ? g.boss.hp / g.boss.maxHp : 1, hp: r.hp, state: g?.state, choosing: g?.choosing, locked: g?.locked }; })()`;
+    boss: !!g?.boss, bossHp: g?.boss ? g.boss.hp / g.boss.maxHp : 1, hp: r.hp, state: g?.state, foe: (() => { let best = null, bd = 1e9; const cam = g?.cameras.main; for (const e of g?.enemies ?? []) { if (e.dead || e.def.ally || e.def.faction === 'prop' || !cam || Math.abs(e.x - cam.midPoint.x) > 320) continue; const d = Math.abs(e.x - g.player.x); if (d < bd) { bd = d; best = { sx: (e.x - cam.scrollX) * 1.5, sy: (e.body.center.y - cam.scrollY) * 1.5, dx: e.x - g.player.x }; } } return best; })(), choosing: g?.choosing, locked: g?.locked }; })()`;
 
 async function probe(id, boss) {
   const page = await browser.newPage({ viewport: { width: 960, height: 540 } });
@@ -34,7 +36,8 @@ async function probe(id, boss) {
   await page.waitForFunction(() => window.__game?.scene.getScene('Game')?.player, null, { timeout: 15000 });
   await page.evaluate((h) => { window.__run.stats.maxHp = h; window.__run.hp = h; }, HUGE);
   await page.click('canvas');
-  await page.keyboard.down('KeyJ');
+  await page.mouse.move(900, 300);
+  await page.mouse.down(); // mouse aim + hold to fire: the bot aims perfectly at the nearest enemy but never dodges
   const t0 = Date.now(), cap = boss ? BOSS_CAP : STAGE_CAP;
   let s = await page.evaluate(state), bossSeen = 0, k = 0, dir = 'KeyD', result = 'timeout';
   await page.keyboard.down(dir);
@@ -46,16 +49,21 @@ async function probe(id, boss) {
     if (s.boss && !bossSeen) bossSeen = Date.now();
     k++;
     // move: forward through the stage; in a fight, strafe back and forth
-    const want = (s.locked || s.boss) ? (Math.floor(k / 10) % 2 ? 'KeyA' : 'KeyD') : 'KeyD';
+    // in an arena: turn toward the nearest enemy (a human would); otherwise keep running right
+    await page.mouse.move(s.foe ? s.foe.sx : 900, s.foe ? s.foe.sy : 300);
+    // outside arenas keep running right; inside, pace back and forth
+    const want = (s.locked || s.boss) ? (Math.floor(k / 12) % 2 ? 'KeyA' : 'KeyD') : 'KeyD';
     if (want !== dir) { await page.keyboard.up(dir); dir = want; await page.keyboard.down(dir); }
     if (k % 7 === 0) await page.keyboard.press('Space', { delay: 180 });
     if (k % 23 === 0) await page.keyboard.press('ShiftLeft', { delay: 60 });
     if (k % 40 === 0) await page.keyboard.press('KeyQ');
+    if (k % 15 === 0) await page.mouse.down(); // re-press in case a scene change ate it
   }
   const secs = Math.round((Date.now() - t0) / 1000);
   const dmg = HUGE - s.hp;
+  if (result !== 'clear') await page.screenshot({ path: `tools/shots/balance-${id}-${boss ? 'boss' : 'stage'}.png` }).catch(() => {});
   await page.close();
-  return { id, part: boss ? 'boss' : 'stage', result, secs, dmg, bossLeft: boss ? Math.round(s.bossHp * 100) + '%' : '', dps: +(dmg / Math.max(1, secs) * 60).toFixed(0), errors: errors.length };
+  return { id, part: boss ? 'boss' : 'stage', result, x: Math.round(s.x), secs, dmg, bossLeft: boss ? Math.round(s.bossHp * 100) + '%' : '', dps: +(dmg / Math.max(1, secs) * 60).toFixed(0), errors: errors.length };
 }
 
 const rows = [];

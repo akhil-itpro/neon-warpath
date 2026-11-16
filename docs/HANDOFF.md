@@ -2,7 +2,37 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
-## Session 15 - 2026-11-16 (Codex, three campaign world backdrops) — NEXT AGENT START HERE
+## Session 16 - 2026-11-16 (Claude Code, check Codex's work + HOLD finale + bot-found bugs) — NEXT AGENT START HERE
+
+### Owner said
+"Codex created something, check and finish the game."
+
+### Checked
+- Codex's Session 15 backdrops (`bg_tidal`, `bg_prism`, `bg_spire`) look right in game (looked at x-tidal / x-prism / x-spire): actors and platforms read clearly. `check` + `build` pass. Full smoke before any change: 67/68, the one failure being `story-final`, which changed on purpose (below).
+
+### Built / fixed
+- **HOLD IT OPEN finale (was missing):** picking HOLD now starts a 60-second survival fight in the ARCHON arena (`GameScene` hold mode: `startHold` / `tickHold` / `holdDone`, waves from `HOLD_POOL` that grow over time, Varkesh allies if freed, pale ghost silhouettes of the species walking home through the gate, HUD `holdTimer`). Comms `HOLD.start/half/end` in `story.ts`. Win: +20 000, then End (OPEN DOOR). Dying retries the finale only. Debug: `?stage=cathedral&hold=1`.
+- **Difficulty probe `npm run balance` (`tools/balance.mjs`):** a bot with perfect mouse aim that never dodges plays every stage and boss with huge HP and reports damage taken and time. Use it to compare stages, not to prove they can be beaten. It saves `tools/shots/balance-<id>-<part>.png` when a run does not finish.
+- **Bugs the probe found (real for human players too):**
+  1. **Held fire froze the in-level choice** (railyard FREIGHT CARS) forever: the "wait for release" check returned before the timeout check. Fixed in `Hud.tickChoice`; smoke `story-freight-heldfire`.
+  2. **Auto-aim shot over low, wide crawlers** (kharrix): it aimed at the picture's middle, not the hitbox. Now aims at `body.center`.
+  3. **Enemies could wander or lunge out of a locked arena** past the screen edge, so the wave never ended. `GameScene.keepInArena` now holds ground encounter enemies inside once they have entered (`Enemy.inArena`).
+- **Balance:** the stage 2 boss TEACUP TYRANT was a spike (non-dodging bot took 294 damage vs 70 at stage 1 and about 120 at stages 4-5): HP 1700 -> 1300, contact 20 -> 15. Now 194.
+
+### Probe numbers (after fixes; damage a non-dodging, perfect-aim bot took; ROOK has 100 HP)
+Stages: city 124, casino 154, railyard 141 (plus the choice), furnace 172, engine 134, fungal 120, abyss 300, tidal 145, orbital 253, prism 251, spire 119, cathedral 280.
+Bosses: vulture 70, tyrant 194, colossus 270 (starts at 60%), warden 122, matriarch 118, widow 378, queen 118, sovereign 234, oracle 204, regent 446, halcyon 240, archon 172.
+Stomper-type bosses (colossus, regent) and the widow hit hardest per minute. Run-to-run variance is about +-30%, so only big gaps mean anything.
+
+### Verified
+- `npm run check` passes. Full smoke after the aim/arena changes: **70/70 pass**. Afterwards (choice fix + Tyrant numbers) re-ran story-*, gim-*, x-*, casino, flow-stage-2/3: all pass. Looked at the HOLD screenshots (gate, ghost walkers vs solid enemies, allies with blue rings, THE DOOR HOLDS, OPEN DOOR results).
+
+### Still NOT verified / next
+1. **A human playthrough at normal health** is still the real test; the probe never dodges, so all its numbers are pessimistic. Abyss stage (300) and the Regent (446) are the next candidates to soften if the owner finds them too hard.
+2. Spire is still horizontal (not the vertical climb in STORY.md); furnace lava rises in one section only.
+3. Art: Codex next does HALCYON's own frames, then the cage/pylon/slot props and portraits (`docs/CODEX_ART_HANDOFF.md`). ROOK still needs the owner's verdict.
+
+## Session 15 - 2026-11-16 (Codex, three campaign world backdrops)
 
 ### Completed
 - Followed the newer `docs/CODEX_ART_HANDOFF.md` while the parallel Claude session completed the campaign code. No gameplay code changed in this art batch.
@@ -47,7 +77,7 @@ The owner has still not reviewed ROOK. **Art requests for Codex are now in `docs
 
 ### NOT verified / known limits
 - **Nobody has played any stage at normal health.** All new tuning (boss HP, crusher timing, tide period, chase speed, gantry spacing, pylon beam damage) is a first guess. The balance bot (E) was not built.
-- HOLD IT OPEN does not run the 60-second survival wave from STORY.md; it goes straight to the ending.
+- ~~HOLD IT OPEN does not run the 60-second survival wave~~ (done in Session 16).
 - The spire is a horizontal stage with a deletion chase, not the vertical climb STORY.md describes (the camera is horizontal-only). Furnace lava is a rising level in one section, not a vertical climb.
 - HALCYON uses KESTREL's frames (Codex request). Pylon, cage and slot machine use tinted stand-ins.
 - Gamepad on the in-level choice overlay and audio of new moments are untested.

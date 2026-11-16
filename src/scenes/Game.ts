@@ -321,6 +321,7 @@ export class GameScene extends Phaser.Scene {
       cam.setFollowOffset(R.Linear(cam.followOffset.x, -p.dir * 44, 0.035), 0);
     }
     for (const e of this.enemies) e.tick(dt);
+    if (this.locked) this.keepInArena();
     this.tickPickups(dt);
     this.tickShots();
 
@@ -330,6 +331,18 @@ export class GameScene extends Phaser.Scene {
     if (this.hold) return this.tickHold(dt);
     this.tickEncounter(dt);
     this.tickStory(dt);
+  }
+
+  /** Arena walls work both ways: once a ground enemy has walked into a locked arena it cannot wander or lunge
+   *  back out past the screen edge, where the player could not reach it and the wave would never end. */
+  private keepInArena() {
+    const { left, right } = this.bounds;
+    for (const e of this.enemies) {
+      if (e.dead || e.def.flying || e.def.boss || e.def.ally || e.tag !== 'enc') continue;
+      const half = Math.min(e.body.width / 2, 40), lo = left + half + 4, hi = right - half - 4;
+      if (!e.inArena) { if (e.x > lo && e.x < hi) e.inArena = true; else continue; }
+      if (e.x < lo || e.x > hi) { e.x = R.Clamp(e.x, lo, hi); e.body.setVelocityX(0); }
+    }
   }
 
   private tickShots() {
@@ -452,11 +465,12 @@ export class GameScene extends Phaser.Scene {
     let best = 420, target: Enemy | null = null;
     for (const e of aim ? [] : this.enemies) {
       if (e.dead || e.def.ally || (e.x - m.x) * p.dir < 12) continue;
-      const dist = R.Distance.Between(m.x, m.y, e.x, e.cy);
-      const off = Math.abs(R.Angle.Wrap(Math.atan2(e.cy - m.y, e.x - m.x) - base));
+      const ty = e.body.center.y; // aim at the hitbox, not the picture: low wide crawlers (kharrix) were shot over
+      const dist = R.Distance.Between(m.x, m.y, e.x, ty);
+      const off = Math.abs(R.Angle.Wrap(Math.atan2(ty - m.y, e.x - m.x) - base));
       if (dist < best && off < R.DegToRad(38) && Math.abs(e.x - this.cameras.main.midPoint.x) < 330) { best = dist; target = e; }
     }
-    if (target) base = Math.atan2(target.cy - m.y, target.x - m.x);
+    if (target) base = Math.atan2(target.body.center.y - m.y, target.x - m.x);
     p.noteShot(base);
     const spread = R.DegToRad(w.spread);
     for (let i = 0; i < w.pellets; i++) {

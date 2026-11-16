@@ -251,7 +251,9 @@ export class HudScene extends Phaser.Scene {
     k.bar.width = 298 * Math.max(0, k.left / (k.c.timerMs ?? 8000));
     if (k.tick <= 0) { k.tick = 1000; audio.sfx('ui'); }
     const held = c.held('fire') || c.held('jump');
-    if (k.release) { if (!held) k.release = false; return; }
+    // Players hold fire while fighting: wait for a release before a press counts, but the timer still runs out
+    // (it used to return here first, so holding fire froze the choice on screen forever).
+    if (k.release && k.left > 0) { if (!held) k.release = false; return; }
     const move = (c.pressed('right') ? 1 : 0) - (c.pressed('left') ? 1 : 0);
     if (move) {
       let s = k.sel;
@@ -260,7 +262,7 @@ export class HudScene extends Phaser.Scene {
     }
     const ptr = c.pointer;
     let chosen = -1;
-    if ((c.pressed('fire') || c.pressed('jump'))) {
+    if (!k.release && (c.pressed('fire') || c.pressed('jump'))) {
       if (ptr.isDown) {
         const hit = k.cards.findIndex((card) => Math.abs(ptr.x - card.x) < 108 && Math.abs(ptr.y - card.y) < 50);
         if (hit >= 0 && k.cards[hit].getData('ok')) chosen = hit;

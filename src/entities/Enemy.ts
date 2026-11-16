@@ -24,6 +24,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   dead = false;
   awake = false;
   tag = ''; // 'enc' = belongs to the active encounter
+  inArena = false; // walked into the locked arena (GameScene.keepInArena holds it there)
   dir = -1; // -1 facing left, +1 facing right
   arena = { left: 0, right: 0, cx: 0 };
   private frames: string[];
