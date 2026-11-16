@@ -17,4 +17,9 @@ export const ART_MUZZLES: Record<string, readonly [number, number]> = {
   titan_jump: [29, 43],
   titan_slide: [29, 32],
   titan_crouch: [29, 32],
+  // species operators (measured in src/data/speciesPack.ts)
+  serrik_run0: [24, 52], serrik_run1: [24, 52], serrik_run2: [24, 50], serrik_run3: [24, 52],
+  serrik_idle: [24, 55], serrik_jump: [24, 41], serrik_slide: [27, 32], serrik_crouch: [25, 36],
+  quill_run0: [24, 47], quill_run1: [25, 47], quill_run2: [23, 47], quill_run3: [24, 47],
+  quill_idle: [24, 55], quill_jump: [25, 44], quill_slide: [26, 37], quill_crouch: [27, 32],
 };

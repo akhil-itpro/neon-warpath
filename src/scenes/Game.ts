@@ -10,8 +10,9 @@ import { Fx } from '../systems/Fx';
 import { Player } from '../entities/Player';
 import { Enemy } from '../entities/Enemy';
 import { Shot } from '../entities/Shot';
-import { STORY, type Line } from '../data/story';
-import { condOk, filterLines } from '../systems/Story';
+import { STORY, CHOICES, type Line } from '../data/story';
+import { condOk, filterLines, applyChoice } from '../systems/Story';
+import { Gimmicks } from '../systems/Gimmicks';
 import type { HudScene } from './Hud';
 
 const R = Phaser.Math;
@@ -39,9 +40,11 @@ export class GameScene extends Phaser.Scene {
   stageTime = 0;
   canRetry = false;
   aim: { x: number; y: number } | null = null; // world point under the mouse crosshair; null = keyboard/gamepad auto-aim
+  gimmicks!: Gimmicks;
+  choosing = false; // an in-level slow-motion choice is on screen
+  pShots!: Phaser.Physics.Arcade.Group;
+  eShots!: Phaser.Physics.Arcade.Group;
 
-  private pShots!: Phaser.Physics.Arcade.Group;
-  private eShots!: Phaser.Physics.Arcade.Group;
   private solids!: Phaser.Physics.Arcade.StaticGroup;
   private oneways!: Phaser.Physics.Arcade.StaticGroup;
   private hazards!: Phaser.Physics.Arcade.StaticGroup;
@@ -57,7 +60,9 @@ export class GameScene extends Phaser.Scene {
   private xTriggers: number[] = [];
   private seeIds = new Set<string>();
   private seeT = 0;
-  private bossHalf = false;
+  private bossMarks = new Set<string>();
+  private bgDrift = 0;
+  private allyWaves: Record<number, string[]> = {};
 
   constructor() { super('Game'); }
 
@@ -67,7 +72,7 @@ export class GameScene extends Phaser.Scene {
   create(data?: { retry?: boolean }) {
     const st = (this.stage = STAGES[run.stage]);
     this.enemies = []; this.pickups = []; this.flows = []; this.fogs = []; this.shards = [];
-    this.bossHalf = false; this.seeT = 0;
+    this.bossMarks = new Set(); this.seeT = 0; this.bgDrift = 0; this.choosing = false;
     if (run.checkpoint === 0 && !data?.retry) run.eggsShot = 0;
     if (st.id === 'fungal') run.flags.nest_truce = run.eggsShot < 3;
     const comms = STORY[st.id]?.comms ?? [];
@@ -154,12 +159,17 @@ export class GameScene extends Phaser.Scene {
     const variants = (st.variants ?? []).filter((v) => condOk(v.if));
     const encs = st.encounters.map((e) => ({ ...e, waves: [...e.waves] }));
     for (const v of variants) for (const [i, wave] of v.waves ?? []) encs[i]?.waves.unshift(wave);
+    this.allyWaves = {};
+    for (const v of variants) for (const [i, ids] of v.allies ?? []) this.allyWaves[i] = [...(this.allyWaves[i] ?? []), ...ids];
     this.encounters = [...encs, { x: st.width - 430, waves: [], boss: true }];
     this.encIndex = run.checkpoint;
-    for (const [id, x] of [...st.roamers, ...variants.flatMap((v) => v.roamers ?? [])]) {
+    for (const [id, x, y] of [...st.roamers, ...variants.flatMap((v) => v.roamers ?? [])] as [string, number, number?][]) {
       if (x < run.checkpointX + 260 && run.checkpoint > 0) continue; // already fought on a previous attempt
-      this.spawnEnemy(id, x, ENEMIES[id].flying ? 150 : GROUND_Y - (id === 'crate' ? 0 : 0), '');
+      if (id === 'cage' && run.flags.quill_rescued) continue;
+      const e = this.spawnEnemy(id, x, y ?? (ENEMIES[id].flying ? 150 : GROUND_Y), '');
+      if (y !== undefined) e.body.setAllowGravity(false); // pinned up on a girder
     }
+    this.gimmicks = new Gimmicks(this, st);
 
     // ---- data shards (collected ones stay collected through retries)
     for (const [id, x, y] of st.shards ?? []) {
@@ -226,7 +236,9 @@ export class GameScene extends Phaser.Scene {
       for (const e of this.enemies) if (!e.dead && this.seeIds.has(e.def.id) && Math.abs(e.x - cx) < 300) { this.seeIds.delete(e.def.id); this.comm(`see:${e.def.id}`); }
     }
     const b = this.boss;
-    if (b && !b.dead && !this.bossHalf && b.hp < b.maxHp * 0.5) { this.bossHalf = true; this.comm('boss50'); }
+    if (b && !b.dead) for (const [k, f] of [['boss66', 0.66], ['boss50', 0.5], ['boss33', 0.33]] as const) {
+      if (!this.bossMarks.has(k) && b.hp < b.maxHp * f) { this.bossMarks.add(k); this.comm(k); this.bossMark(k, b); }
+    }
     // shards: bob, and collect when the player's body touches one
     for (const sh of this.shards) {
       if (!sh.img.visible) continue;
@@ -256,6 +268,7 @@ export class GameScene extends Phaser.Scene {
     else if (st.weather === 'embers') cfg = { ...base, y: H + 6, speedY: { min: -110, max: -40 }, speedX: { min: -40, max: 40 }, lifespan: 3200, scale: { start: 1.2, end: 0 }, alpha: 0.9, tint: [0xff8030, 0xffc040, 0xff5020], blendMode: 'ADD', frequency: 70 };
     else if (st.weather === 'spores') cfg = { ...base, y: H + 6, speedY: { min: -46, max: -14 }, speedX: { min: -24, max: 24 }, lifespan: 6000, scale: { start: 1.4, end: 0.2 }, alpha: { start: 0.8, end: 0 }, tint: [0x40ffc0, 0x80ffa0, 0xc0ff60], blendMode: 'ADD', frequency: 90 };
     else if (st.weather === 'bubbles') cfg = { ...base, y: H + 6, speedY: { min: -90, max: -40 }, speedX: { min: -12, max: 12 }, lifespan: 4200, scale: { min: 0.6, max: 1.8 }, alpha: { start: 0.5, end: 0 }, tint: [0x60b0ff, 0xa0e0ff], frequency: 110 };
+    else if (st.weather === 'glints') cfg = { ...base, y: { min: 0, max: H }, speedX: { min: -20, max: 20 }, speedY: { min: -10, max: 10 }, lifespan: 1600, scale: { start: 1.4, end: 0 }, alpha: { start: 0.9, end: 0 }, tint: [0x90e8ff, 0xd0b0ff, 0xffffff], blendMode: 'ADD', frequency: 70 };
     else if (st.weather === 'petals') cfg = { ...base, y: -10, speedY: { min: 26, max: 70 }, speedX: { min: -60, max: -10 }, lifespan: 6500, scale: { min: 0.8, max: 1.6 }, rotate: { min: 0, max: 360 }, alpha: { start: 0.8, end: 0.2 }, tint: [0xff5070, 0xff90a0, 0xc03050], frequency: 120 };
     else cfg = { ...base, y: -10, speedY: { min: 60, max: 150 }, lifespan: 3600, scaleX: 0.5, scaleY: { min: 2, max: 8 }, alpha: { start: 0.55, end: 0 }, tint: [0x40e0ff, 0xff4060], blendMode: 'ADD', frequency: 60 };
     this.add.particles(0, 0, 'px', cfg).setScrollFactor(0).setDepth(DEPTH.weather);
@@ -269,10 +282,10 @@ export class GameScene extends Phaser.Scene {
     if (c.pressed('pause') && this.state === 'play') { this.hud.setPaused?.(true); this.scene.pause(); return; }
     if (this.state === 'dead' && this.canRetry && (c.pressed('fire') || c.pressed('jump'))) return this.retry();
     if (this.fx.frozen(delta)) return;
-    const dt = Math.min(delta, 34);
+    const dt = Math.min(delta, 34) * (this.choosing ? 0.2 : 1);
     const cam = this.cameras.main;
 
-    this.bg.tilePositionX = cam.scrollX * 0.22;
+    this.bg.tilePositionX = cam.scrollX * 0.22 + this.bgDrift;
     for (const f of this.flows) f.tilePositionX += dt * 0.03;
     this.fogs.forEach((f, i) => { f.tilePositionX = cam.scrollX * (0.35 + i * 0.25) + this.time.now * (0.012 + i * 0.01); });
 
@@ -282,7 +295,8 @@ export class GameScene extends Phaser.Scene {
 
     const p = this.player;
     this.aim = c.aimPoint(cam);
-    p.tick(dt, c);
+    this.gimmicks.tick(dt);
+    if (!this.choosing) p.tick(dt, c);
     if (!p.dead) {
       p.x = R.Clamp(p.x, this.bounds.left + 10, this.bounds.right - 10);
       cam.setFollowOffset(R.Linear(cam.followOffset.x, -p.dir * 44, 0.035), 0);
@@ -324,12 +338,14 @@ export class GameScene extends Phaser.Scene {
         this.banner('HOSTILES INBOUND', 1100, '#ff6050');
         audio.sfx('warn');
         this.comm(`enc:${this.encIndex}`);
+        const allies = this.allyWaves[this.encIndex];
+        if (allies) this.time.delayedCall(900, () => allies.forEach((id, k) => this.spawnAlly(id, left + 50 + k * 45)));
       }
       return;
     }
     const enc = this.encounters[this.encIndex];
     if (enc.boss) return; // ends via killEnemy -> bossDeath
-    const alive = this.enemies.some((e) => !e.dead && e.tag === 'enc' && e.def.ai !== 'jet');
+    const alive = this.enemies.some((e) => !e.dead && e.tag === 'enc' && e.def.ai !== 'jet' && !e.def.ally);
     if (alive) return;
     this.waveGap -= dt;
     if (this.waveGap > 0) return;
@@ -369,11 +385,13 @@ export class GameScene extends Phaser.Scene {
     const { left, right } = this.bounds;
     const id = this.stage.boss;
     const mid = (left + right) / 2;
-    const pos: Record<string, [number, number]> = { vulture: [right + 130, 70], warden: [right - 95, -160], archon: [mid, -70], tyrant: [right - 130, -40], widow: [right - 130, -40], queen: [mid, -90], oracle: [mid, -90] };
+    const pos: Record<string, [number, number]> = { vulture: [right + 130, 70], warden: [right - 95, -160], archon: [mid, -70], tyrant: [right - 130, -40], widow: [right - 130, -40], queen: [mid, -90], oracle: [mid, -90], colossus: [right - 160, -60], matriarch: [mid, -90], sovereign: [mid, -100], regent: [right - 130, -80], halcyon: [right - 80, -40] };
     const [x, y] = pos[id] ?? [right - 100, GROUND_Y];
     const b = this.spawnEnemy(id, x, y, 'enc');
     b.arena = { left, right, cx: (left + right) / 2 };
     this.boss = b;
+    // STORY C2: blowing the bridge under the Colossus leaves it a wreck
+    if (id === 'colossus' && !run.flags.varkesh_freed) b.hp = Math.round(b.maxHp * 0.6);
     this.comm('boss');
     // FUNGAL nest choice-by-action: burn enough eggs and the hive sends its young after you
     if (this.stage.id === 'fungal' && !run.flags.nest_truce) {
@@ -413,7 +431,7 @@ export class GameScene extends Phaser.Scene {
     // Keyboard / gamepad aim assist: shots bend toward the nearest target in a forward cone.
     let best = 420, target: Enemy | null = null;
     for (const e of aim ? [] : this.enemies) {
-      if (e.dead || (e.x - m.x) * p.dir < 12) continue;
+      if (e.dead || e.def.ally || (e.x - m.x) * p.dir < 12) continue;
       const dist = R.Distance.Between(m.x, m.y, e.x, e.cy);
       const off = Math.abs(R.Angle.Wrap(Math.atan2(e.cy - m.y, e.x - m.x) - base));
       if (dist < best && off < R.DegToRad(38) && Math.abs(e.x - this.cameras.main.midPoint.x) < 330) { best = dist; target = e; }
@@ -453,7 +471,7 @@ export class GameScene extends Phaser.Scene {
 
   private onShotEnemy(a: object, b: object) {
     const shot = (a instanceof Shot ? a : b) as Shot, e = (a instanceof Enemy ? a : b) as Enemy;
-    if (!shot.active || e.dead || shot.hit.has(e)) return;
+    if (!shot.active || e.dead || shot.hit.has(e) || e.def.ally) return;
     shot.hit.add(e);
     this.fx.spark(shot.x, shot.y, e.def.gore, 5);
     this.fx.glow(shot.x, shot.y, shot.color, 0.35, 90);
@@ -474,7 +492,7 @@ export class GameScene extends Phaser.Scene {
     this.fx.ring(x, y, color, 0.1, 10);
     audio.sfx('blink');
     for (const e of this.enemies) {
-      if (e.dead || e.def.heavy || e.def.boss || R.Distance.Between(x, y, e.x, e.cy) > blast * 2.2) continue;
+      if (e.dead || e.def.heavy || e.def.boss || e.def.ally || R.Distance.Between(x, y, e.x, e.cy) > blast * 2.2) continue;
       const a = Math.atan2(y - e.cy, x - e.x);
       e.body.setVelocity(Math.cos(a) * 330, e.def.flying ? Math.sin(a) * 330 : e.body.velocity.y);
       e.chill(240);
@@ -488,7 +506,7 @@ export class GameScene extends Phaser.Scene {
     for (let hop = 0; hop < shot.chain; hop++) {
       let next: Enemy | null = null, best = 150;
       for (const e of this.enemies) {
-        if (e.dead || shot.hit.has(e) || e.def.faction === 'prop') continue;
+        if (e.dead || shot.hit.has(e) || e.def.faction === 'prop' || e.def.ally) continue;
         const d = R.Distance.Between(last.x, last.cy, e.x, e.cy);
         if (d < best) { best = d; next = e; }
       }
@@ -521,7 +539,7 @@ export class GameScene extends Phaser.Scene {
   blastEnemies(x: number, y: number, r: number, dmg: number) {
     this.fx.explosion(x, y, r);
     for (const e of this.enemies) {
-      if (!e.dead && R.Distance.Between(x, y, e.x, e.cy) < r + Math.max(e.body.width, e.body.height) / 2) e.hurt(dmg, x);
+      if (!e.dead && !e.def.ally && R.Distance.Between(x, y, e.x, e.cy) < r + Math.max(e.body.width, e.body.height) / 2) e.hurt(dmg, x);
     }
   }
 
@@ -533,16 +551,20 @@ export class GameScene extends Phaser.Scene {
 
   // ================================================================= damage / death
   private onTouch(e: Enemy) {
-    if (e.dead || this.player.dead) return;
+    if (e.dead || this.player.dead || e.def.ally) return;
     if (e.def.ai === 'diver') { if (this.player.invuln <= 0) e.explode(); return; }
     if (e.def.contact > 0) this.hurtPlayer(e.def.contact, e.x);
   }
 
-  private onHazard() {
+  private onHazard() { this.hazardHit(15, true); }
+
+  /** Burning / electrified ground: bounces the player up. `skim` = a slide passes over it safely. */
+  hazardHit(dmg: number, skim: boolean) {
     const p = this.player;
-    if (p.dead || p.sliding > 0) return; // sliding skims over hazards
+    if (p.dead || (skim && p.sliding > 0)) return;
+    if (p.invuln > 0) { if (p.body.velocity.y > -200) p.body.setVelocityY(-260); return; } // still bounce out while blinking
     p.body.setVelocityY(-330);
-    this.hurtPlayer(15, p.x - p.dir);
+    this.hurtPlayer(dmg, p.x - p.dir);
     this.fx.spark(p.x, p.y, 0xffa030, 8);
   }
 
@@ -585,6 +607,14 @@ export class GameScene extends Phaser.Scene {
     if (e.dead) return;
     const d = e.def;
     if (d.boss) return this.bossDeath(e);
+    if (d.id === 'cage') {
+      run.flags.quill_rescued = true;
+      run.choices.push('YOU FREED QUILL FROM THE CAGE.');
+      if (!save.unlocked.includes('quill')) { save.unlocked.push('quill'); persist(); }
+      this.comm('cage');
+      this.fx.ring(e.x, e.cy, 0x80c0ff, 2.4, 400);
+    }
+    if (d.splits && byPlayer) for (const sd of [-1, 1]) { const k = this.spawnEnemy(d.splits, e.x + sd * 14, e.y, e.tag); k.awake = true; k.body.setVelocity(sd * 120, -200); }
     if (d.ai === 'egg' && byPlayer) {
       run.eggsShot++;
       if (this.stage.id === 'fungal') run.flags.nest_truce = run.eggsShot < 3;
@@ -693,7 +723,7 @@ export class GameScene extends Phaser.Scene {
       this.cameras.main.fadeOut(400);
       this.time.delayedCall(420, () => {
         this.scene.stop('Hud');
-        if (run.stage >= STAGES.length) this.scene.start('End'); else this.scene.start('Briefing', { next: 'Perk' });
+        this.scene.start('Briefing', { next: run.stage >= STAGES.length ? 'End' : 'Perk' });
       });
     });
   }
@@ -713,7 +743,7 @@ export class GameScene extends Phaser.Scene {
     this.banner('OVERDRIVE', 900, '#ffd040');
     // shockwave: wipes enemy bullets and staggers everything on screen
     for (const s of this.eShots.getChildren() as Shot[]) if (s.active) { this.fx.spark(s.x, s.y, 0xffd040, 3); s.kill(); }
-    for (const e of [...this.enemies]) if (!e.dead && Math.abs(e.x - p.x) < 340 && e.def.faction !== 'prop') e.hurt(20, p.x);
+    for (const e of [...this.enemies]) if (!e.dead && Math.abs(e.x - p.x) < 340 && e.def.faction !== 'prop' && !e.def.ally) e.hurt(20, p.x);
   }
 
   // ================================================================= pickups
@@ -782,6 +812,105 @@ export class GameScene extends Phaser.Scene {
       audio.sfx('weapon');
     }
   }
+
+  // ================================================================= campaign systems
+  get isLocked() { return this.locked; }
+
+  /** Extra backdrop scroll (the train is moving even when the player is not). */
+  drift(px: number) { this.bgDrift += px; }
+
+  /** Friendly gunner (STORY: freed Varkesh). Drops in from above, fights for a while, then leaves. */
+  spawnAlly(id: string, x: number) {
+    if (this.state !== 'play') return;
+    const e = this.spawnEnemy(id, x, GROUND_Y - 160, 'ally');
+    e.awake = true;
+    this.fx.ring(x, GROUND_Y - 60, 0x60d0ff, 1.6, 300);
+    return e;
+  }
+
+  /** Shot fired by an ally: uses the player's projectile pool so it hits enemies. */
+  allyShot(x: number, y: number, angle: number, speed: number, dmg: number, color: number) {
+    const shot = this.pShots.get(x, y) as Shot | null;
+    if (!shot) return;
+    shot.fire('bullet', x, y, angle, speed, dmg, color, { life: 900 });
+    this.fx.muzzle(x, y, color);
+  }
+
+  /**
+   * A light beam from (x, y) toward (tx, ty): a flickering aim line for `warnMs`, then a short burst.
+   * Hostile beams hurt the player; friendly ones (a pylon you shot, STORY stage 10) burn every enemy on the line.
+   */
+  beam(x: number, y: number, tx: number, ty: number, friendly: boolean, warnMs = 700, dmg = friendly ? 60 : 14) {
+    const ang = Math.atan2(ty - y, tx - x), len = 420;
+    const ex = x + Math.cos(ang) * len, ey = y + Math.sin(ang) * len;
+    const col = friendly ? 0x60f0ff : 0xff5070;
+    const g = this.add.graphics().setDepth(DEPTH.fx).setBlendMode(Phaser.BlendModes.ADD);
+    let t = 0;
+    const ev = this.time.addEvent({ delay: 40, loop: true, callback: () => {
+      t += 40; g.clear();
+      if (t < warnMs) { g.lineStyle(1, col, Math.floor(t / 80) % 2 ? 0.9 : 0.35).lineBetween(x, y, ex, ey); return; }
+      g.lineStyle(7, col, 0.85).lineBetween(x, y, ex, ey); g.lineStyle(2, 0xffffff, 1).lineBetween(x, y, ex, ey);
+      if (t >= warnMs + 160) { ev.remove(); g.destroy(); }
+    } });
+    this.time.delayedCall(warnMs, () => {
+      if (this.state === 'dead') return;
+      audio.sfx('rail');
+      const line = new Phaser.Geom.Line(x, y, ex, ey);
+      const near = (px: number, py: number, r: number) => Phaser.Geom.Intersects.LineToCircle(line, new Phaser.Geom.Circle(px, py, r));
+      if (friendly) {
+        for (const e of [...this.enemies]) if (!e.dead && !e.def.ally && e.def.faction !== 'prop' && near(e.x, e.cy, 16)) { e.hurt(e.def.boss ? dmg * 1.5 : dmg, x); this.fx.spark(e.x, e.cy, col, 6); }
+      } else if (near(this.player.x, this.player.centerY, 12)) this.hurtPlayer(dmg, x);
+    });
+  }
+
+  /** In-level choice (STORY B5): the world drops to slow motion, the HUD shows two cards and a timer. */
+  slowChoice(id: string) {
+    const c = CHOICES[id];
+    if (!c || this.choosing) return;
+    this.choosing = true;
+    this.physics.world.timeScale = 5; // Arcade: higher = slower
+    this.time.timeScale = 0.2; this.tweens.timeScale = 0.2;
+    this.player.body.setVelocityX(0);
+    audio.sfx('warn');
+    this.hud.choice?.(c, (o) => {
+      applyChoice(o);
+      this.choosing = false;
+      this.physics.world.timeScale = 1;
+      this.time.timeScale = 1; this.tweens.timeScale = 1;
+      this.hud.comms?.(filterLines(o.reply));
+    });
+  }
+
+  /** Story beats tied to boss health (after the matching comm has been queued). */
+  private bossMark(k: string, b: Enemy) {
+    const id = b.def.id, a = b.arena;
+    if (id === 'colossus' && k === 'boss50' && run.flags.varkesh_freed) this.time.delayedCall(1500, () => this.spawnAlly('varkesh_ally', a.left + 60));
+    if (id !== 'archon' || k !== 'boss33') return;
+    // ARCHON phase 3: everyone you saved shows up (docs/STORY.md stage 12)
+    b.phase3 = true;
+    if (run.flags.halcyon_saved) this.time.delayedCall(2500, () => {
+      if (b.dead) return;
+      b.vuln = this.time.now + 10000;
+      this.banner('SHIELD DOWN - DOUBLE DAMAGE', 1600, '#80ffb0');
+      this.fx.ring(b.x, b.y, 0x80ffb0, 4, 500);
+    });
+    if (run.flags.quill_rescued) this.time.delayedCall(5000, () => {
+      if (b.dead || this.state !== 'play') return;
+      this.banner('CORVANE DIVE!', 1200, '#9fd0ff');
+      this.fx.flash(0xc0e0ff, 250);
+      for (const s of this.eShots.getChildren() as Shot[]) if (s.active) { this.fx.spark(s.x, s.y, 0x9fd0ff, 2); s.kill(); }
+      for (let i = 0; i < 6; i++) this.time.delayedCall(i * 90, () => this.fx.explosion(R.Between(a.left + 60, a.right - 60), R.Between(80, 240), 30, 0x9fd0ff));
+      b.hurt(b.maxHp * 0.06, b.x);
+    });
+    if (run.flags.varkesh_freed) this.time.delayedCall(7500, () => { this.spawnAlly('varkesh_ally', a.left + 50); this.spawnAlly('varkesh_ally', a.right - 50); });
+    if (run.flags.nest_truce) this.time.delayedCall(10000, () => {
+      if (b.dead) return;
+      b.stall(6000);
+      this.banner('SPORES BLIND ITS TARGETING', 1400, '#c0ff80');
+      for (let i = 0; i < 30; i++) this.time.delayedCall(i * 60, () => this.fx.spark(b.x + R.Between(-60, 60), b.y + R.Between(-40, 40), 0xc0ff80, 2));
+    });
+  }
+
 
   /** True when the player stands on a drop-through platform rather than the floor. */
   onOneWay(p: Player) { return p.y < GROUND_Y - 6; }

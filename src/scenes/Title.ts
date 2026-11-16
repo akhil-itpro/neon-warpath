@@ -26,6 +26,7 @@ export class TitleScene extends Phaser.Scene {
     this.rig = null;
     this.started = false;
     this.sel = Phaser.Math.Clamp(save.op, 0, OPERATORS.length - 1);
+    if (this.locked(OPERATORS[this.sel])) this.sel = 0;
     audio.setMuted(save.muted);
     this.controls = new Controls(this);
     this.bg = this.add.tileSprite(0, 0, W, H, 'bg_city').setOrigin(0).setTint(0x8088b0);
@@ -66,15 +67,19 @@ export class TitleScene extends Phaser.Scene {
   private refresh() {
     const op = OPERATORS[this.sel];
     const has = this.textures.exists(`${op.art}_idle`);
-    this.hero.setTexture(has ? `${op.art}_idle` : 'hero_idle').setTint(has ? 0xffffff : op.tint);
+    const locked = this.locked(op);
+    this.hero.setTexture(has ? `${op.art}_idle` : 'hero_idle').setTint(locked ? 0x101018 : has ? 0xffffff : op.tint);
     this.rig?.destroy();
     this.rig = op.rig && CharacterRig.available(this, op.rig) ? new CharacterRig(this, op.rig) : null;
     this.hero.setVisible(!this.rig);
     this.updateRig(0);
-    this.info[0].setText(op.name);
+    this.info[0].setText(locked ? `${op.name} - LOCKED` : op.name);
     this.info[1].setText(`${op.role}   ARMOR ${op.hp}   SPEED ${op.speed}`);
-    this.info[2].setText(op.blurb);
+    this.info[2].setText(locked ? `UNLOCK: ${op.unlockHint ?? 'STORY'}` : op.blurb);
   }
+
+  /** Species operators unlock through story choices (docs/STORY.md section 4). */
+  private locked(op: (typeof OPERATORS)[number]) { return !!op.unlock && !save.unlocked.includes(op.unlock); }
 
   update(_t: number, dt: number) {
     this.updateRig(dt);
@@ -96,6 +101,7 @@ export class TitleScene extends Phaser.Scene {
       audio.sfx('ui');
     }
     if (!sideClick && (c.pressed('fire') || c.pressed('jump'))) {
+      if (this.locked(OPERATORS[this.sel])) { audio.sfx('hurt'); this.cameras.main.shake(120, 0.004); return; }
       this.started = true;
       audio.unlock();
       audio.sfx('select');

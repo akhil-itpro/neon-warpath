@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-NEON WARPATH (working title): a 2D pixel-art run-and-gun action game for PC/web. Side-scrolling stages, wave encounters with camera locks, a boss per stage, a perk pick between stages. The owner is a non-technical first-time indie developer: make design and technical decisions yourself, explain outcomes in plain language, and never ask them to edit code.
+NEON WARPATH (working title): a 2D pixel-art run-and-gun action game for PC/web. 12 side-scrolling stages (story in `docs/STORY.md`), each with its own gimmick, wave encounters with camera locks, a boss per stage, briefings with story choices and a perk pick between stages, three endings. The owner is a non-technical first-time indie developer: make design and technical decisions yourself, explain outcomes in plain language, and never ask them to edit code.
 
 Stack: TypeScript + Phaser 3.90 (Arcade physics) + Vite. Internal resolution 640x360, scaled up. No audio files — all SFX and music are synthesised in `src/systems/Audio.ts`.
 
@@ -23,7 +23,7 @@ npm run smoke -- city-boss   # one scenario (substring match on the names in too
 
 There is no unit-test suite. Verification = `npm run check` + `npm run smoke` + **looking at the screenshots in `tools/shots/`** (read them as images). Add a scenario to `tools/smoke.mjs` when you add a stage or boss.
 
-Debug URL params (handled in `src/scenes/Boot.ts`): `?stage=2` or `?stage=fungal` start on that stage (ids: city, casino, furnace, fungal, abyss, orbital, cathedral), `&boss=1` jump to the boss, `&god=1` near-unkillable, `&op=1` operator index, `&weapon=rocket`. Console handles: `window.__game`, `window.__run`.
+Debug URL params (handled in `src/scenes/Boot.ts`): `?stage=2` or `?stage=fungal` start on that stage (ids, in story order: city, casino, railyard, furnace, engine, fungal, abyss, tidal, orbital, prism, spire, cathedral), `&boss=1` jump to the boss, `&god=1` near-unkillable, `&op=1` operator index, `&weapon=rocket`. Console handles: `window.__game`, `window.__run`.
 
 Python deps for the asset pipeline: `pip install pillow numpy scipy "rembg[cpu]"`.
 
@@ -33,9 +33,11 @@ Python deps for the asset pipeline: `pip install pillow numpy scipy "rembg[cpu]"
 
 - `src/data/stages.ts` — stage layouts: platforms, hazards, roaming enemies, encounters (wave lists), boss id, music track.
 - `src/data/enemies.ts` — enemy roster. Each entry picks an `ai` kind; the AI kinds are implemented in the `switch` in `src/entities/Enemy.ts` (bosses are the `heli` / `warden` / `core` / `stomper` / `seer` methods there; optional traits such as `shield`, `radial`, `adds`, `drops` are plain data).
-- `src/data/weapons.ts`, `src/data/operators.ts` (playable characters), perks in `src/systems/Run.ts`.
+- `src/data/weapons.ts`, `src/data/operators.ts` (playable characters; SERRIK / QUILL unlock via story), perks in `src/systems/Run.ts`.
+- `src/data/story.ts` — briefings, radio comms (trigger keys documented at the top), choices (`after` per stage, in-level `CHOICES`), lore. Helpers and the ending picker in `src/systems/Story.ts`.
+- Stage gimmicks (movers, blinkers, floods, gravity / flips, darkness, crushers, roulette, train gantries, floor chase, in-level choice) are optional `StageDef` fields implemented in `src/systems/Gimmicks.ts`.
 
-**Scene flow:** `Boot` (loads `public/assets/manifest.json`, draws procedural textures) → `Title` (operator select) → `Game` + `Hud` in parallel → `Perk` (pick 1 of 3) → next `Game` … → `End`.
+**Scene flow:** `Boot` (loads `public/assets/manifest.json`, draws procedural textures) → `Title` (operator select) → `Briefing` → `Game` + `Hud` in parallel → `Briefing` (previous stage's choice + next briefing) → `Perk` (pick 1 of 3) → next `Game` … → after stage 12 `Briefing` (final choice) → `End` → `Credits`.
 
 **`GameScene` is the hub.** Entities never touch each other; they call the scene: `enemyShot`, `spawnEnemy`, `killEnemy`, `hurtPlayer`, `blastPlayer`, `telegraph`, `banner`. The scene owns collisions, encounters/camera locks, scoring/combo, pickups, checkpoints. `HudScene` is a separate scene so the HUD is unaffected by camera bloom/shake; `GameScene` calls its methods with `?.` because the HUD starts one frame later.
 
@@ -43,7 +45,7 @@ Python deps for the asset pipeline: `pip install pillow numpy scipy "rembg[cpu]"
 
 **Art fallback convention (important).** Enemies and operators name a preferred texture (`art`). If `public/assets` has `<art>_0.png…` (animation) or `<art>.png` it is used; otherwise a tinted stand-in sprite. So gangsters/zombies/aliens/demons/extra operators are already playable with stand-ins and upgrade automatically once real art is processed. Operators need `<art>_run0..3, _idle, _jump, _slide, _crouch`. See `docs/ART_PIPELINE.md`.
 
-**Asset pipeline.** Raw AI sheets live in `art/source/` (never edit them). `tools/process_assets.py` removes backgrounds (chroma key if flat colour, else `rembg` per grid cell), finds sprites, downsizes to game pixels, bakes a 1px team-coloured outline, and writes `public/assets/*.png` + `manifest.json`. New sheets need a `MANIFEST` entry in that script. The single-pose expansion library (`art/library/expansion`) is brought in by `python tools/integrate_expansion.py` instead (its `JOBS` table sets in-game sizes). Enemy source sprites face LEFT, hero faces RIGHT.
+**Asset pipeline.** Raw AI sheets live in `art/source/` (never edit them). `tools/process_assets.py` removes backgrounds (chroma key if flat colour, else `rembg` per grid cell), finds sprites, downsizes to game pixels, bakes a 1px team-coloured outline, and writes `public/assets/*.png` + `manifest.json`. New sheets need a `MANIFEST` entry in that script. The single-pose expansion library (`art/library/expansion`) is brought in by `python tools/integrate_expansion.py` instead (its `JOBS` table sets in-game sizes); the Frontier and species libraries by `python tools/integrate_campaign.py` (copies + outline swap). Outstanding art requests for Codex: `docs/CODEX_ART_HANDOFF.md`. Enemy source sprites face LEFT, hero faces RIGHT.
 
 **Aiming.** Two modes, switched by whichever device was used last (`Controls.mouseAim`): mouse = free aim at the crosshair (`GameScene.aim`, hero faces it), fire key / gamepad = auto-aim cone in `playerFire`. The crosshair is drawn by `HudScene`.
 

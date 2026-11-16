@@ -6,8 +6,8 @@
 
 export type AiKind =
   | 'gunner' | 'rusher' | 'flyer' | 'diver' | 'blinker' | 'lobber' | 'spitter' | 'turret' | 'jet'
-  | 'crate' | 'barrel' | 'egg'
-  | 'boss_heli' | 'boss_warden' | 'boss_core' | 'boss_stomper' | 'boss_seer';
+  | 'crate' | 'barrel' | 'egg' | 'pylon' | 'spawner'
+  | 'boss_heli' | 'boss_warden' | 'boss_core' | 'boss_stomper' | 'boss_seer' | 'boss_duel';
 
 export type Faction = 'machine' | 'syndicate' | 'undead' | 'alien' | 'demon' | 'mutant' | 'prop';
 
@@ -40,6 +40,12 @@ export interface EnemyDef {
   radial?: number; // flyer: fires a ring of this many shots / stomper boss: fires fans instead of lobs
   adds?: string; // enemy id this one hatches or summons
   drops?: 'health' | 'weapon'; // guaranteed drop when destroyed
+  states?: boolean; // boss art has <art>_idle/_windup/_attack/_exposed; exposed takes extra damage, attacking takes less
+  collar?: boolean; // ARCHON control collar ring drawn in code (species under its control, docs/STORY.md)
+  ally?: boolean; // fights for the player: shoots enemies, ignores the player's shots, never blocks an arena
+  splits?: string; // spawns two of this enemy id when killed
+  facesRight?: boolean; // source art faces right (operator-style frames) instead of the enemy convention
+  life?: number; // ms before an ally leaves
 }
 
 const ROBOT = ['robot_walk', 'robot_aim'];
@@ -96,6 +102,36 @@ export const ENEMIES: Record<string, EnemyDef> = {
   barrel: { id: 'barrel', name: 'Toxic Barrel', faction: 'prop', ai: 'barrel', hp: 12, score: 0, speed: 0, contact: 0, art: 'toxic_barrel', fallback: { frames: ['crate'], tint: 0xa0ff40 }, body: [22, 32], heavy: true, gore: 0xa0ff40 },
   egg: { id: 'egg', name: 'Brood Egg', faction: 'alien', ai: 'egg', hp: 30, score: 150, speed: 0, contact: 0, art: 'alien_egg', fallback: { frames: ['crate'], tint: 0xc060ff }, body: [30, 36], heavy: true, adds: 'spiderling', gore: 0xc060ff },
   seaegg: { id: 'seaegg', name: 'Brood Egg', faction: 'alien', ai: 'egg', hp: 30, score: 150, speed: 0, contact: 0, art: 'alien_egg', fallback: { frames: ['crate'], tint: 0xc060ff }, body: [30, 36], heavy: true, adds: 'deepjaw', gore: 0xc060ff },
+
+  // --- CAMPAIGN STAGES 3/5/8/10/11 (Frontier + species libraries; see tools/integrate_campaign.py) ---
+  marauder: { id: 'marauder', name: 'Rail Marauder', faction: 'syndicate', ai: 'gunner', hp: 38, score: 160, speed: 72, contact: 0, art: 'rail_marauder', artScale: 1, fallback: { frames: ROBOT, tint: 0xd9a060 }, body: [22, 56], burst: 2, range: 195, fireRate: 2100, shotSpeed: 205, windup: 600, shotColor: 0xffc050, muzzle: [30, 44], gore: 0xffa050 },
+  kite: { id: 'kite', name: 'Storm Kite', faction: 'machine', ai: 'flyer', hp: 26, score: 150, speed: 85, contact: 0, art: 'storm_kite', artScale: 1, fallback: { frames: ['drone'], tint: 0xffe070 }, body: [38, 20], flying: true, fireRate: 2300, shotSpeed: 170, windup: 650, shotColor: 0xffdb70, gore: 0xffc060 },
+  acolyte: { id: 'acolyte', name: 'Bellows Acolyte', faction: 'demon', ai: 'spitter', hp: 68, score: 240, speed: 40, contact: 10, art: 'bellows_acolyte', artScale: 1, fallback: { frames: ROBOT, tint: 0xff8040 }, body: [32, 48], burst: 1, range: 180, fireRate: 2600, windup: 750, shotColor: 0xff9b40, gore: 0xff8a40 },
+  skate: { id: 'skate', name: 'Cinder Skate', faction: 'demon', ai: 'lobber', hp: 32, score: 190, speed: 70, contact: 0, art: 'cinder_skate', artScale: 1, fallback: { frames: ['drone'], tint: 0xff9050 }, body: [38, 18], flying: true, fireRate: 2600, shotSpeed: 0, gore: 0xff8a40 },
+  varkesh: { id: 'varkesh', name: 'Varkesh Skirmisher', faction: 'alien', ai: 'gunner', hp: 40, score: 150, speed: 80, contact: 0, art: 'sp_varkesh', artScale: 1, fallback: { frames: ROBOT, tint: 0x70c686 }, body: [22, 60], burst: 2, range: 190, fireRate: 2100, shotSpeed: 200, windup: 650, muzzle: [36, 53], shotColor: 0xffc060, collar: true, gore: 0x70c686 },
+  varkesh_ally: { id: 'varkesh_ally', name: 'Varkesh Ally', faction: 'alien', ai: 'gunner', hp: 9999, score: 0, speed: 90, contact: 0, art: 'sp_varkesh', artScale: 1, fallback: { frames: ROBOT, tint: 0x70c686 }, body: [22, 60], burst: 3, range: 260, fireRate: 900, shotSpeed: 420, windup: 120, muzzle: [36, 53], shotColor: 0x60d0ff, ally: true, heavy: true, life: 26000, gore: 0x70c686 },
+  corvane: { id: 'corvane', name: 'Corvane Outrider', faction: 'alien', ai: 'gunner', hp: 28, score: 160, speed: 95, contact: 0, art: 'sp_corvane', artScale: 1, fallback: { frames: ROBOT, tint: 0x96b9db }, body: [22, 58], burst: 1, range: 250, fireRate: 2300, shotSpeed: 250, windup: 800, muzzle: [30, 46], shotColor: 0xd4ebff, collar: true, gore: 0x96b9db },
+  kharrix: { id: 'kharrix', name: 'Kharrix Tunnel Hunter', faction: 'alien', ai: 'rusher', hp: 34, score: 130, speed: 105, contact: 12, art: 'sp_kharrix', artScale: 1, fallback: { frames: ROBOT, tint: 0xffba60, scale: 0.7 }, body: [64, 30], collar: true, gore: 0xffba60 },
+  ferrivor: { id: 'ferrivor', name: 'Ferrivor Rustgrazer', faction: 'mutant', ai: 'rusher', hp: 90, score: 220, speed: 38, contact: 12, art: 'sp_ferrivor', artScale: 1, fallback: { frames: ROBOT, tint: 0xd48569, scale: 0.7 }, body: [94, 25], heavy: true, collar: true, gore: 0xd48569 },
+  nacreth: { id: 'nacreth', name: 'Nacreth Reef Drifter', faction: 'alien', ai: 'lobber', hp: 46, score: 210, speed: 60, contact: 0, art: 'sp_nacreth', artScale: 1, fallback: { frames: ['drone'], tint: 0x75d3db }, body: [44, 42], flying: true, fireRate: 2700, shotSpeed: 0, collar: true, gore: 0x75d3db },
+  cirrid: { id: 'cirrid', name: 'Cirrid Ion Colony', faction: 'alien', ai: 'flyer', hp: 25, score: 170, speed: 55, contact: 0, art: 'sp_cirrid', artScale: 1, fallback: { frames: ['drone'], tint: 0xd3aeff }, body: [42, 36], flying: true, radial: 6, fireRate: 2900, shotSpeed: 120, windup: 750, shotColor: 0xd3aeff, collar: true, gore: 0xc4a7ff },
+  myrrhkin: { id: 'myrrhkin', name: 'Myrrhkin Capwalker', faction: 'mutant', ai: 'spitter', hp: 65, score: 210, speed: 30, contact: 0, art: 'sp_myrrhkin', artScale: 1, fallback: { frames: ROBOT, tint: 0xd7b9ee }, body: [46, 42], burst: 2, range: 190, fireRate: 2900, windup: 750, shotColor: 0xffb25c, collar: true, gore: 0xd7b9ee },
+  thren: { id: 'thren', name: 'Thren Seedrunner', faction: 'mutant', ai: 'spitter', hp: 32, score: 140, speed: 65, contact: 0, art: 'sp_thren', artScale: 1, fallback: { frames: ROBOT, tint: 0x91c76c }, body: [54, 40], burst: 1, range: 180, fireRate: 2400, windup: 650, shotColor: 0xb6e680, collar: true, gore: 0x91c76c },
+  vitreon: { id: 'vitreon', name: 'Vitreon Resonator', faction: 'alien', ai: 'gunner', hp: 50, score: 230, speed: 28, contact: 0, art: 'sp_vitreon', artScale: 1, fallback: { frames: ROBOT, tint: 0x9fc7ff }, body: [26, 64], burst: 1, range: 280, fireRate: 2700, shotSpeed: 270, windup: 900, muzzle: [10, 55], shotColor: 0xffc970, collar: true, gore: 0x9fc7ff },
+  lithurn: { id: 'lithurn', name: 'Lithurn Slagback', faction: 'mutant', ai: 'rusher', hp: 120, score: 280, speed: 30, contact: 16, art: 'sp_lithurn', artScale: 1, fallback: { frames: ROBOT, tint: 0x8fb2be }, body: [76, 42], heavy: true, shield: 0.25, collar: true, gore: 0x8fb2be },
+  geliform: { id: 'geliform', name: 'Geliform Wastegrazer', faction: 'mutant', ai: 'spitter', hp: 40, score: 130, speed: 35, contact: 10, art: 'sp_geliform', artScale: 1, fallback: { frames: ROBOT, tint: 0x6ce4eb }, body: [64, 30], burst: 1, range: 140, fireRate: 2500, windup: 650, shotColor: 0x72dbed, collar: true, splits: 'gelling', gore: 0x6ce4eb },
+  gelling: { id: 'gelling', name: 'Geliform Bud', faction: 'mutant', ai: 'rusher', hp: 14, score: 60, speed: 90, contact: 8, art: 'sp_geliform', artScale: 0.5, fallback: { frames: ROBOT, tint: 0x6ce4eb, scale: 0.5 }, body: [64, 30], gore: 0x6ce4eb },
+  asterid: { id: 'asterid', name: 'Asterid Hullwatcher', faction: 'alien', ai: 'flyer', hp: 38, score: 230, speed: 45, contact: 0, art: 'sp_asterid', artScale: 1, fallback: { frames: ['drone'], tint: 0xbb8bef }, body: [38, 38], flying: true, radial: 6, fireRate: 3200, shotSpeed: 110, windup: 950, shotColor: 0xffc789, collar: true, gore: 0xbb8bef },
+  // stage gimmick objects
+  slot: { id: 'slot', name: 'Gunman Slot Machine', faction: 'machine', ai: 'spawner', hp: 110, score: 400, speed: 0, contact: 0, art: 'slot_machine', fallback: { frames: ['street_terminal'], tint: 0xff70d0, scale: 1.3 }, body: [30, 56], heavy: true, adds: 'gangster', fireRate: 4200, gore: 0xff70d0 },
+  pylon: { id: 'pylon', name: 'Prism Pylon', faction: 'prop', ai: 'pylon', hp: 1, score: 0, speed: 0, contact: 0, art: 'prism_pylon', fallback: { frames: ['rift_anchor'], tint: 0x80f0ff }, body: [24, 56], heavy: true, fireRate: 3600, gore: 0x80f0ff },
+  cage: { id: 'cage', name: 'Corvane Cage', faction: 'prop', ai: 'crate', hp: 40, score: 0, speed: 0, contact: 0, art: 'quill_cage', fallback: { frames: ['ammo_locker'], tint: 0x80c0ff, scale: 1.2 }, body: [30, 50], heavy: true, gore: 0x80c0ff },
+  // campaign bosses
+  colossus: { id: 'colossus', name: 'SWITCHYARD COLOSSUS', faction: 'machine', ai: 'boss_stomper', hp: 1700, score: 7000, speed: 50, contact: 20, art: 'switchyard_colossus', artScale: 1, fallback: { frames: ['turret'], tint: 0x70a0c0, scale: 2.2 }, body: [150, 80], heavy: true, boss: true, states: true, adds: 'marauder', shotColor: 0xffc050, gore: 0xffa050 },
+  matriarch: { id: 'matriarch', name: 'KILN MATRIARCH', faction: 'demon', ai: 'boss_seer', hp: 1700, score: 9000, speed: 120, contact: 20, art: 'kiln_matriarch', artScale: 1, fallback: { frames: ['core'], tint: 0xff8040 }, body: [90, 80], flying: true, heavy: true, boss: true, states: true, adds: 'skate', shotColor: 0xff8a30, gore: 0xff8a40 },
+  sovereign: { id: 'sovereign', name: 'NACRETH TIDE SOVEREIGN', faction: 'alien', ai: 'boss_seer', hp: 2200, score: 12000, speed: 90, contact: 20, art: 'nacreth_sovereign', artScale: 1, fallback: { frames: ['core'], tint: 0x75d3db }, body: [110, 90], flying: true, heavy: true, boss: true, states: true, adds: 'nacreth', shotColor: 0x70e0f0, gore: 0x75d3db },
+  regent: { id: 'regent', name: 'VITREON PRISM REGENT', faction: 'alien', ai: 'boss_stomper', hp: 2400, score: 14000, speed: 58, contact: 20, art: 'vitreon_regent', artScale: 1, fallback: { frames: ['turret'], tint: 0x9fc7ff, scale: 2.2 }, body: [75, 120], heavy: true, boss: true, states: true, radial: 7, adds: 'asterid', shotColor: 0x90e8ff, gore: 0x9fc7ff },
+  halcyon: { id: 'halcyon', name: 'HALCYON', faction: 'machine', ai: 'boss_duel', hp: 2400, score: 15000, speed: 175, contact: 12, art: 'halcyon', artScale: 1, fallback: { frames: ['hero_idle'], tint: 0xffe0a0 }, body: [18, 56], heavy: true, boss: true, facesRight: true, shotColor: 0xffe070, gore: 0xffd060 },
 
   // --- BOSSES ---
   tyrant: { artScale: 1, id: 'tyrant', name: 'THE TEACUP TYRANT', faction: 'machine', ai: 'boss_stomper', hp: 1700, score: 6000, speed: 46, contact: 20, art: 'boss_tyrant', fallback: { frames: ['turret'], tint: 0xffe0a0, scale: 2 }, body: [84, 92], heavy: true, boss: true, adds: 'slug', shotColor: 0xff70c0, gore: 0xffd060 },

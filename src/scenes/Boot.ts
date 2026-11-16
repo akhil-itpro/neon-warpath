@@ -52,6 +52,11 @@ export class BootScene extends Phaser.Scene {
       abyss:     ['#80d0ff', '#2a6a9a', '#10304a', '#0a2036', '#050f1c', '#1a4a70', '#40e0ff'],
       orbital:   ['#e0f0ff', '#8a9ab8', '#38465c', '#26303f', '#141a24', '#566680', '#60ff90'],
       cathedral: ['#ff9080', '#8a2a38', '#2e1018', '#1c0a10', '#0e0508', '#561a28', '#ffc040'],
+      railyard:  ['#a0b0d0', '#4a5a7a', '#1e2638', '#141a28', '#0a0e18', '#34405a', '#ffb040'],
+      engine:    ['#ff9a60', '#7a3a20', '#2e1a14', '#1e100c', '#100806', '#4a2418', '#ff4a10'],
+      tidal:     ['#90f0e0', '#2a8a8a', '#0e3640', '#08242c', '#041418', '#1a5058', '#40e0d0'],
+      prism:     ['#e0d0ff', '#7a6aa8', '#2e2648', '#1e1832', '#0e0a1a', '#4a3e70', '#90e8ff'],
+      spire:     ['#c0c0ff', '#5a5aa8', '#1e1c44', '#14122e', '#08061a', '#34306a', '#ff4060'],
     };
     let seed = 7;
     const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
@@ -102,7 +107,7 @@ export class BootScene extends Phaser.Scene {
   // Keys: portrait_<operator id> and portrait_<speaker> (see src/data/story.ts).
   private makePortraits(px: (c: CanvasRenderingContext2D, col: string, x: number, y: number, w?: number, h?: number) => void) {
     type Look = { bg: string; rim: string; skin: string; shade: string; suit: string; suitD: string; eye: string };
-    const bust = (key: string, k: Look, extra: (c: CanvasRenderingContext2D) => void, wide = 0) => this.canvas(key, 48, 48, (c) => {
+    const bust = (key: string, k: Look, extra: (c: CanvasRenderingContext2D) => void, wide = 0) => this.textures.exists(key) || this.canvas(key, 48, 48, (c) => {
       px(c, k.bg, 0, 0, 48, 48);
       for (let y = 0; y < 48; y += 3) px(c, 'rgba(255,255,255,0.03)', 0, y, 48, 1);
       px(c, k.rim, 0, 46, 48, 2);
@@ -149,7 +154,7 @@ export class BootScene extends Phaser.Scene {
       px(c, '#101014', 19, 25, 10, 2);                                 // moustache
       px(c, '#ffffff', 20, 36, 8, 4); px(c, '#ff3080', 21, 37, 6, 2); // shirt + bow tie
     });
-    this.canvas('portrait_oracle', 48, 48, (c) => {
+    if (!this.textures.exists('portrait_oracle')) this.canvas('portrait_oracle', 48, 48, (c) => {
       px(c, '#140e1e', 0, 0, 48, 48);
       px(c, '#3a2a5a', 8, 6, 32, 30); px(c, '#0a0812', 11, 9, 26, 24);
       for (let y = 10; y < 32; y += 2) for (let x = 12; x < 36; x += 3) if (((x * 7 + y * 13) % 5) < 2) px(c, '#6a5a8a', x, y, 2, 1);
@@ -164,13 +169,130 @@ export class BootScene extends Phaser.Scene {
       px(c, '#ff8a40', 19, 19, 10, 10); px(c, '#fff4c0', 22, 22, 4, 4); px(c, '#0a0306', 23, 17, 2, 14);
       for (let y = 1; y < 48; y += 3) px(c, 'rgba(0,0,0,0.35)', 0, y, 48, 1);
     });
-    this.canvas('portrait_myrrhkin', 48, 48, (c) => {
+    bust('portrait_halcyon', { bg: '#1e1a0c', rim: '#ffe090', skin: '#d0a080', shade: '#a07858', suit: '#4a4a52', suitD: '#2e2e36', eye: '#ffe090' }, (c) => {
+      px(c, '#c8c8c8', 15, 8, 18, 4); px(c, '#c8c8c8', 14, 10, 3, 5); px(c, '#c8c8c8', 31, 10, 3, 5); // grey crew cut
+      px(c, '#7a5a40', 25, 14, 1, 8); px(c, '#ffe090', 26, 20, 3, 1);                                   // scar + cybernetic eye
+      px(c, '#ffe090', 18, 40, 4, 2); px(c, '#ffe090', 26, 40, 4, 2);                                   // commander pips
+      px(c, '#40e0ff', 31, 24, 2, 6);                                                                    // neural jack
+    });
+    bust('portrait_serrik', { bg: '#0c1a10', rim: '#90e0a0', skin: '#5aa070', shade: '#3a7050', suit: '#5a3a3a', suitD: '#3a2424', eye: '#ffd040' }, (c) => {
+      px(c, '#5aa070', 16, 8, 16, 4); px(c, '#90e0a0', 18, 4, 2, 5); px(c, '#90e0a0', 23, 2, 2, 7); px(c, '#90e0a0', 28, 4, 2, 5); // crest
+      px(c, '#5aa070', 30, 22, 8, 7); px(c, '#3a7050', 30, 27, 8, 2); px(c, '#10121a', 35, 23, 1, 1);          // snout
+      px(c, '#ffd040', 20, 20, 2, 2); px(c, '#ffd040', 27, 20, 2, 2);
+      px(c, '#203020', 18, 33, 12, 2);                                                                          // broken collar
+    });
+    bust('portrait_quill', { bg: '#0c1220', rim: '#a0d0ff', skin: '#2a3040', shade: '#1a2030', suit: '#3a5a7a', suitD: '#243a52', eye: '#a0d0ff' }, (c) => {
+      px(c, '#2a3040', 14, 6, 20, 8); px(c, '#4a5470', 16, 4, 4, 4); px(c, '#4a5470', 26, 3, 4, 5);            // feathers
+      px(c, '#e0b040', 30, 21, 9, 3); px(c, '#b08020', 30, 24, 7, 2);                                          // beak
+      px(c, '#a0d0ff', 20, 19, 3, 3); px(c, '#ffffff', 21, 19, 1, 1);
+      px(c, '#c0c8d8', 10, 38, 6, 6);                                                                           // satchel
+    });
+    if (!this.textures.exists('portrait_sovereign')) this.canvas('portrait_sovereign', 48, 48, (c) => {
+      px(c, '#0a0c1a', 0, 0, 48, 48);
+      c.fillStyle = '#d8c8b0'; c.beginPath(); c.arc(26, 20, 16, 0, 7); c.fill();
+      c.strokeStyle = '#a89070'; c.lineWidth = 2; c.beginPath(); c.arc(26, 20, 10, 0, 5); c.stroke(); c.beginPath(); c.arc(26, 20, 4, 0, 5); c.stroke();
+      for (let i = 0; i < 5; i++) px(c, '#40a0b0', 10 + i * 6, 30, 4, 12 + (i % 2) * 4);
+      px(c, '#ffd060', 14, 26, 4, 4); px(c, '#10121a', 15, 27, 2, 2);
+      px(c, '#c0a0ff', 0, 46, 48, 2);
+    });
+    if (!this.textures.exists('portrait_myrrhkin')) this.canvas('portrait_myrrhkin', 48, 48, (c) => {
       px(c, '#0c0a16', 0, 0, 48, 48);
       px(c, '#5a2a8a', 8, 10, 32, 12); px(c, '#5a2a8a', 12, 6, 24, 4); px(c, '#3a1a5a', 8, 20, 32, 2);
       for (const [x, y] of [[14, 9], [24, 7], [31, 12], [18, 15]]) px(c, '#c0ff80', x, y, 3, 2);
       px(c, '#d8c8b0', 18, 22, 12, 22); px(c, '#a89880', 26, 22, 4, 22);
       px(c, '#b080ff', 20, 27, 3, 3); px(c, '#b080ff', 25, 27, 3, 3);
       px(c, '#b080ff', 0, 46, 48, 2);
+    });
+  }
+
+  // ---- campaign gimmick props, drawn in code (no art files needed)
+  private makeCampaignTextures(px: (c: CanvasRenderingContext2D, col: string, x: number, y: number, w?: number, h?: number) => void) {
+    // crusher piston (origin bottom): shaft + heavy head with hazard stripes
+    this.canvas('piston', 44, 300, (c) => {
+      px(c, '#2a2420', 16, 0, 12, 260); px(c, '#4a4038', 17, 0, 3, 260); px(c, '#14100c', 26, 0, 2, 260);
+      px(c, '#1a1410', 0, 260, 44, 40); px(c, '#5a4a3a', 1, 261, 42, 3); px(c, '#3a3028', 1, 264, 42, 26);
+      for (let i = 0; i < 6; i++) { c.fillStyle = i % 2 ? '#14100c' : '#ffb020'; c.beginPath(); c.moveTo(i * 8, 300); c.lineTo(i * 8 + 8, 300); c.lineTo(i * 8 + 14, 290); c.lineTo(i * 8 + 6, 290); c.fill(); }
+      px(c, '#ff6020', 4, 268, 36, 2);
+    });
+    // railway signal gantry (origin bottom): pole from the top of the screen, beam at head height
+    this.canvas('gantry', 70, 300, (c) => {
+      px(c, '#10141c', 30, 0, 10, 270); px(c, '#2a3448', 31, 0, 3, 270);
+      px(c, '#0a0d14', 0, 270, 70, 30); px(c, '#3a4660', 1, 271, 68, 3); px(c, '#1c2433', 1, 274, 68, 22);
+      for (let i = 0; i < 9; i++) px(c, i % 2 ? '#0a0d14' : '#ffc040', 2 + i * 7.4, 290, 7, 4);
+      px(c, '#ff3030', 8, 278, 6, 5); px(c, '#ff3030', 56, 278, 6, 5); px(c, '#ffffff', 9, 279, 2, 2); px(c, '#ffffff', 57, 279, 2, 2);
+    });
+    // freight car roof tile
+    this.canvas('traincar', 128, 40, (c) => {
+      px(c, '#0a0c12', 0, 0, 128, 40); px(c, '#5a6a86', 0, 0, 120, 2); px(c, '#2a3a52', 0, 2, 120, 8); px(c, '#1a2434', 0, 10, 120, 30);
+      for (let x = 6; x < 118; x += 14) { px(c, '#14202e', x, 12, 2, 26); px(c, '#3a4a64', x + 1, 2, 1, 7); }
+      px(c, '#ffb040', 10, 4, 18, 2); px(c, '#ffb040', 70, 4, 10, 2);
+      px(c, '#05060a', 120, 0, 8, 40); px(c, '#2a2a30', 121, 18, 6, 4); // coupling gap
+    });
+    // soft light hole for dark stages: opaque black outside a radial falloff
+    this.canvas('darkhole', 128, 128, (c) => {
+      c.fillStyle = '#000'; c.fillRect(0, 0, 128, 128);
+      c.globalCompositeOperation = 'destination-out';
+      const g = c.createRadialGradient(64, 64, 0, 64, 64, 64);
+      g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(0.55, 'rgba(0,0,0,0.92)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+      c.fillStyle = g; c.fillRect(0, 0, 128, 128);
+      c.globalCompositeOperation = 'source-over';
+    });
+    // ARCHON control collar: a red ring floating over collared species
+    this.canvas('collar', 18, 8, (c) => {
+      c.strokeStyle = '#ff3050'; c.lineWidth = 2; c.beginPath(); c.ellipse(9, 4, 7.5, 2.6, 0, 0, 7); c.stroke();
+      px(c, '#ffd0d8', 8, 1, 2, 1);
+    });
+  }
+
+  // Stand-in backdrops (1280x360, tiling) for worlds whose painted art is still a Codex request.
+  // A real `bg_<id>.png` in public/assets replaces these automatically (they are only drawn when missing).
+  private makeBackdrops() {
+    const mk = (key: string, draw: (c: CanvasRenderingContext2D, rnd: () => number) => void) => {
+      if (this.textures.exists(key)) return;
+      let seed = key.length * 977;
+      const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+      this.canvas(key, 1280, 360, (c) => draw(c, rnd));
+    };
+    const sky = (c: CanvasRenderingContext2D, stops: string[]) => {
+      const g = c.createLinearGradient(0, 0, 0, 360);
+      stops.forEach((s, i) => g.addColorStop(i / (stops.length - 1), s));
+      c.fillStyle = g; c.fillRect(0, 0, 1280, 360);
+    };
+    // repeat a shape so the strip tiles seamlessly
+    const wrap = (x: number, w: number, f: (x: number) => void) => { f(x); if (x + w > 1280) f(x - 1280); if (x < 0) f(x + 1280); };
+    mk('bg_tidal', (c, rnd) => {
+      sky(c, ['#04101c', '#0a2a3e', '#0e3c4c', '#061a24']);
+      for (let i = 0; i < 26; i++) { c.fillStyle = `rgba(120,220,255,${0.03 + rnd() * 0.05})`; const x = rnd() * 1280, w = 20 + rnd() * 60; wrap(x, w, (xx) => { c.beginPath(); c.moveTo(xx, 0); c.lineTo(xx + w, 0); c.lineTo(xx + w * 2.2, 360); c.lineTo(xx + w * 1.2, 360); c.fill(); }); }
+      for (let i = 0; i < 9; i++) { // shell pillars of the throne vault
+        const x = i * 142 + rnd() * 30, w = 46 + rnd() * 30, h = 160 + rnd() * 120;
+        c.fillStyle = '#0a2230'; c.fillRect(x, 360 - h, w, h);
+        c.fillStyle = '#163a4a'; for (let y = 360 - h; y < 360; y += 18) c.fillRect(x + 4, y, w - 8, 3);
+        c.fillStyle = '#40e0d0'; c.globalAlpha = 0.35; c.fillRect(x + w / 2 - 2, 360 - h + 10, 4, 10); c.globalAlpha = 1;
+      }
+      c.fillStyle = '#06141c'; for (let x = 0; x < 1280; x += 64) { c.beginPath(); c.arc(x + 32, 360, 50 + (x % 3) * 10, Math.PI, 0); c.fill(); }
+    });
+    mk('bg_prism', (c, rnd) => {
+      sky(c, ['#1a1030', '#3a2a58', '#6a5a80', '#2a2038']);
+      c.fillStyle = 'rgba(255,240,220,0.5)'; c.beginPath(); c.arc(900, 90, 34, 0, 7); c.fill();
+      for (let layer = 0; layer < 2; layer++) for (let i = 0; i < 18; i++) { // crystal spires
+        const x = rnd() * 1280, w = 18 + rnd() * 40, h = (layer ? 120 : 200) + rnd() * 90;
+        c.fillStyle = layer ? '#1a1430' : '#2a2448';
+        wrap(x, w, (xx) => { c.beginPath(); c.moveTo(xx, 360); c.lineTo(xx + w / 2, 360 - h); c.lineTo(xx + w, 360); c.fill(); });
+        c.fillStyle = layer ? 'rgba(144,232,255,0.18)' : 'rgba(200,180,255,0.12)';
+        wrap(x, w, (xx) => { c.beginPath(); c.moveTo(xx + w / 2, 360 - h); c.lineTo(xx + w * 0.62, 360); c.lineTo(xx + w / 2, 360); c.fill(); });
+      }
+      c.fillStyle = '#120c20'; c.fillRect(0, 300, 1280, 60);
+    });
+    mk('bg_spire', (c, rnd) => {
+      sky(c, ['#05040e', '#0e0c24', '#1a1640', '#08061a']);
+      for (let i = 0; i < 120; i++) { c.fillStyle = `rgba(160,160,255,${rnd() * 0.5})`; c.fillRect(rnd() * 1280, rnd() * 360, 1, 1); }
+      c.strokeStyle = 'rgba(160,160,255,0.16)'; c.lineWidth = 1; // the lattice
+      for (let x = 0; x <= 1280; x += 64) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x + 32, 360); c.stroke(); c.beginPath(); c.moveTo(x + 64, 0); c.lineTo(x + 32, 360); c.stroke(); }
+      for (let i = 0; i < 7; i++) { // tall data towers
+        const x = i * 186 + 40, w = 50 + rnd() * 40, h = 240 + rnd() * 100;
+        c.fillStyle = '#0c0a22'; c.fillRect(x, 360 - h, w, h);
+        for (let y = 360 - h + 8; y < 350; y += 10) for (let k = 6; k < w - 6; k += 8) if (rnd() < 0.3) { c.fillStyle = rnd() < 0.15 ? '#ff4060' : '#6060d0'; c.fillRect(x + k, y, 4, 2); }
+      }
     });
   }
 
@@ -234,6 +356,8 @@ export class BootScene extends Phaser.Scene {
     this.makeStageTiles(px);
     this.makeAtmosphere();
     this.makePortraits(px);
+    this.makeCampaignTextures(px);
+    this.makeBackdrops();
     // data shard: a glowing diamond memory crystal
     this.canvas('shard', 12, 16, (c) => {
       const rows = [[5, 2], [4, 4], [3, 6], [2, 8], [1, 10], [0, 12], [0, 12], [1, 10], [2, 8], [3, 6], [3, 6], [4, 4], [4, 4], [5, 2], [5, 2], [5, 2]];

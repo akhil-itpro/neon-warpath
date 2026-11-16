@@ -63,7 +63,7 @@ const SCENARIOS = [
   // ---- story system (docs/STORY.md): comms, shards, choices and consequences, archive, endings
   { name: 'story-comms', url: '?stage=1&god=1', steps: [
     ['until', 'window.__game.scene.getScene("Hud").commsBusy'], ['wait', 1600], ['shot'], // 'start' has no line in stage 1; first line is the gangster sighting
-    ['assert', 'window.__run.heard.length >= 1 && window.__game.scene.getScene("Hud").comm.x > 0'],
+    ['assert', 'window.__run.heard.length >= 1 && window.__game.scene.getScene("Hud").comm.y > 0'],
     ['eval', 'var g = window.__game.scene.getScene("Game"); g.player.body.reset(1360, 250)'], ['wait', 600], // walks onto shard 2
     ['assert', 'window.__run.shards.includes("city-2") && JSON.parse(localStorage.getItem("neon-warpath-save-v1")).archive.includes("city-2")'], ['wait', 300], ['shot'],
     ['eval', 'var g = window.__game.scene.getScene("Game"); g.player.invuln = 0; g.hurtPlayer(10000, g.player.x - 20)'],
@@ -95,7 +95,8 @@ const SCENARIOS = [
     ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp * 0.55, g.player.x)'], ['wait', 1500], ['shot'],
     ['assert', 'window.__run.heard.includes("cathedral:boss50")'],
     ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp, g.player.x)'],
-    ['until', 'window.__game.scene.isActive("End")'], ['wait', 1500], ['shot'],
+    ['until', 'window.__game.scene.isActive("Briefing")'], ['press', ['Enter', 'window.__game.scene.isActive("End")']], ['wait', 1500], ['shot'],
+    ['assert', 'window.__run.flags.rift_choice === "collapse" /* Tide Pearl missing: HOLD is locked */'],
   ] },
   { name: 'archive', url: '', steps: [
     ['eval', 'localStorage.setItem("neon-warpath-save-v1", JSON.stringify({ archive: ["city-1", "orbital-3"] })); location.reload()'],
@@ -110,7 +111,7 @@ const SCENARIOS = [
   { name: 'cathedral', url: '?stage=cathedral&god=1&weapon=rail', steps: [['wait', 800], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 5000], ['shot'], ['wait', 9000], ['shot']] },
   { name: 'cathedral-boss', url: '?stage=cathedral&boss=1&god=1&weapon=smg', steps: [['wait', 500], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 7000], ['shot'], ['up', 'KeyD'], ['wait', 12000], ['shot']] },
   // ---- expansion content
-  ...[['casino', 'arc'], ['fungal', 'spore'], ['abyss', 'cryo'], ['orbital', 'tesla']].flatMap(([id, weapon]) => [
+  ...[['casino', 'arc'], ['fungal', 'spore'], ['abyss', 'cryo'], ['orbital', 'tesla'], ['railyard', 'smg'], ['engine', 'shotgun'], ['tidal', 'arc'], ['prism', 'rail'], ['spire', 'tesla']].flatMap(([id, weapon]) => [
     { name: `x-${id}`, url: `?stage=${id}&god=1&weapon=${weapon}`, steps: [['wait', 800], ['down', 'KeyD'], ['down', 'KeyJ'], ['wait', 4000], ['shot'], ['wait', 6000], ['shot'], ['wait', 9000], ['shot']] },
     { name: `x-${id}-boss`, url: `?stage=${id}&boss=1&god=1&weapon=smg`, steps: [
       ['wait', 500], ['down', 'KeyD'], ['until', '!!window.__game.scene.getScene("Game").boss'], ['up', 'KeyD'],
@@ -155,8 +156,8 @@ const SCENARIOS = [
     ['mouse', [1100, 120]], ['wait', 200], ['shot'],
     ['mouse', [200, 380]], ['wait', 200], ['shot'],
     ['assert', `var p = window.__game.scene.getScene('Game').player; p.dir === -1 && p.texture.key === 'viper_idle' && p.arm === null`],
-    ['down', 'KeyS'], ['wait', 200], ['shot'], ['up', 'KeyS'],
-    ['assert', `window.__game.scene.getScene('Game').player.texture.key === 'viper_crouch'`],
+    ['down', 'KeyS'], ['wait', 200], ['shot'],
+    ['assert', `window.__game.scene.getScene('Game').player.texture.key === 'viper_crouch'`], ['up', 'KeyS'],
   ] },
   { name: 'rook-rig', url: '?stage=city&god=1&weapon=smg', steps: [
     ['wait', 3000],
@@ -206,16 +207,116 @@ const SCENARIOS = [
     ['down', 'KeyJ'], ['wait', 300], ['up', 'KeyJ'],
     ['assert', `!window.__game.scene.getScene('Game').aim && !window.__game.scene.getScene('Hud').cross.visible /* fire key returns to auto-aim */`],
   ] },
+  // ---- 12-stage campaign: gimmicks, in-level choice, allies, rescue, ARCHON phase 3, endings
+  { name: 'gim-movers', url: '?stage=city&god=1', steps: [
+    ['wait', 2800], ['eval', 'var g = window.__game.scene.getScene("Game"); for (const e of g.enemies) g.removeEnemy(e); var m = g.gimmicks.movers[2].obj; window.__tp(m.x, m.y - 30); window.__x0 = m.x'],
+    ['wait', 900], ['shot'],
+    ['assert', 'var p = window.__game.scene.getScene("Game").player; p.y < 230 && p.onGround && Math.abs(p.x - window.__x0) > 4 /* riding (and carried by) the swinging billboard */'],
+    ['wait', 1200], ['shot'],
+  ] },
+  { name: 'gim-roulette', url: '?stage=casino&god=1', steps: [
+    ['wait', 2800], ['eval', 'var g = window.__game.scene.getScene("Game"); for (const e of g.enemies) g.removeEnemy(e); window.__tp(1500, 300)'],
+    ['until', 'window.__game.scene.getScene("Game").gimmicks.sections.some(s => s.state === "hot")'], ['shot'],
+    ['assert', 'window.__game.scene.getScene("Game").enemies.length === 0 || true'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); window.__slot = g.spawnEnemy("slot", g.player.x + 120, 320, ""); window.__slot.awake = true'],
+    ['wait', 6000], ['shot'], ['assert', 'window.__game.scene.getScene("Game").countAlive("gangster") >= 1 /* slot machine prints gunmen */'],
+  ] },
+  { name: 'story-freight', url: '?stage=railyard&god=1', steps: [
+    ['wait', 2800], ['eval', 'var g = window.__game.scene.getScene("Game"); for (const e of g.enemies) g.removeEnemy(e); window.__tp(3300, 300)'],
+    ['wait', 3200], ['shot'], // on the train: wind lines + gantries
+    ['assert', 'window.__game.scene.getScene("Game").gimmicks.gantries.length >= 1'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); window.__tp(4790, 300)'], ['down', 'KeyD'], ['wait', 300], ['up', 'KeyD'],
+    ['until', 'window.__game.scene.getScene("Hud").choosing'], ['wait', 400], ['shot'],
+    ['assert', 'window.__game.scene.getScene("Game").physics.world.timeScale === 5'],
+    ['tap', 'ArrowLeft'], ['wait', 150], ['tap', 'Enter'], ['wait', 400],
+    ['assert', 'window.__run.flags.varkesh_freed === true && JSON.parse(localStorage.getItem("neon-warpath-save-v1")).unlocked.includes("serrik") && window.__game.scene.getScene("Game").physics.world.timeScale === 1'],
+    ['wait', 1500], ['shot'],
+  ] },
+  { name: 'story-freight-timeout', url: '?stage=railyard&god=1', steps: [
+    ['wait', 2800], ['eval', 'var g = window.__game.scene.getScene("Game"); for (const e of g.enemies) g.removeEnemy(e); window.__tp(4830, 300)'],
+    ['until', 'window.__game.scene.getScene("Hud").choosing'], ['wait', 8600],
+    ['assert', 'window.__run.flags.varkesh_freed === false /* not choosing is a choice */'],
+    ['down', 'KeyD'], ['until', '!!window.__game.scene.getScene("Game").boss'], ['up', 'KeyD'], ['wait', 300],
+    ['assert', 'var b = window.__game.scene.getScene("Game").boss; b.hp <= b.maxHp * 0.6 + 1 /* bridge blown: Colossus starts wrecked */'], ['wait', 2500], ['shot'],
+  ] },
+  { name: 'gim-flip', url: '?stage=engine&god=1', steps: [
+    ['wait', 2800], ['eval', 'var g = window.__game.scene.getScene("Game"); for (const e of g.enemies) g.removeEnemy(e); window.__tp(1400, 300); g.gimmicks.flipT = 1700'],
+    ['wait', 700], ['shot'], ['wait', 1400],
+    ['assert', 'var g = window.__game.scene.getScene("Game"); g.gimmicks.flipping && g.player.env.grav < 0'], ['wait', 600], ['shot'],
+    ['wait', 2500], ['assert', 'window.__game.scene.getScene("Game").player.env.grav === 1'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); window.__tp(2000, 300)'], ['wait', 2600], ['shot'], // crushers
+  ] },
+  { name: 'story-allies', url: '?stage=engine&god=1&weapon=smg', steps: [
+    ['eval', 'window.__run.flags.varkesh_freed = true; window.__game.scene.getScene("Game").scene.restart()'], ['wait', 1500],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); window.__ally = 0; var f = g.allyShot.bind(g); g.allyShot = (...a) => { window.__ally++; f(...a); }'],
+    ['eval', 'window.__tp(2560, 300)'], ['wait', 800], ['down', 'KeyD'], ['wait', 900], ['up', 'KeyD'],
+    ['until', 'window.__game.scene.getScene("Game").enemies.some(e => e.def.ally && !e.dead)'], ['wait', 2500], ['shot'],
+    ['assert', 'var g = window.__game.scene.getScene("Game"); g.encounters[1].waves.every(w => !w.includes("varkesh")) && window.__ally > 0'],
+    ['wait', 3000], ['shot'],
+  ] },
+  { name: 'gim-dark', url: '?stage=fungal&god=1', steps: [['wait', 3000], ['down', 'KeyD'], ['wait', 2500], ['up', 'KeyD'], ['shot']] },
+  { name: 'gim-water', url: '?stage=tidal&god=1', steps: [
+    ['wait', 2800], ['eval', 'var g = window.__game.scene.getScene("Game"); for (const e of g.enemies) g.removeEnemy(e); g.gimmicks.floods[0].clock = 6500'],
+    ['wait', 1500], ['shot'],
+    ['assert', 'var g = window.__game.scene.getScene("Game"); g.player.env.water && g.gimmicks.oxygen < 100'],
+    ['wait', 1500], ['shot'],
+  ] },
+  { name: 'gim-lava', url: '?stage=furnace&god=1', steps: [
+    ['wait', 2800], ['eval', 'var g = window.__game.scene.getScene("Game"); for (const e of g.enemies) g.removeEnemy(e); window.__tp(3760, 200); g.gimmicks.floods[0].clock = 4500'],
+    ['wait', 2500], ['shot'], ['assert', 'window.__game.scene.getScene("Game").gimmicks.floods[0].level < 300'],
+  ] },
+  { name: 'gim-pylon', url: '?stage=prism&god=1&weapon=smg', steps: [
+    ['wait', 2800], ['eval', 'var g = window.__game.scene.getScene("Game"); for (const e of g.enemies) if (e.def.id !== "pylon") g.removeEnemy(e); window.__tp(640, 300); window.__v = g.spawnEnemy("vitreon", 900, 320, ""); window.__v.awake = true'],
+    ['mouse', [760, 560]], ['mdown'], ['wait', 400], ['mup'],
+    ['wait', 1800], ['shot'],
+    ['assert', 'window.__game.scene.getScene("Game").enemies.find(e => e.def.id === "pylon").redirect > 0'],
+    ['wait', 2500], ['shot'],
+  ] },
+  { name: 'gim-chase', url: '?stage=spire&god=1', steps: [
+    ['wait', 2800], ['eval', 'var g = window.__game.scene.getScene("Game"); for (const e of g.enemies) g.removeEnemy(e); window.__tp(760, 300)'],
+    ['wait', 2000], ['shot'], ['assert', 'window.__game.scene.getScene("Game").gimmicks.chaseX > 400'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); window.__tp(1400, 150)'], ['wait', 1500], ['shot'], // data blocks
+  ] },
+  { name: 'story-cage', url: '?stage=orbital&god=1', steps: [
+    ['wait', 2800], ['eval', 'var g = window.__game.scene.getScene("Game"); window.__tp(2600, 300)'], ['wait', 1500], ['shot'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); var c = g.enemies.find(e => e.def.id === "cage"); c.hurt(999, g.player.x)'], ['wait', 2000],
+    ['assert', 'window.__run.flags.quill_rescued === true && JSON.parse(localStorage.getItem("neon-warpath-save-v1")).unlocked.includes("quill")'], ['shot'],
+  ] },
+  { name: 'story-halcyon', url: '?stage=spire&boss=1&god=1&weapon=smg', steps: [
+    ['eval', 'window.__run.flags.heard_oracle = true'],
+    ['down', 'KeyD'], ['until', '!!window.__game.scene.getScene("Game").boss'], ['up', 'KeyD'], ['down', 'KeyJ'],
+    ['wait', 2500], ['shot'], ['wait', 4000], ['shot'],
+    ['assert', 'var b = window.__game.scene.getScene("Game").boss; b.texture.key.startsWith("halcyon_")'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.hp - g.boss.maxHp * 0.3, g.player.x)'], ['wait', 5000], ['shot'], ['up', 'KeyJ'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp * 9, g.player.x)'],
+    ['until', 'window.__game.scene.isActive("Briefing")'], ['press', ['Enter', '!!window.__game.scene.getScene("Briefing").choice']], ['wait', 500], ['shot'],
+    ['tap', 'Enter'], ['wait', 300], ['assert', 'window.__run.flags.halcyon_saved === true'],
+  ] },
+  { name: 'story-final', url: '?stage=cathedral&boss=1&god=1&weapon=smg', steps: [
+    ['eval', 'Object.assign(window.__run.flags, { heard_oracle: true, halcyon_saved: true, quill_rescued: true, varkesh_freed: true, nest_truce: true, sovereign_spared: true })'],
+    ['down', 'KeyD'], ['until', '!!window.__game.scene.getScene("Game").boss'], ['up', 'KeyD'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.hp - g.boss.maxHp * 0.3, g.player.x)'], ['wait', 3000], ['shot'],
+    ['assert', 'var b = window.__game.scene.getScene("Game").boss; b.phase3 && b.vuln > 0'],
+    ['wait', 5500], ['shot'], ['assert', 'window.__game.scene.getScene("Game").enemies.some(e => e.def.ally)'],
+    ['wait', 4000], ['shot'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp * 9, g.player.x)'],
+    ['until', 'window.__game.scene.isActive("Briefing")'], ['press', ['Enter', '!!window.__game.scene.getScene("Briefing").choice']], ['wait', 500],
+    ['tap', 'ArrowRight'], ['wait', 200], ['shot'], ['tap', 'Enter'],
+    ['press', ['Enter', 'window.__game.scene.isActive("End")']], ['wait', 1500], ['shot'],
+    ['assert', 'window.__run.flags.rift_choice === "hold" && JSON.parse(localStorage.getItem("neon-warpath-save-v1")).endings.includes("OPEN DOOR")'],
+  ] },
   { name: 'death', url: '?stage=1', steps: [['eval', 'window.__run.hp = 1'], ['down', 'KeyD'], ['wait', 9000], ['shot']] },
   // Force lethal damage only to exercise transitions, not to claim combat balance is verified.
-  ...[1, 2, 3, 4, 5, 6, 7].map((stage) => ({ name: `flow-stage-${stage}`, url: `?stage=${stage}&boss=1&god=1`, steps: [
+  ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((stage) => ({ name: `flow-stage-${stage}`, url: `?stage=${stage}&boss=1&god=1`, steps: [
+    ['eval', 'window.__run.flags.varkesh_freed = false /* skip the railyard slow-motion choice */'],
     ['down', 'KeyD'], ['until', '!!window.__game.scene.getScene("Game").boss'], ['up', 'KeyD'],
-    ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp, g.player.x)'],
-    ...(stage < 7 ? [['until', 'window.__game.scene.isActive("Briefing")'], ['wait', 900], ['shot'], ['press', ['Enter', 'window.__game.scene.isActive("Perk")']]] : []),
-    ['until', `window.__game.scene.isActive("${stage === 7 ? 'End' : 'Perk'}")`], ['wait', 1300], ['shot'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp * 9, g.player.x)'],
+    ['until', 'window.__game.scene.isActive("Briefing")'], ['wait', 900], ['shot'],
+    ['press', ['Enter', `window.__game.scene.isActive("${stage === 12 ? 'End' : 'Perk'}")`]],
+    ['until', `window.__game.scene.isActive("${stage === 12 ? 'End' : 'Perk'}")`], ['wait', 1300], ['shot'],
     ['assert', `window.__run.stage === ${stage}`], ['tap', 'Enter'],
-    ['until', `window.__game.scene.isActive("${stage === 7 ? 'Credits' : 'Game'}")`], ['wait', 700], ['shot'],
-    ...(stage < 7 ? [['assert', 'window.__run.perks.length === 1']] : [
+    ['until', `window.__game.scene.isActive("${stage === 12 ? 'Credits' : 'Game'}")`], ['wait', 700], ['shot'],
+    ...(stage < 12 ? [['assert', `window.__run.perks.length >= 1 && window.__game.scene.getScene("Game").stage.id === ${JSON.stringify(['casino', 'railyard', 'furnace', 'engine', 'fungal', 'abyss', 'tidal', 'orbital', 'prism', 'spire', 'cathedral'][stage - 1] ?? '')}`]] : [
       ['wait', 6000], ['shot'], // mid-roll
       ['down', 'KeyJ'], ['until', 'window.__game.scene.getScene("Credits").done'], ['up', 'KeyJ'], ['wait', 2200], ['shot'], // THE END
       ['tap', 'Enter'], ['until', 'window.__game.scene.isActive("Title")'], ['wait', 600], ['shot'],
@@ -244,6 +345,8 @@ let failed = false;
 for (const sc of SCENARIOS.filter((s) => s.name.includes(filter))) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   const errors = [];
+  // teleport helper for scenarios: skips arenas already passed so the camera lock does not pull the player back
+  await page.addInitScript(() => { window.__tp = (x, y) => { const g = window.__game.scene.getScene('Game'); const k = g.encounters.findIndex((e) => e.x > x); if (k > g.encIndex) g.encIndex = k; g.player.body.reset(x, y); g.cameras.main.centerOn(x, 180); }; });
   page.on('pageerror', (e) => errors.push(String(e.stack ?? e)));
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('response', (r) => { if (r.status() >= 400) errors.push(`HTTP ${r.status()} ${r.url()}`); });

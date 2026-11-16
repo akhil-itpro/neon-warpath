@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { DEPTH } from '../config';
+import { DEPTH, GRAVITY } from '../config';
 import { ART_MUZZLES } from '../data/artMuzzles';
 import { ARMS, buildArmRig } from '../systems/ArmRig';
 import { CharacterRig } from '../systems/CharacterRig';
@@ -29,6 +29,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   dropThrough = 0;
   fireCd = 0;
   overdrive = 0; // ms remaining
+  /** Stage environment, set every frame by Gimmicks: gravity / speed / jump multipliers (water, low gravity, flips). */
+  env = { grav: 1, speed: 1, jump: 1, water: false };
   private coyote = 0;
   private buffer = 0;
   private airJumps = 0;
@@ -158,6 +160,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       if (this.overdrive <= 0) { this.aura.setVisible(false); audio.intense = this.gs.bossActive; }
     }
     if (this.dead) return;
+    const env = this.env;
+    body.setGravityY(GRAVITY * (env.grav - 1));
+    body.setMaxVelocityY(env.water ? 360 : 900);
 
     const ground = this.onGround;
     if (ground) { this.coyote = COYOTE; this.airJumps = s.airJumps; } else this.coyote -= dt;
@@ -187,7 +192,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.ghost();
     } else {
       const crouch = ground && c.held('down');
-      const target = crouch ? 0 : axis * s.speed;
+      const target = crouch ? 0 : axis * s.speed * env.speed;
       const a = ground ? ACCEL : AIR_ACCEL;
       const vx = body.velocity.x;
       if (target !== 0) {
@@ -209,7 +214,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.dropThrough = 220; this.buffer = 0;
       } else if (this.coyote > 0 || this.airJumps > 0) {
         if (this.coyote <= 0) { this.airJumps--; this.gs.fx.ring(this.x, this.y, 0x80e0ff, 0.6, 200); }
-        body.setVelocityY(-s.jump);
+        body.setVelocityY(-s.jump * env.jump);
         this.coyote = 0; this.buffer = 0; this.sliding = Math.min(this.sliding, 0);
         audio.sfx('jump'); this.squash = 1;
         this.gs.fx.dustPuff(this.x, this.y, 4);
@@ -274,6 +279,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.anims.stop();
     this.setTexture(`${this.art}_slide`).setTint(0xff6060).setAlpha(1);
     this.arm?.setTint(0xff6060);
+    this.body.setGravityY(0).setMaxVelocityY(900);
     this.body.setVelocity(-this.dir * 160, -320);
     this.body.setAccelerationX(0);
     this.body.setDragX(300);

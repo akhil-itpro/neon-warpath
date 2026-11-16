@@ -76,14 +76,15 @@ export function newRun(opIndex: number) {
 }
 
 // ---- persistent save (localStorage) ----
-interface SaveData { best: number; cleared: number; muted: boolean; op: number; archive: string[]; endings: string[] }
+interface SaveData { best: number; cleared: number; muted: boolean; op: number; archive: string[]; endings: string[]; unlocked: string[] }
 const KEY = 'neon-warpath-save-v1';
 
 export const save: SaveData = (() => {
-  const d: SaveData = { best: 0, cleared: 0, muted: false, op: 0, archive: [], endings: [] };
+  const d: SaveData = { best: 0, cleared: 0, muted: false, op: 0, archive: [], endings: [], unlocked: [] };
   try { Object.assign(d, JSON.parse(localStorage.getItem(KEY) ?? '{}')); } catch { /* corrupt or blocked: use defaults */ }
   if (!Array.isArray(d.archive)) d.archive = [];
   if (!Array.isArray(d.endings)) d.endings = [];
+  if (!Array.isArray(d.unlocked)) d.unlocked = [];
   return d;
 })();
 

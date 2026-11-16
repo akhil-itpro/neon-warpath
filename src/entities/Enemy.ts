@@ -13,6 +13,7 @@ function resolveArt(scene: Phaser.Scene, def: EnemyDef) {
   for (let i = 0; scene.textures.exists(`${def.art}_${i}`); i++) multi.push(`${def.art}_${i}`);
   if (multi.length) return { frames: multi, tint: 0xffffff, scale: def.artScale ?? 1 };
   if (scene.textures.exists(def.art)) return { frames: [def.art], tint: 0xffffff, scale: def.artScale ?? def.fallback.scale ?? 1 };
+  if (scene.textures.exists(`${def.art}_idle`)) return { frames: [`${def.art}_idle`], tint: 0xffffff, scale: def.artScale ?? 1 }; // boss states / operator-style frames
   return { frames: def.fallback.frames, tint: def.fallback.tint ?? 0xffffff, scale: def.fallback.scale ?? 1 };
 }
 
@@ -37,6 +38,15 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private stun = 0;
   private cold = 0; // ms of freeze tint left (cryo weapon)
   private tx = 0; // remembered target x for multi-step attacks
+  vuln = 0;          // time until which this enemy takes double damage (ARCHON shield down)
+  phase3 = false;    // ARCHON's last phase (set by the scene at 33% HP)
+  private collarImg?: Phaser.GameObjects.Image;
+  private lifeLeft = 0;
+  private redirect = 0; // pylon: time until which its beam serves the player
+  private exposed = false; // stomper bosses: dazed after a charge into the wall or a slam
+  private artState = 'idle';
+  private lastMode = '';
+  private busyAt = 0;
 
   constructor(readonly gs: GameScene, readonly def: EnemyDef, x: number, y: number) {
     const art = resolveArt(gs, def);
@@ -64,13 +74,24 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.body.setVelocityX(this.dir * def.speed);
       audio.sfx('warn');
     }
-    if (def.ai === 'boss_heli' || def.ai === 'boss_stomper' || def.ai === 'boss_seer') this.mode = 'enter';
+    if (def.ai === 'boss_heli' || def.ai === 'boss_stomper' || def.ai === 'boss_seer' || def.ai === 'boss_duel') this.mode = 'enter';
+    // collared species wear ARCHON's red ring; freed allies get a blue one, so friend and foe read at a glance
+    if (def.collar || def.ally) this.collarImg = gs.add.image(x, y, 'collar').setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH.enemy + 2).setTint(def.ally ? 0x40c0ff : 0xffffff);
+    if (def.ally) { this.baseTint = 0xb0d8ff; this.setTint(this.baseTint); this.lifeLeft = def.life ?? 25000; this.t = 400; }
   }
 
   get cy() { return this.def.flying ? this.y : this.y - this.displayHeight / 2; }
 
   hurt(dmg: number, srcX: number) {
     if (this.dead) return;
+    const now = this.gs.time.now;
+    if (this.def.ai === 'pylon') { // shooting a pylon turns its next beam against your enemies
+      if (this.redirect < now) { this.gs.fx.popup(this.x, this.y - 70, 'REDIRECTED', '#80f0ff'); this.gs.fx.ring(this.x, this.cy, 0x60f0ff, 1.2, 220); }
+      this.redirect = now + 5000; this.t = Math.min(this.t, 350);
+      return;
+    }
+    if (this.def.states) dmg *= this.artState === 'exposed' ? 1.4 : this.artState === 'attack' ? 0.75 : 1;
+    if (this.vuln > now) dmg *= 2;
     if (this.def.shield && Math.sign(srcX - this.x) === this.dir) { // shield faces the shooter
       dmg *= this.def.shield;
       this.gs.fx.spark(this.x + this.dir * 16, this.cy, 0x9fd0ff, 4);
@@ -114,7 +135,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
   private face() {
     this.dir = this.p.x >= this.x ? 1 : -1;
-    this.setFlipX(this.dir > 0); // source sprites face left
+    this.setFlipX(this.def.facesRight ? this.dir < 0 : this.dir > 0); // enemy source sprites face left
   }
   private hoverTo(tx: number, ty: number, speed: number, ease = 0.06) {
     const b = this.body;
@@ -139,6 +160,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     switch (d.ai) {
       case 'gunner': {
+        if (d.ally) { this.allyGun(dt); break; }
         const range = d.range ?? 200;
         const far = Math.abs(dx) > range;
         // shield carriers turn slowly, so sliding past them opens their back
@@ -303,8 +325,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       case 'boss_core': this.core(dt); break;
       case 'boss_stomper': this.stomper(dt); break;
       case 'boss_seer': this.seer(); break;
+      case 'boss_duel': this.duel(); break;
+      case 'spawner': this.spawner(); break;
+      case 'pylon': this.pylon(); break;
       case 'crate': case 'barrel': break;
     }
+    if (d.states) this.stateArt();
   }
 
   /** Lob an arcing projectile that lands at (tx, ty) after `time` seconds. */
@@ -313,6 +339,177 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     const vy = (ty - sy - 0.5 * GRAVITY * time * time) / time;
     this.shoot(sx, sy, Math.atan2(vy, vx), Math.hypot(vx, vy), 14, { gravity: true, blast: 28, color, life: 3000, scale: 1.3 });
   }
+
+  /** Pauses a boss's attack cycle (story help: spores blind ARCHON). */
+  stall(ms: number) {
+    this.st = Math.max(this.st, ms);
+    if (this.def.ai === 'boss_core') this.mode = 'busy';
+  }
+
+  /** Keeps the collar ring floating above the head; it hides with the body. */
+  preUpdate(time: number, delta: number) {
+    super.preUpdate(time, delta);
+    const c = this.collarImg;
+    if (!c) return;
+    const top = this.def.flying ? this.y - this.displayHeight / 2 : this.y - this.displayHeight;
+    c.setVisible(this.visible && !this.dead).setPosition(this.x, top + 2).setAlpha(0.7 + Math.sin(time / 120 + this.seed) * 0.3);
+  }
+
+  destroy(fromScene?: boolean) {
+    this.collarImg?.destroy();
+    this.collarImg = undefined;
+    super.destroy(fromScene);
+  }
+
+  /** Allies: follow the player, shoot the nearest hostile, leave when their time is up. */
+  private allyGun(dt: number) {
+    const d = this.def, p = this.p;
+    this.lifeLeft -= dt;
+    if (this.lifeLeft <= 0 || this.gs.state !== 'play') { this.gs.fx.ring(this.x, this.cy, 0x60d0ff, 1.4, 260); this.gs.removeEnemy(this); return; }
+    let target: Enemy | null = null, best = 9999;
+    for (const e of this.gs.enemies) {
+      if (e.dead || e.def.ally || e.def.faction === 'prop') continue;
+      const dd = Math.abs(e.x - this.x) + Math.abs(e.cy - this.cy) * 0.5;
+      if (dd < best) { best = dd; target = e; }
+    }
+    this.dir = (target ? target.x : p.x) >= this.x ? 1 : -1;
+    this.setFlipX(this.dir > 0);
+    const far = Math.abs(p.x - this.x) > 130;
+    this.body.setVelocityX(far ? Math.sign(p.x - this.x) * d.speed : 0);
+    this.walkAnim(dt, far);
+    if (!target || best > (d.range ?? 260) + 80 || this.t > 0) return;
+    this.t = (d.fireRate ?? 900) * R.FloatBetween(0.8, 1.2);
+    const [fx, fy] = d.muzzle ?? [26, 45];
+    const tgt = target;
+    for (let i = 0; i < (d.burst ?? 2); i++) this.later(i * 110, () => {
+      const mx = this.x + this.dir * fx * this.scale, my = this.y - fy * this.scale;
+      this.gs.allyShot(mx, my, Math.atan2(tgt.cy - my, tgt.x - mx), d.shotSpeed ?? 420, 8, d.shotColor ?? 0x60d0ff);
+    });
+  }
+
+  /** Slot machine: prints gunmen until it is destroyed (casino). */
+  private spawner() {
+    const d = this.def, p = this.p;
+    this.setRotation(Math.sin(this.gs.time.now / 90) * 0.015);
+    if (this.t > 0 || !this.onScreen(-40) || p.dead) return;
+    this.t = (d.fireRate ?? 4200) * R.FloatBetween(0.9, 1.2);
+    const id = d.adds ?? 'gangster';
+    if (this.gs.countAlive(id) >= 4) return;
+    this.gs.telegraph(this.x, this.y - this.displayHeight * 0.6, 0xff70d0, 650, 0.9);
+    audio.sfx('ui');
+    this.later(650, () => {
+      const e = this.gs.spawnEnemy(id, this.x + (Math.random() < 0.5 ? -26 : 26), GROUND_Y, this.tag);
+      e.awake = true;
+      this.gs.fx.ring(this.x, this.y - 30, 0xff70d0, 1.2, 240);
+    });
+  }
+
+  /** Prism pylon: beams at the player; once shot, its next beams hunt your enemies instead (stage 10). */
+  private pylon() {
+    const d = this.def, p = this.p, now = this.gs.time.now;
+    const mine = this.redirect > now;
+    this.setTint(mine ? 0x60f0ff : this.baseTint);
+    if (this.t > 0 || !this.onScreen() || p.dead || Math.abs(p.x - this.x) > 380) return;
+    this.t = (d.fireRate ?? 3600) * R.FloatBetween(0.9, 1.15);
+    const sx = this.x, sy = this.y - this.displayHeight * 0.8;
+    if (mine) {
+      let best = 400, tgt: Enemy | null = null;
+      for (const e of this.gs.enemies) {
+        if (e.dead || e.def.ally || e.def.faction === 'prop') continue;
+        const dd = R.Distance.Between(sx, sy, e.x, e.cy);
+        if (dd < best) { best = dd; tgt = e; }
+      }
+      if (tgt) this.gs.beam(sx, sy, tgt.x, tgt.cy, true, 420);
+    } else this.gs.beam(sx, sy, p.x, p.centerY, false, 820);
+  }
+
+  /** Boss art states: idle / windup / attack / exposed. Exposed takes extra damage, attacking takes less (see hurt). */
+  private stateArt() {
+    const now = this.gs.time.now;
+    if (this.mode !== this.lastMode) { if (this.mode === 'busy') this.busyAt = now; this.lastMode = this.mode; }
+    let st = 'idle';
+    if (this.def.ai === 'boss_seer') {
+      if (this.mode === 'idle') st = 'exposed';
+      else if (this.mode === 'busy') st = now - this.busyAt < 500 ? 'windup' : 'attack';
+    } else if (this.mode === 'wind' || (this.mode === 'leap' && this.sub === 0)) st = 'windup';
+    else if (this.mode === 'charge' || this.mode === 'leap') st = 'attack';
+    else if (this.mode === 'busy') st = this.exposed ? 'exposed' : 'attack';
+    this.artState = st;
+    const key = `${this.def.art}_${st}`;
+    if (this.texture.key !== key && this.scene.textures.exists(key)) this.setTexture(key);
+  }
+
+  // ---------------------------------------------------------------- BOSS: HALCYON (mirror duel, stage 11)
+  // Uses the player's own moves: keeps a distance and shoots (rifle -> shotgun -> rail beam by phase),
+  // slides at you (jump it), and leaps over you when cornered. Every move is telegraphed.
+  private duel() {
+    const p = this.p, a = this.arena, d = this.def, b = this.body, now = this.gs.time.now;
+    const hp = this.hp / this.maxHp, phase = hp > 0.66 ? 0 : hp > 0.33 ? 1 : 2;
+    const ground = b.blocked.down || b.touching.down;
+    const col = d.shotColor ?? 0xffe070;
+    if (this.x < a.left + 20) this.x = a.left + 20; else if (this.x > a.right - 20) this.x = a.right - 20;
+    const gun = () => ({ x: this.x + this.dir * 24, y: this.y - 50 });
+    const [bw, bh] = d.body;
+    const low = (on: boolean) => { const h = on ? 30 : bh; b.setSize(bw, h, false); b.setOffset((this.width - bw) / 2, this.height - h); };
+    if (this.mode === 'enter') {
+      if (ground) { this.mode = 'idle'; this.st = 900; this.gs.fx.dustPuff(this.x, GROUND_Y, 10); audio.sfx('land'); }
+    } else if (this.mode === 'idle') {
+      this.face();
+      const want = [210, 150, 250][phase];
+      const gap = p.x - this.x, dist = Math.abs(gap);
+      let vx = 0;
+      if (dist > want + 30) vx = Math.sign(gap) * d.speed; else if (dist < want - 40) vx = -Math.sign(gap) * d.speed * 0.8;
+      if (ground) b.setVelocityX(vx);
+      if (this.st <= 0 && !p.dead && ground) {
+        const cornered = (this.x < a.left + 60 || this.x > a.right - 60) && dist < 200;
+        const pick = this.n++ % 4;
+        if (dist < 80 || cornered || pick === 3) { // leap over the player
+          this.mode = 'leap'; this.sub = 0;
+          this.tx = R.Clamp(p.x + Math.sign(p.x - this.x || 1) * 130, a.left + 40, a.right - 40);
+          b.setVelocity((this.tx - this.x) / 0.84, -480);
+          audio.sfx('jump'); this.gs.fx.dustPuff(this.x, GROUND_Y, 6);
+        } else if (pick === 1) { // slide charge
+          this.mode = 'wind'; this.st = 480; b.setVelocityX(0);
+          audio.sfx('warn');
+          this.gs.telegraph(this.x + this.dir * 30, GROUND_Y - 14, 0xff4030, 480, 0.8);
+        } else { // shoot
+          this.mode = 'aim'; this.st = phase === 2 ? 820 : 380; b.setVelocityX(0);
+          const g = gun();
+          if (phase === 2) this.gs.beam(g.x, g.y, p.x, p.centerY, false, 820, 16);
+          else this.gs.telegraph(g.x, g.y, col, this.st, 0.7);
+        }
+      }
+    } else if (this.mode === 'aim') {
+      if (this.st <= 0) {
+        if (phase === 0) for (let i = 0; i < 3; i++) this.later(i * 110, () => { const g = gun(); this.shoot(g.x, g.y, Math.atan2(p.centerY - g.y, p.x - g.x), 300, 10, { color: col }); this.gs.fx.muzzle(g.x, g.y, col); });
+        else if (phase === 1) { const g = gun(), ang = Math.atan2(p.centerY - g.y, p.x - g.x); for (let i = -2; i <= 2; i++) this.shoot(g.x, g.y, ang + i * 0.16, 270, 10, { color: col }); this.gs.fx.muzzle(g.x, g.y, col); audio.sfx('shotgun'); }
+        this.mode = 'busy'; this.st = 450;
+      }
+    } else if (this.mode === 'wind') {
+      if (Math.floor(now / 60) % 2) this.setTint(this.baseTint); else this.setTintFill(0xff8080);
+      if (this.st <= 0) { this.setTint(this.baseTint); this.mode = 'dash'; this.st = 520; low(true); audio.sfx('slide'); }
+    } else if (this.mode === 'dash') {
+      b.setVelocityX(this.dir * 440);
+      if (Math.random() < 0.6) this.gs.fx.dustPuff(this.x - this.dir * 10, GROUND_Y, 1);
+      if (this.st <= 0 || this.x <= a.left + 22 || this.x >= a.right - 22) { low(false); b.setVelocityX(0); this.mode = 'busy'; this.st = 600; }
+    } else if (this.mode === 'leap') {
+      if (this.sub === 0 && b.velocity.y > -60) { // apex: fire down at the player
+        this.sub = 1; this.face();
+        for (const o of [-0.25, 0, 0.25]) this.shoot(this.x, this.y - 30, Math.atan2(p.centerY - (this.y - 30), p.x - this.x) + o, 250, 10, { color: col });
+      }
+      if (this.sub === 1 && ground) { b.setVelocityX(0); this.mode = 'busy'; this.st = 450; this.gs.fx.dustPuff(this.x, GROUND_Y, 8); }
+    } else if (this.st <= 0) { this.mode = 'idle'; this.st = [850, 650, 520][phase]; }
+    // pose from the operator-style frames
+    let pose = 'idle';
+    if (this.mode === 'dash') pose = 'slide';
+    else if (!ground) pose = 'jump';
+    else if (this.mode === 'wind') pose = 'crouch';
+    else if (Math.abs(b.velocity.x) > 20) pose = `run${Math.floor(now / 85) % 4}`;
+    const key = `${d.art}_${pose}`;
+    if (this.texture.key !== key && this.scene.textures.exists(key)) this.setTexture(key);
+    if (this.mode !== 'idle' && this.mode !== 'enter') this.setFlipX(this.dir < 0);
+  }
+
 
   explode() {
     if (this.dead) return;
@@ -434,8 +631,16 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.gs.fx.glow(this.x, this.y, 0xff4040, 2.4, 300);
         audio.sfx('blink');
         this.mode = 'busy';
-        const pick = this.n++ % (rage ? 4 : 3);
-        if (pick === 0) {
+        const pick = this.n++ % (this.phase3 ? 6 : rage ? 4 : 3);
+        if (pick === 4) { // phase 3: three aimed light beams (stage 10)
+          this.st = 2000;
+          for (let k = 0; k < 3; k++) this.later(k * 380, () => this.gs.beam(this.x, this.y, p.x + (k - 1) * 70, p.centerY, false, 850, 14));
+        } else if (pick === 5) { // phase 3: gravity inversion (stage 5) with slow rings
+          this.st = 3600;
+          this.gs.banner('! GRAVITY INVERSION !', 1200, '#ff6070'); audio.sfx('warn');
+          this.later(1200, () => this.gs.gimmicks.flipGravity(2600));
+          for (let r = 0; r < 3; r++) this.later(1400 + r * 700, () => { for (let i = 0; i < 10; i++) this.shoot(this.x, this.y, (i / 10) * Math.PI * 2 + r * 0.3, 120, 10, { life: 3200 }); });
+        } else if (pick === 0) {
           const rings = rage ? 5 : 3;
           this.st = 500 + rings * 650;
           for (let r = 0; r < rings; r++) this.later(450 + r * 650, () => { for (let i = 0; i < 14; i++) this.shoot(this.x, this.y, (i / 14) * Math.PI * 2 + r * 0.22, 135, 10, { life: 3200 }); audio.sfx('eshoot'); this.gs.fx.glow(this.x, this.y, 0xff4040, 1.8, 200); });
@@ -482,6 +687,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.walkAnim(dt, far);
       if (this.st > 0 || p.dead) return;
       b.setVelocityX(0); this.setRotation(0);
+      this.exposed = false;
       const pick = this.n++ % (rage ? 4 : 3);
       if (pick === 0) {
         this.mode = 'wind'; this.st = 700;
@@ -532,6 +738,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         b.setVelocityX(0); this.setRotation(0);
         if (wall) { this.gs.fx.shake(7); this.gs.fx.dustPuff(this.x + this.dir * edge, GROUND_Y, 14); audio.sfx('explode'); }
         this.mode = 'busy'; this.st = rage ? 600 : 1000; // dazed against the wall: free damage
+        this.exposed = wall;
       }
     } else if (this.mode === 'leap') {
       if (this.sub === 0) {
@@ -549,7 +756,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         const wave = () => { for (const s of [-1, 1]) this.shoot(this.x + s * edge, GROUND_Y - 9, s > 0 ? 0 : Math.PI, 230, 14, { color: col, scale: 1.4 }); };
         wave();
         if (rage) this.later(380, wave);
-        this.mode = 'busy'; this.st = 900;
+        this.mode = 'busy'; this.st = 900; this.exposed = true;
       }
     } else if (this.st <= 0) { this.mode = 'idle'; this.st = rage ? 700 : 1200; }
   }

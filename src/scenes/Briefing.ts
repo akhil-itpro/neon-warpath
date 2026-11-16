@@ -3,7 +3,7 @@ import { W, H, FONT } from '../config';
 import { run } from '../systems/Run';
 import { STAGES } from '../data/stages';
 import { STORY, type Choice, type ChoiceOption, type Line } from '../data/story';
-import { condOk, filterLines, portraitKey, speakerColor, speakerName } from '../systems/Story';
+import { applyChoice, condOk, filterLines, portraitKey, speakerColor, speakerName } from '../systems/Story';
 import { audio } from '../systems/Audio';
 import { Controls } from '../systems/Controls';
 
@@ -47,28 +47,29 @@ export class BriefingScene extends Phaser.Scene {
     this.controls = new Controls(this);
 
     const prev = STAGES[run.stage - 1];
-    const st = STAGES[run.stage];
+    const final = run.stage >= STAGES.length; // after the last boss: only the final choice remains
+    const st = STAGES[Math.min(run.stage, STAGES.length - 1)];
     const after = prev ? STORY[prev.id]?.after : undefined;
     this.steps = [
       ...filterLines(after?.lines ?? []).map((line) => ({ line })),
       ...(after?.choice ? [...filterLines(after.choice.prompt).map((line) => ({ line })), { choice: after.choice }] : []),
-      ...filterLines(STORY[st.id]?.briefing ?? []).map((line) => ({ line })),
+      ...(final ? [] : filterLines(STORY[st.id]?.briefing ?? []).map((line) => ({ line }))),
     ];
     if (!this.steps.length) { this.scene.start(this.next); return; }
 
     this.add.tileSprite(0, 0, W, H, st.bg).setOrigin(0).setTint(0x283048);
     const g = this.add.graphics();
     g.fillStyle(0x000000, 0.55).fillRect(0, 0, W, 40).fillRect(0, H - 40, W, 40);
-    this.txt(W / 2, 14, `BRIEFING  -  STAGE ${run.stage + 1}`, 8, '#9fe8ff').setOrigin(0.5, 0);
-    this.txt(W / 2, 26, st.name, 8, '#ffd040').setOrigin(0.5, 0);
+    this.txt(W / 2, 14, final ? 'DEBRIEF' : `BRIEFING  -  STAGE ${run.stage + 1}`, 8, '#9fe8ff').setOrigin(0.5, 0);
+    this.txt(W / 2, 26, final ? 'THE RIFT' : st.name, 8, '#ffd040').setOrigin(0.5, 0);
 
     // portraits: the operator on the left, whoever they are talking to on the right
     this.leftFrame = this.add.rectangle(110, 130, 100, 100).setStrokeStyle(2, 0x40e0ff);
-    this.left = this.add.image(110, 130, portraitKey('op')).setScale(2);
+    this.left = this.add.image(110, 130, portraitKey('op')).setDisplaySize(96, 96);
     this.rightFrame = this.add.rectangle(W - 110, 130, 100, 100).setStrokeStyle(2, 0x40e0ff);
-    this.right = this.add.image(W - 110, 130, portraitKey('juno')).setScale(2).setFlipX(true);
+    this.right = this.add.image(W - 110, 130, portraitKey('juno')).setDisplaySize(96, 96).setFlipX(true);
     const firstOther = this.steps.find((s): s is { line: Line } => 'line' in s && s.line.who !== 'op');
-    if (firstOther) this.right.setTexture(portraitKey(firstOther.line.who));
+    if (firstOther) this.right.setTexture(portraitKey(firstOther.line.who)).setDisplaySize(96, 96);
 
     const bg = this.add.graphics();
     bg.fillStyle(0x05060a, 0.9).fillRect(0, 0, 560, 84);
@@ -93,10 +94,13 @@ export class BriefingScene extends Phaser.Scene {
     this.nameTxt.setText(speakerName(l.who)).setColor(speakerColor(l.who));
     this.bodyTxt.setText('');
     const me = l.who === 'op';
-    if (!me) this.right.setTexture(portraitKey(l.who));
+    if (!me) this.right.setTexture(portraitKey(l.who)).setDisplaySize(96, 96);
     this.left.setAlpha(me ? 1 : 0.4); this.leftFrame.setStrokeStyle(2, me ? 0x40e0ff : 0x303848);
     this.right.setAlpha(me ? 0.4 : 1); this.rightFrame.setStrokeStyle(2, me ? 0x303848 : l.who === 'archon' ? 0xff4060 : 0x40e0ff);
-    this.tweens.add({ targets: me ? this.left : this.right, scale: { from: 2.1, to: 2 }, duration: 160 });
+    const pic = me ? this.left : this.right;
+    this.tweens.killTweensOf(pic); pic.setDisplaySize(96, 96);
+    const s0 = pic.scaleX;
+    this.tweens.add({ targets: pic, scaleX: { from: s0 * 1.05, to: s0 }, scaleY: { from: s0 * 1.05, to: s0 }, duration: 160 });
     audio.sfx(l.who === 'archon' ? 'static' : 'radio');
   }
 
@@ -130,9 +134,7 @@ export class BriefingScene extends Phaser.Scene {
 
   private pick(o: ChoiceOption) {
     this.hold = 0; this.needRelease = true; // the replies are the payoff: a held button must not skip them
-    Object.assign(run.flags, o.set);
-    run.choices.push(o.record);
-    if (o.bonusCards) run.bonusCards = o.bonusCards;
+    applyChoice(o);
     audio.sfx('select');
     this.cards.forEach((card, i) => this.tweens.add({ targets: card, alpha: 0, scale: i === this.sel ? 1.25 : 0.8, duration: 300, onComplete: () => card.destroy() }));
     this.cards = [];

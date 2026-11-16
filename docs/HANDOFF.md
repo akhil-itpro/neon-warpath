@@ -2,7 +2,43 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
-## Session 13 - 2026-11-15 (Claude Code, story system B1-B4 + B6 + partial B7/B8) — NEXT AGENT START HERE
+## Session 14 - 2026-11-16 (Claude Code, full 12-stage campaign: C gimmicks + D new stages + B5/B7/B8 + ARCHON phase 3) — NEXT AGENT START HERE
+
+### Owner said
+"Continue till you finish this game; if needed write a handoff for Codex for any images or other assets and artwork."
+The owner has still not reviewed ROOK. **Art requests for Codex are now in `docs/CODEX_ART_HANDOFF.md`** (replaces the list in Session 13).
+
+### Built this session (the whole STORY.md campaign is now playable start to finish)
+- **12 stages in STORY.md order:** city, casino, **railyard**, furnace, **engine**, fungal, abyss, **tidal**, orbital, **prism**, **spire**, cathedral. Stage numbers in `?stage=N` changed; use ids.
+- **Art brought in:** `tools/integrate_campaign.py` copies Frontier + species library sprites into `public/assets` and swaps the old red outline to the live near-black / operator rim (114 images, incl. `bg_railyard`, `bg_engine`, 12 species, 4 boss state sets, SERRIK/QUILL poses, KESTREL frames as `halcyon_*`). `bg_tidal`, `bg_prism`, `bg_spire` are procedural stand-ins in `Boot.makeBackdrops` (skipped once a PNG exists).
+- **Stage gimmicks** (`src/systems/Gimmicks.ts`, data fields on `StageDef`, documented at the top of `stages.ts`): city swinging billboards (movers), casino roulette floor + slot-machine spawners (`slot` enemy), railyard train with head-height gantries (crouch/slide) + wind, furnace rising lava section, engine crushers + gravity flips every 20 s, fungal darkness with a light radius (wider after a hive truce and in the boss arena; enemy bullets and telegraphs draw above the dark), abyss flooding rooms, tidal 12 s tide over the whole stage (water = slower, floatier, air meter, drowning damage), orbital low gravity, prism crystal pylons (beam the player; shoot one and its beams hit enemies), spire floor deletion chase + data blocks + movers, cathedral blinking data platforms. Player environment multipliers live in `Player.env` (set by Gimmicks each frame; movement constants untouched).
+- **New roster** (`enemies.ts`): marauder, kite, acolyte, skate, varkesh, corvane, kharrix, ferrivor, nacreth, cirrid, myrrhkin, thren, vitreon, lithurn, geliform (splits into `gelling`), asterid; gimmick objects slot, pylon, cage. Collared species show a red ring (`collar` trait); allies a blue ring.
+- **New bosses:** SWITCHYARD COLOSSUS (stomper), KILN MATRIARCH (seer), TIDE SOVEREIGN (seer), PRISM REGENT (stomper), **HALCYON** (`boss_duel`: keeps distance, rifle -> shotgun -> rail beam by phase, slide charge to jump over, leaps over you when cornered). `states` trait: boss art switches idle/windup/attack/exposed; exposed takes 1.4x damage, attacking 0.75x.
+- **ARCHON phase 3** at 33% HP: aimed light beams and gravity inversion added to its cycle; story help per flag (Halcyon drops the shield = double damage 10 s, Corvane dive clears bullets, Varkesh allies, spores stall it 6 s).
+- **Story:** all 5 new stages' briefings/comms/boss lines from STORY.md; bridged lines restored (Act I ending now after the railyard, abyss -> Nacreth signal). Choices: C2 FREIGHT CARS is an **in-level slow-motion choice** (B5: world at 1/5 speed, 8 s timer, default = blow the bridge; `CHOICES` in story.ts, HUD `choice()`), C4 SOVEREIGN (finish = +50 000 and a random perk), C6 HALCYON (locked "YOU DON'T KNOW HOW" without the Oracle truth), C7 RIFT after the final boss (Briefing runs once more with `next: 'End'`; HOLD needs the Tide Pearl). Consequences: Colossus starts at 60% if the bridge was blown; freed Varkesh allies in engine arenas 2-3 and at Colossus 50%; otherwise Varkesh join enemy waves in engine and prism; finishing the Sovereign adds Nacreth to prism; Quill's cage on a high girder in orbital (shoot it); Corvane leave the spire if Quill was rescued.
+- **Allies (B7):** `ally: true` enemy defs follow the player, shoot hostiles with the player's shot pool, are ignored by player shots/blasts/aim-assist/arena checks, leave after `life` ms.
+- **Endings (B8):** `pickEnding()` in `Story.ts` implements ASHES / DAWN / OPEN DOOR exactly per STORY.md (4 mercy flags). Credits open with the ending-specific epilogue and the list of choices; 30+ shards play the secret post-credits shot. 36 shards / 36 lore entries.
+- **Unlockable operators:** SERRIK (open the freight cars) and QUILL (free the cage) are saved in `save.unlocked` and selectable on Title (locked ones are greyed with the unlock hint).
+- **HUD:** comms panel moved to the **top band** (it covered the hero bottom-left); air meter under the shard counter; portraits now accept painted PNGs of any size with no code change.
+- Smoke: `x-<id>` + `x-<id>-boss` for the 5 new stages, `gim-*` (movers, roulette + slot, flip + crushers, dark, water, lava, pylon, chase), `story-freight`, `story-freight-timeout`, `story-allies`, `story-cage`, `story-halcyon`, `story-final` (phase 3 + allies + OPEN DOOR), `flow-stage-1..12`. Runner helper `window.__tp(x, y)` teleports past arena triggers.
+
+### Verified
+- `npm run check` passes. All `gim-*`, `story-*` and `x-*` scenarios pass; screenshots looked at for every gimmick, the freight choice overlay, Colossus at 60%, Matriarch, Sovereign, Regent, Halcyon, ARCHON phase 3 with Varkesh allies, the Halcyon choice cards and the OPEN DOOR results screen.
+- **Full suite: 68/68 smoke scenarios pass, no browser errors** (one old flaky check in `arm-rig`, crouch asserted after key release, was fixed and passes 3/3). `npm run build` passes. Credits show the ending epilogue (looked at).
+
+### NOT verified / known limits
+- **Nobody has played any stage at normal health.** All new tuning (boss HP, crusher timing, tide period, chase speed, gantry spacing, pylon beam damage) is a first guess. The balance bot (E) was not built.
+- HOLD IT OPEN does not run the 60-second survival wave from STORY.md; it goes straight to the ending.
+- The spire is a horizontal stage with a deletion chase, not the vertical climb STORY.md describes (the camera is horizontal-only). Furnace lava is a rising level in one section, not a vertical climb.
+- HALCYON uses KESTREL's frames (Codex request). Pylon, cage and slot machine use tinted stand-ins.
+- Gamepad on the in-level choice overlay and audio of new moments are untested.
+
+### Next
+1. Owner plays (ideally stages 1-3) and gives one sentence of feedback; also the ROOK verdict.
+2. Codex: `docs/CODEX_ART_HANDOFF.md` top to bottom.
+3. Balance pass at normal health (a bot that plays without god mode would help), then the HOLD survival wave and the vertical spire if wanted.
+
+## Session 13 - 2026-11-15 (Claude Code, story system B1-B4 + B6 + partial B7/B8)
 
 ### Owner said
 "Codex has done some work, you continue the rest." Then: "update the handoff; if you need more artwork from Codex, put it here." Session 12 asked for owner review of the new ROOK rig before redoing other characters. The owner chose to continue, so this session did the **code-only story work (B)**, which needs no new art. **The owner has still not given an opinion on ROOK.** Ask again when they next play.
