@@ -30,8 +30,7 @@ JOBS: dict[Path, dict[str, str]] = {
     FRONTIER / 'sprites': {
         **{k: k for k in ANIM('rail_marauder') + ANIM('storm_kite') + ANIM('bellows_acolyte') + ANIM('cinder_skate')},
         **{k: k for k in STATES('switchyard_colossus') + STATES('kiln_matriarch')},
-        # HALCYON's combat frame borrows the Frontier operator KESTREL until his own rig exists (Codex request)
-        **{f'kestrel_{p}': f'halcyon_{p}' for p in ('run0', 'run1', 'run2', 'run3', 'idle', 'jump', 'slide', 'crouch')},
+        # HALCYON has dedicated art now; rebuild with process_campaign_finish.py.
         **{k: k for k in ('rail_signal', 'storm_battery', 'pressure_vent', 'furnace_shrine', 'coolant_pump', 'cargo_drone_wreck', 'salvage_cache', 'ember_egg')},
     },
     SPECIES / 'sprites': {

@@ -1,5 +1,21 @@
 # Art pipeline — how new art gets into the game
 
+## Campaign finishing art (Session 17)
+
+Built-in imagegen originals and exact prompts live in `art/source/campaign_finish/`.
+`python -B tools/process_campaign_finish.py` exports HALCYON's eight 96x72 frames, the cage,
+pylon and slot machine, and twelve 64x64 portraits. It preserves unrelated manifest entries.
+The HALCYON poses use one source scale calibrated to a 56px idle; the slide crop includes its
+coat beyond the nominal grid cell. Alpha cleaning, 96-colour reduction and dark outlines are
+reproducible. Preview: `art/preview/campaign-finish.png`, `halcyon-run.gif`.
+The campaign integrator no longer overwrites HALCYON with KESTREL. Muzzle offsets live in
+`src/data/artMuzzles.ts`; changing these frames requires checking the duel shots too.
+`npm.cmd run smoke -- art-finish` verifies all textures and captures every pose in engine.
+Use `story-halcyon`, `story-cage`, `gim-pylon`, `gim-roulette`, `story-comms`, `title` for context.
+
+Historical library notes below predate campaign integration; Session 14 integrated the Frontier
+and species assets. Current source-of-truth status is in HANDOFF, not those older freeze notes.
+
 ## Campaign world backdrops (2026-11-16)
 
 The live 12-stage campaign now uses painted backgrounds for Tidal Vault, Prism Wastes and Lattice Spire.

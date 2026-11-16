@@ -23,7 +23,7 @@ The code picks the real art automatically once the key exists (stand-ins are onl
 **Completed 2026-11-16 (Codex):** all three PNGs are live. Immutable sources and exact prompts are in
 `art/source/campaign_worlds/`; rebuild with `python -B tools/process_campaign_worlds.py`. The outputs are
 1280 x 360 RGB mirrored strips, following the existing world pipeline. Separate parallax layers remain optional.
-`Boot.makeBackdrops` retains procedural fallbacks for missing PNGs. **Next art priority: HALCYON (section 2).**
+`Boot.makeBackdrops` retains procedural fallbacks for missing PNGs. **Sections 2-4 are now complete; optional rig polish remains in section 5.**
 
 | Key | World | Look | Smoke to check |
 |---|---|---|---|
@@ -51,6 +51,11 @@ neural jack at the neck, long dark combat coat over armour, gold commander pips,
   boss can use `CharacterRig`.
 - Check with `npm.cmd run smoke -- story-halcyon` and `x-spire-boss`.
 
+**Completed Session 17:** HALCYON now has his own eight-pose sheet, generated as one source
+with shared-scale processing. KESTREL copying was removed. Rifle muzzle offsets are measured
+in `artMuzzles.ts` and used by the duel's standing and airborne shots. This is a full-frame
+animation, not a part rig. Sources/prompts: `art/source/campaign_finish/`.
+
 ## 3. Three props (small, quick)
 
 | Key | What | Size (game px) | Stand-in today | Smoke |
@@ -60,6 +65,9 @@ neural jack at the neck, long dark combat coat over armour, gold commander pips,
 | `slot_machine` | A tall neon casino slot machine with a gun-barrel coin slot, pink and gold. Faces LEFT. | about 36 x 64 | tinted street terminal | `gim-roulette` |
 
 Neutral prop outline is fine for these (`GREY` in `integrate_expansion.py`), or `#0b0d14`.
+
+**Completed Session 17:** all three prop textures are live. Their physics scaling and hitboxes
+are preserved; only the image changes. Rebuild: `python -B tools/process_campaign_finish.py`.
 
 ## 4. Portraits (comms panel + briefings)
 
@@ -72,6 +80,10 @@ Keys: `portrait_rook`, `portrait_viper`, `portrait_titan`, `portrait_serrik`, `p
 
 To swap: just add the PNG (any size, square) and its manifest key. The code already skips the procedural bust when the texture exists and scales portraits to 48 px (HUD) and 96 px (Briefing).
 Character notes are in `docs/STORY.md` section 2. Check with `story-comms` and `title`.
+
+**Completed Session 17:** all twelve requested portraits now use a consistent painted-pixel
+atlas, exported to 64x64 PNGs. ARCHON remains its procedural glyph. Exact source/prompt and
+rebuild script are shared with the campaign finishing batch.
 
 ## 5. Animation rigs still on the old method (A3/A4)
 

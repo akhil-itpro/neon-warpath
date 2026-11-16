@@ -10,7 +10,9 @@ Owner requested completion, missing art/animation, double jump, rechargeable def
 - Standard double jump; JUMP BOOSTERS adds a third jump. E/F or gamepad LT activates a distinct skill for all five characters. ROOK AEGIS shield, VIPER PHASE haste/invulnerability, TITAN SHOCKWAVE + damage reduction, SERRIK RALLY heal/damage, QUILL UPDRAFT launch/purge/glide. Values and descriptions in `src/data/abilities.ts`.
 - Animated fields, individual synthesized SFX, recharge/active HUD, Title and pause descriptions. Recharge begins after active duration; pause/choices freeze it; death/retry resets it.
 - Seven new browser smoke scenarios verify jumps/perk, protection at normal health, real projectile absorption, allied/prop safety, expiry, held input, cooldown, pause and retry. `check` passes. Initial kit run passed 6/7 and exposed a real UPDRAFT bug: Arcade max velocity limits both directions. Fixed with a descent-only clamp and preserving the launch when jump is not held; focused `kit-gale` now passes. Viewed shield and pause screenshots. Full regression pending after assets.
-- Generated HALCYON source and cage art with built-in imagegen; integration/verification still in progress. Originals/prompts under `art/source/campaign_finish/`.
+- Integrated 23 finished art textures from five built-in imagegen sources: HALCYON's eight poses, three props, twelve portraits. Originals/exact prompts in `art/source/campaign_finish/`; deterministic rebuild `python -B tools/process_campaign_finish.py`. Preview contact sheet and animated run GIF in `art/preview/` (ignored).
+- HALCYON no longer borrows KESTREL. Measured muzzle offsets drive the duel's shots. Full-frame animation, not a part rig. Props preserve the previous physics scale and collision dimensions. ARCHON keeps its glyph.
+- Viewed the full processed contact sheet, in-game props/HALCYON and painted radio/briefing portraits. `story-halcyon` passes; focused asset regression is running.
 
 ### Next in this session / if interrupted
 1. Finish HALCYON eight poses and three prop replacements, preserve reproducible source processing.

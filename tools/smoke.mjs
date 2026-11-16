@@ -10,6 +10,20 @@ import { KIT_SCENARIOS } from './kit-scenarios.mjs';
 const filter = process.argv[2] ?? '';
 const SCENARIOS = [
   ...KIT_SCENARIOS,
+  { name: 'art-finish', url: '?stage=city&god=1', steps: [
+    ['wait', 2800],
+    ['eval', `var g = window.__game.scene.getScene('Game');
+      for (const e of [...g.enemies]) g.removeEnemy(e);
+      window.__props = ['cage', 'pylon', 'slot'].map((id, i) => g.spawnEnemy(id, 230 + 120 * i, 320, 'add'));
+      for (const e of window.__props) e.tick = () => {};
+      window.__finishBoss = g.spawnEnemy('halcyon', 140, 320, 'add'); window.__finishBoss.tick = () => {};`],
+    ['assert', `window.__props.map(e => e.texture.key).join(',') === 'quill_cage,prism_pylon,slot_machine' && window.__finishBoss.texture.key === 'halcyon_idle'`],
+    ['assert', `var g = window.__game.scene.getScene('Game'); ['rook','viper','titan','serrik','quill','juno','patch','croupier','oracle','myrrhkin','sovereign','halcyon'].every(id => { const s = g.textures.get('portrait_' + id).getSourceImage(); return s.width === 64 && s.height === 64; })`],
+    ['wait', 200], ['shot'],
+    ...['run0','run1','run2','run3','jump','slide','crouch'].flatMap(pose => [
+      ['eval', `window.__finishBoss.setTexture('halcyon_${pose}')`], ['wait', 60], ['shot'],
+    ]),
+  ] },
   { name: 'art-pickups', url: '?stage=1&god=1', steps: [
     ['wait', 2800],
     ['eval', `var g = window.__game.scene.getScene('Game');
@@ -369,7 +383,7 @@ for (const channel of ['chrome', 'msedge']) {
 if (!browser) { console.error('No Chrome or Edge found'); process.exit(2); }
 
 let failed = false;
-for (const sc of SCENARIOS.filter((s) => s.name.includes(filter))) {
+for (const sc of SCENARIOS.filter((s) => filter.split('|').some(f => s.name.includes(f)))) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   const errors = [];
   // teleport helper for scenarios: skips arenas already passed so the camera lock does not pull the player back

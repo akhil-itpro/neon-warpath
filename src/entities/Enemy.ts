@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { DEPTH, GROUND_Y, GRAVITY } from '../config';
+import { ART_MUZZLES } from '../data/artMuzzles';
 import type { EnemyDef } from '../data/enemies';
 import { audio } from '../systems/Audio';
 import type { GameScene } from '../scenes/Game';
@@ -449,7 +450,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     const ground = b.blocked.down || b.touching.down;
     const col = d.shotColor ?? 0xffe070;
     if (this.x < a.left + 20) this.x = a.left + 20; else if (this.x > a.right - 20) this.x = a.right - 20;
-    const gun = () => ({ x: this.x + this.dir * 24, y: this.y - 50 });
+    const gun = () => {
+      const [x, y] = ART_MUZZLES[this.texture.key] ?? [24, 50];
+      return { x: this.x + this.dir * x * this.scaleX, y: this.y - y * this.scaleY };
+    };
     const [bw, bh] = d.body;
     const low = (on: boolean) => { const h = on ? 30 : bh; b.setSize(bw, h, false); b.setOffset((this.width - bw) / 2, this.height - h); };
     if (this.mode === 'enter') {
@@ -496,7 +500,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     } else if (this.mode === 'leap') {
       if (this.sub === 0 && b.velocity.y > -60) { // apex: fire down at the player
         this.sub = 1; this.face();
-        for (const o of [-0.25, 0, 0.25]) this.shoot(this.x, this.y - 30, Math.atan2(p.centerY - (this.y - 30), p.x - this.x) + o, 250, 10, { color: col });
+        const g = gun();
+        for (const o of [-0.25, 0, 0.25]) this.shoot(g.x, g.y, Math.atan2(p.centerY - g.y, p.x - g.x) + o, 250, 10, { color: col });
       }
       if (this.sub === 1 && ground) { b.setVelocityX(0); this.mode = 'busy'; this.st = 450; this.gs.fx.dustPuff(this.x, GROUND_Y, 8); }
     } else if (this.st <= 0) { this.mode = 'idle'; this.st = [850, 650, 520][phase]; }

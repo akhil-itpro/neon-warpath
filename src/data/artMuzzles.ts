@@ -1,6 +1,9 @@
 // Barrel tips measured from the processed 96x72 operator frames.
 // Offsets are from the sprite origin (center X, feet Y); positive Y means above feet.
 export const ART_MUZZLES: Record<string, readonly [number, number]> = {
+  // Dedicated HALCYON sheet, campaign_finish; measured at the opaque barrel tip.
+  halcyon_run0: [22, 36], halcyon_run1: [22, 36], halcyon_run2: [22, 36], halcyon_run3: [21, 36],
+  halcyon_idle: [17, 44], halcyon_jump: [20, 32], halcyon_slide: [20, 26], halcyon_crouch: [21, 26],
   viper_run0: [24, 48],
   viper_run1: [24, 49],
   viper_run2: [24, 48],
