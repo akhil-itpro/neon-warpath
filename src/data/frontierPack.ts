@@ -2,6 +2,7 @@
 // Numeric values are initial playtest candidates, not verified balance.
 // Copy selected entries into the live registries only after loading their staged PNGs.
 import type { OperatorDef } from './operators';
+import { ABILITIES } from './abilities';
 import type { WeaponDef } from './weapons';
 import type { EnemyDef } from './enemies';
 
@@ -19,10 +20,10 @@ export const FRONTIER_PACK = {
 export const FRONTIER_OPERATORS: OperatorDef[] = [
   { id: 'kestrel', name: 'KESTREL', role: 'AIR ASSAULT',
     blurb: 'Former storm courier. Takes the high route.', art: 'kestrel', tint: 0xffffff,
-    hp: 85, speed: 180, dmg: 1.05, rate: 1, jump: 500, weapon: 'pistol' },
+    hp: 85, speed: 180, dmg: 1.05, rate: 1, jump: 500, weapon: 'pistol', ability: ABILITIES.gale },
   { id: 'moth_operator', name: 'MOTH', role: 'SALVAGER',
     blurb: 'Built his own arm. Breaks everyone else\'s machines.', art: 'moth', tint: 0xffffff,
-    hp: 110, speed: 165, dmg: 1.15, rate: .95, jump: 425, weapon: 'pistol' },
+    hp: 110, speed: 165, dmg: 1.15, rate: .95, jump: 425, weapon: 'pistol', ability: ABILITIES.quake },
 ];
 
 // Barrel tips measured from processed 96x72 frames using previews/operator_muzzle_grid.png.

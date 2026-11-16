@@ -2,6 +2,21 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
+## Session 17 - 2026-11-16 (Codex, operator kits + campaign finishing pass) - IN PROGRESS
+
+Owner requested completion, missing art/animation, double jump, rechargeable defensive skills and distinct playable character abilities. Preserve the action campaign with RPG-style perk builds; no scope reset.
+
+### Working step: operator kits
+- Standard double jump; JUMP BOOSTERS adds a third jump. E/F or gamepad LT activates a distinct skill for all five characters. ROOK AEGIS shield, VIPER PHASE haste/invulnerability, TITAN SHOCKWAVE + damage reduction, SERRIK RALLY heal/damage, QUILL UPDRAFT launch/purge/glide. Values and descriptions in `src/data/abilities.ts`.
+- Animated fields, individual synthesized SFX, recharge/active HUD, Title and pause descriptions. Recharge begins after active duration; pause/choices freeze it; death/retry resets it.
+- Seven new browser smoke scenarios verify jumps/perk, protection at normal health, real projectile absorption, allied/prop safety, expiry, held input, cooldown, pause and retry. `check` passes. Initial kit run passed 6/7 and exposed a real UPDRAFT bug: Arcade max velocity limits both directions. Fixed with a descent-only clamp and preserving the launch when jump is not held; focused `kit-gale` now passes. Viewed shield and pause screenshots. Full regression pending after assets.
+- Generated HALCYON source and cage art with built-in imagegen; integration/verification still in progress. Originals/prompts under `art/source/campaign_finish/`.
+
+### Next in this session / if interrupted
+1. Finish HALCYON eight poses and three prop replacements, preserve reproducible source processing.
+2. Run full smoke + build, inspect screenshots; update this entry with final evidence.
+3. Remaining release limitations: human normal-health playthrough, physical gamepad/audio evaluation, vertical spire/lava layouts, portrait and additional rig polish, accessibility/options and packaging. Do not call this release-ready just because smoke passes.
+
 ## Session 16 - 2026-11-16 (Claude Code, check Codex's work + HOLD finale + bot-found bugs) — NEXT AGENT START HERE
 
 ### Owner said

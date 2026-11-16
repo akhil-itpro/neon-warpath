@@ -29,6 +29,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   dropThrough = 0;
   fireCd = 0;
   overdrive = 0; // ms remaining
+  abilityTime = 0;
+  abilityCd = 0;
+  private abilityFx: Phaser.GameObjects.Graphics;
   /** Stage environment, set every frame by Gimmicks: gravity / speed / jump multipliers (water, low gravity, flips). */
   env = { grav: 1, speed: 1, jump: 1, water: false };
   private coyote = 0;
@@ -55,12 +58,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     super(gs, x, y, `${art}_idle`);
     this.art = art;
     this.baseTint = hasArt ? 0xffffff : op.tint;
+    this.airJumps = run.stats.airJumps;
     gs.add.existing(this);
     gs.physics.add.existing(this);
     this.setOrigin(0.5, 1).setDepth(DEPTH.player).setTint(this.baseTint);
     this.setSize2(STAND);
     this.body.setMaxVelocityY(900);
     this.aura = gs.add.image(x, y, 'glow').setBlendMode(Phaser.BlendModes.ADD).setTint(0xffc040).setDepth(DEPTH.player - 1).setVisible(false);
+    this.abilityFx = gs.add.graphics().setDepth(DEPTH.player + 0.2);
 
     if (op.rig && CharacterRig.available(gs, op.rig)) {
       this.rig = new CharacterRig(gs, op.rig);
@@ -86,6 +91,30 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   get onGround() { return this.body.blocked.down || this.body.touching.down; }
   get low() { return this.body.height === LOW[1]; }
   get centerY() { return this.y - this.body.height / 2; }
+  get ability() { return this.abilityTime > 0 ? run.op.ability : null; }
+
+  /** A visible defensive field follows the body; no hitbox or sprite tint is changed. */
+  private tickAbility(dt: number) {
+    const wasCharging = this.abilityCd > 0;
+    this.abilityTime = Math.max(0, this.abilityTime - dt);
+    this.abilityCd = Math.max(0, this.abilityCd - dt);
+    if (wasCharging && this.abilityCd === 0) audio.sfx('ready');
+    const g = this.abilityFx.clear(), a = this.ability;
+    if (!a) return;
+    const t = this.gs.time.now / 360;
+    g.setPosition(this.x, this.centerY);
+    if (a.damageTaken === 0) {
+      g.fillStyle(a.color, 0.08).fillEllipse(0, 0, 66, 78);
+      g.lineStyle(2, a.color, 0.8).strokeEllipse(0, 0, 66, 78);
+    }
+    g.lineStyle(2, a.color, 0.85);
+    for (let i = 0; i < 3; i++) {
+      g.beginPath(); g.arc(0, 0, 40, t + i * Math.PI * 2 / 3, t + i * Math.PI * 2 / 3 + 0.65); g.strokePath();
+    }
+    if (a.id === 'phase') this.ghost();
+  }
+
+  refreshAirJumps() { this.airJumps = run.stats.airJumps; }
 
   /** World position of the gun muzzle for the current pose. */
   muzzle() {
@@ -160,9 +189,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       if (this.overdrive <= 0) { this.aura.setVisible(false); audio.intense = this.gs.bossActive; }
     }
     if (this.dead) return;
+    this.tickAbility(dt);
     const env = this.env;
     body.setGravityY(GRAVITY * (env.grav - 1));
     body.setMaxVelocityY(env.water ? 360 : 900);
+    const fallSpeed = this.ability?.fallSpeed;
+    if (fallSpeed && body.velocity.y > fallSpeed) body.setVelocityY(fallSpeed);
 
     const ground = this.onGround;
     if (ground) { this.coyote = COYOTE; this.airJumps = s.airJumps; } else this.coyote -= dt;
@@ -192,7 +224,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.ghost();
     } else {
       const crouch = ground && c.held('down');
-      const target = crouch ? 0 : axis * s.speed * env.speed;
+      const target = crouch ? 0 : axis * s.speed * env.speed * (this.ability?.speed ?? 1);
       const a = ground ? ACCEL : AIR_ACCEL;
       const vx = body.velocity.x;
       if (target !== 0) {
@@ -220,7 +252,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.gs.fx.dustPuff(this.x, this.y, 4);
       }
     }
-    if (!c.held('jump') && body.velocity.y < -170) body.setVelocityY(-170);
+    if (!c.held('jump') && !this.ability?.lift && body.velocity.y < -170) body.setVelocityY(-170);
 
     // --- pose ---
     const lowPose = this.sliding > 0 || (ground && c.held('down'));
@@ -246,6 +278,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.rig?.update(this, dt, lowPose);
 
+    if (c.pressed('ability')) this.gs.tryAbility();
     if (c.held('fire') && this.fireCd <= 0) this.gs.playerFire();
     if (c.pressed('overdrive')) this.gs.tryOverdrive();
   }
@@ -276,6 +309,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.rig?.die();
     this.aura.setVisible(false);
     this.overdrive = 0;
+    this.abilityTime = 0; this.abilityCd = 0; this.abilityFx.clear();
     this.anims.stop();
     this.setTexture(`${this.art}_slide`).setTint(0xff6060).setAlpha(1);
     this.arm?.setTint(0xff6060);
@@ -290,6 +324,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.rig = null;
     this.arm?.destroy();
     this.aura?.destroy();
+    this.abilityFx?.destroy();
     super.destroy(fromScene);
   }
 }

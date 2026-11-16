@@ -5,9 +5,11 @@
 import { createServer } from 'vite';
 import { chromium } from 'playwright-core';
 import { mkdirSync } from 'node:fs';
+import { KIT_SCENARIOS } from './kit-scenarios.mjs';
 
 const filter = process.argv[2] ?? '';
 const SCENARIOS = [
+  ...KIT_SCENARIOS,
   { name: 'art-pickups', url: '?stage=1&god=1', steps: [
     ['wait', 2800],
     ['eval', `var g = window.__game.scene.getScene('Game');

@@ -452,7 +452,7 @@ export class GameScene extends Phaser.Scene {
   playerFire() {
     const p = this.player, s = run.stats, w = WEAPONS[run.weapon];
     const od = p.overdrive > 0;
-    p.fireCd = w.rate / s.rate / (od ? 1.8 : 1);
+    p.fireCd = w.rate / s.rate / (od ? 1.8 : 1) / (p.ability?.rate ?? 1);
     const m = p.muzzle();
     let base = p.dir > 0 ? 0 : Math.PI;
     const aim = this.aim;
@@ -477,7 +477,7 @@ export class GameScene extends Phaser.Scene {
       const shot = this.pShots.get(m.x, m.y) as Shot | null;
       if (!shot) break;
       const a = base + (w.pellets > 1 ? R.Linear(-spread / 2, spread / 2, i / (w.pellets - 1)) : R.FloatBetween(-spread / 2, spread / 2));
-      shot.fire(w.tex, m.x, m.y, a - (w.gravity ? 0.2 : 0) * (Math.cos(a) < 0 ? -1 : 1), w.speed * R.FloatBetween(0.95, 1.05), w.dmg * s.dmg * (od ? 1.5 : 1), od ? 0xffd040 : w.color, { pierce: w.pierce, blast: w.explosive, smoke: w.id === 'rocket', life: w.life ?? (w.pellets > 1 ? 420 : 950), scale: w.scale, gravity: w.gravity, chain: w.chain, chill: w.chill, pull: w.pull, rehit: w.rehit });
+      shot.fire(w.tex, m.x, m.y, a - (w.gravity ? 0.2 : 0) * (Math.cos(a) < 0 ? -1 : 1), w.speed * R.FloatBetween(0.95, 1.05), w.dmg * s.dmg * (od ? 1.5 : 1) * (p.ability?.damage ?? 1), od ? 0xffd040 : w.color, { pierce: w.pierce, blast: w.explosive, smoke: w.id === 'rocket', life: w.life ?? (w.pellets > 1 ? 420 : 950), scale: w.scale, gravity: w.gravity, chain: w.chain, chill: w.chill, pull: w.pull, rehit: w.rehit });
     }
     this.fx.muzzle(m.x, m.y, od ? 0xffd040 : w.color);
     this.fx.spark(m.x - p.dir * 16, m.y - 2, 0xffd070, 1); // shell casing
@@ -605,7 +605,13 @@ export class GameScene extends Phaser.Scene {
   hurtPlayer(dmg: number, srcX: number) {
     const p = this.player;
     if (p.dead || p.invuln > 0 || this.state !== 'play') return;
-    run.hp -= Math.max(1, Math.round(dmg * run.stats.armor));
+    const protection = p.ability?.damageTaken ?? 1;
+    if (protection === 0) {
+      this.fx.spark(p.x, p.centerY, run.op.ability.color, 3);
+      audio.sfx('shieldHit');
+      return;
+    }
+    run.hp -= Math.max(1, Math.round(dmg * run.stats.armor * protection));
     this.combo = 0; this.mult = 1; this.comboT = 0;
     p.invuln = 900;
     p.flashWhite();
@@ -840,6 +846,38 @@ export class GameScene extends Phaser.Scene {
   }
 
   // ================================================================= overdrive
+  tryAbility() {
+    const p = this.player, a = run.op.ability;
+    if (p.dead || this.state !== 'play' || this.choosing || p.abilityCd > 0) return;
+    p.abilityTime = a.duration;
+    p.abilityCd = a.duration + a.recharge;
+    if (a.heal) run.hp = Math.min(run.stats.maxHp, run.hp + a.heal);
+    if (a.lift) {
+      p.sliding = 0;
+      p.body.setVelocityY(-a.lift * p.env.jump);
+      p.refreshAirJumps();
+    }
+    if (a.radius) {
+      for (const s of this.eShots.getChildren() as Shot[]) {
+        if (s.active && R.Distance.Between(s.x, s.y, p.x, p.centerY) < a.radius) {
+          this.fx.spark(s.x, s.y, a.color, 2); s.kill();
+        }
+      }
+      // Props and friendly characters are never damaged by emergency skills.
+      for (const e of [...this.enemies]) {
+        if (e.dead || e.def.ally || e.def.faction === 'prop' || R.Distance.Between(e.x, e.cy, p.x, p.centerY) > a.radius) continue;
+        if (a.pulseDamage) e.hurt(a.pulseDamage * run.stats.dmg, p.x);
+        if (!e.dead && !e.def.boss) {
+          if (a.stagger) e.chill(a.stagger);
+          if (a.knockback && !e.def.heavy) e.body.setVelocityX(Math.sign(e.x - p.x || p.dir) * a.knockback);
+        }
+      }
+    }
+    this.fx.ring(p.x, p.centerY, a.color, (a.radius ?? 70) / 32, 400);
+    this.fx.popup(p.x, p.y - 88, a.name, Phaser.Display.Color.IntegerToColor(a.color).rgba);
+    audio.sfx(a.id);
+  }
+
   tryOverdrive() {
     const p = this.player;
     if (run.od < 100 || p.overdrive > 0 || this.state !== 'play') return;

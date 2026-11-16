@@ -2,6 +2,7 @@
 // Artwork is present; stats, encounters, ally roles and signature attacks need playtesting/integration.
 import type { EnemyDef } from './enemies';
 import type { OperatorDef } from './operators';
+import { ABILITIES } from './abilities';
 
 export interface SpeciesDesign {
   id: string;
@@ -139,10 +140,10 @@ export const SPECIES_ENEMIES: EnemyDef[] = [
 export const SPECIES_OPERATORS: OperatorDef[] = [
   { id: 'serrik', name: 'SERRIK', role: 'VARKESH VANGUARD',
     blurb: 'Storm-route courier. Cold aim, warm heart.', art: 'op_serrik', tint: 0xffffff,
-    hp: 115, speed: 160, dmg: 1.1, rate: .95, jump: 440, weapon: 'pistol' },
+    hp: 115, speed: 160, dmg: 1.1, rate: .95, jump: 440, weapon: 'pistol', ability: ABILITIES.rally },
   { id: 'quill', name: 'QUILL', role: 'CORVANE SCOUT',
     blurb: 'Salvage pilot. Always finds another route.', art: 'op_quill', tint: 0xffffff,
-    hp: 90, speed: 185, dmg: .95, rate: 1.1, jump: 475, weapon: 'pistol' },
+    hp: 90, speed: 185, dmg: .95, rate: 1.1, jump: 475, weapon: 'pistol', ability: ABILITIES.gale },
 ];
 
 // Measured against processed 96x72 PNGs. x forward from center; y above feet.

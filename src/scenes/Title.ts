@@ -43,12 +43,12 @@ export class TitleScene extends Phaser.Scene {
     this.hero = this.add.image(W / 2, 250, 'hero_idle').setOrigin(0.5, 1).setScale(2);
     this.txt(W / 2 - 120, 200, '<', 16, '#9fe8ff');
     this.txt(W / 2 + 120, 200, '>', 16, '#9fe8ff');
-    this.info = [this.txt(W / 2, 264, '', 16, '#9fe8ff'), this.txt(W / 2, 282, '', 8, '#ffd040'), this.txt(W / 2, 296, '', 8, '#c0c8d8')];
+    this.info = [this.txt(W / 2, 260, '', 16, '#9fe8ff'), this.txt(W / 2, 278, '', 8, '#ffd040'), this.txt(W / 2, 292, '', 8, '#c0c8d8'), this.txt(W / 2, 307, '', 8, '#9fe8ff')];
     this.refresh();
 
     const press = this.txt(W / 2, 322, 'CLICK OR PRESS ENTER TO DEPLOY', 8);
     this.tweens.add({ targets: press, alpha: 0.15, duration: 500, yoyo: true, repeat: -1 });
-    this.txt(W / 2, 344, 'A/D MOVE  SPACE JUMP  MOUSE AIM + FIRE  SHIFT SLIDE  Q OVERDRIVE', 8, '#70788c').setScale(0.75);
+    this.txt(W / 2, 344, 'A/D MOVE  SPACE DOUBLE JUMP  MOUSE FIRE  SHIFT SLIDE  E SKILL  Q OVERDRIVE', 8, '#a0a8bc').setScale(0.75);
     // ARCHIVE: lore unlocked by data shards (Tab or click)
     const arch = this.add.text(8, 8, `ARCHIVE [TAB]  ${save.archive.length}/${LORE.length}`, { fontFamily: FONT, fontSize: '8px', color: '#ff90e0', stroke: '#000', strokeThickness: 3 }).setInteractive({ useHandCursor: true });
     arch.on('pointerdown', () => this.openArchive());
@@ -76,6 +76,7 @@ export class TitleScene extends Phaser.Scene {
     this.info[0].setText(locked ? `${op.name} - LOCKED` : op.name);
     this.info[1].setText(`${op.role}   ARMOR ${op.hp}   SPEED ${op.speed}`);
     this.info[2].setText(locked ? `UNLOCK: ${op.unlockHint ?? 'STORY'}` : op.blurb);
+    this.info[3].setText(`${op.ability.name}: ${op.ability.desc}`).setScale(0.85);
   }
 
   /** Species operators unlock through story choices (docs/STORY.md section 4). */

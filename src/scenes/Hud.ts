@@ -19,6 +19,7 @@ export class HudScene extends Phaser.Scene {
   private comboTxt!: Phaser.GameObjects.Text;
   private rankTxt!: Phaser.GameObjects.Text;
   private odTxt!: Phaser.GameObjects.Text;
+  private abilityTxt!: Phaser.GameObjects.Text;
   private bossTxt!: Phaser.GameObjects.Text;
   private bannerTxt!: Phaser.GameObjects.Text;
   private goTxt!: Phaser.GameObjects.Text;
@@ -65,6 +66,7 @@ export class HudScene extends Phaser.Scene {
     this.txt(12, 8, run.op.name, 8, '#9fe8ff');
     this.weapon = this.txt(12, 40, '');
     this.odTxt = this.txt(12, 52, '', 8, '#ffd040');
+    this.abilityTxt = this.txt(12, 100, '', 8, '#9fe8ff');
     this.score = this.txt(W - 12, 8, '', 8).setOrigin(1, 0);
     this.comboTxt = this.txt(W - 12, 24, '', 16, '#ffd040').setOrigin(1, 0);
     this.rankTxt = this.txt(W - 12, 46, '', 8, '#ff8040').setOrigin(1, 0);
@@ -129,6 +131,13 @@ export class HudScene extends Phaser.Scene {
 
     // slide cooldown pip
     if (p) { g.fillStyle(p.slideCd <= 0 ? 0x40d0ff : 0x304050).fillRect(108, 33, 6, 4); }
+    if (p) {
+      const a = run.op.ability, active = p.abilityTime > 0;
+      const fill = active ? p.abilityTime / a.duration : 1 - p.abilityCd / a.recharge;
+      this.abilityTxt.setText(`[E/LT] ${a.name} ${active ? 'ACTIVE' : p.abilityCd > 0 ? Math.ceil(p.abilityCd / 1000) + 's' : 'READY'}`);
+      g.fillStyle(0x000000, 0.8).fillRect(10, 111, 114, 6);
+      g.fillStyle(a.color, active ? 1 : 0.7).fillRect(12, 113, 110 * Phaser.Math.Clamp(fill, 0, 1), 2);
+    }
 
     // air meter (water stages), top centre, only while it is not full
     const air = gs.gimmicks?.oxygen ?? 100;
@@ -373,7 +382,7 @@ export class HudScene extends Phaser.Scene {
   setPaused(on: boolean) {
     this.paused = on;
     if (on) {
-      this.panel([['PAUSED', 24, '#ffffff'], ['MOVE  A/D   JUMP  SPACE', 8, '#c0c8d8'], ['AIM + FIRE  MOUSE   (OR J = AUTO-AIM)', 8, '#c0c8d8'], ['SLIDE  SHIFT / RIGHT CLICK', 8, '#c0c8d8'], ['OVERDRIVE  Q   MUTE  M', 8, '#c0c8d8'], ['PRESS ESC TO RESUME', 8, '#9fe8ff']]);
+      this.panel([['PAUSED', 24, '#ffffff'], ['A/D MOVE   SPACE / PAD A DOUBLE JUMP', 8, '#c0c8d8'], ['MOUSE FIRE / J AUTO-AIM   SHIFT SLIDE', 8, '#c0c8d8'], [`E / PAD LT: ${run.op.ability.name}`, 8, '#9fe8ff'], [run.op.ability.desc, 8, '#c0c8d8'], ['Q / PAD Y OVERDRIVE   M MUTE', 8, '#c0c8d8'], ['PRESS ESC TO RESUME', 8, '#9fe8ff']]);
     } else {
       this.overlay.setVisible(false);
       this.scene.resume('Game');

@@ -25,7 +25,24 @@ Audience: players of fast 2D action games on PC (Steam/itch.io), gamepad or keyb
 - Planned: daily seeded run, unlockable operators and weapons, hard mode, boss rush, online leaderboards.
 
 ## Controls
-Move A/D or arrows · Jump Space/W · Crouch S · Fire J/X/mouse · Slide Shift/K/right-click · Overdrive Q · Pause Esc · Mute M. Gamepad: stick, A jump, X/RT fire, B/RB slide, Y overdrive.
+Move A/D or arrows · Double jump Space/W · Crouch S · Fire J/X/mouse · Slide Shift/K/right-click · Skill E/F ? Overdrive Q · Pause Esc · Mute M. Gamepad: stick, A jump, X/RT fire, B/RB slide, Y overdrive, LT skill.
+
+## Operator skills (implemented 2026-11-16)
+
+Every operator starts with double jump. JUMP BOOSTERS adds another airborne jump.
+Press E/F or gamepad LT for a skill; its recharge starts after the active window.
+Skills start ready at each stage/checkpoint retry, freeze on pause and during story choices,
+and use their own meter, separate from kill-powered Overdrive. Numbers live in `src/data/abilities.ts`.
+
+| Operator | Skill | Effect | Recharge after effect |
+|---|---|---|---|
+| ROOK | AEGIS | 3s full damage shield, purges nearby bullets | 12s |
+| VIPER | PHASE | 1.5s invulnerability, +60% movement, +50% fire rate | 10s |
+| TITAN | SHOCKWAVE | Nearby blast and stagger, 4s half incoming damage | 14s |
+| SERRIK | RALLY | Heal 25 (capped at max), +40% weapon damage for 5s | 18s |
+| QUILL | UPDRAFT | Launch, restore air jumps, purge/stagger nearby threats, 3s slow descent | 9s |
+
+This keeps the action campaign and perk builds; no grind or inventory interruption is needed.
 
 ## Player kit
 - Slide: 0.3s, fast, fully invulnerable, skims over hazards, 0.65s cooldown. The signature move.

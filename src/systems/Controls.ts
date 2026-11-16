@@ -10,6 +10,7 @@ const BINDS = {
   fire: [K.J, K.X, K.ENTER],
   slide: [K.SHIFT, K.K, K.C],
   overdrive: [K.Q, K.L, K.V],
+  ability: [K.E, K.F],
   pause: [K.ESC, K.P],
   mute: [K.M],
 };
@@ -57,6 +58,7 @@ export class Controls {
       if (pad.X || pad.R2 > 0.3) { this.now.fire = true; Controls.mouseAim = false; }
       if (pad.B || pad.R1) this.now.slide = true;
       if (pad.Y || pad.L1) this.now.overdrive = true;
+      if (pad.L2 > 0.3) this.now.ability = true;
       if (pad.buttons[9]?.pressed) this.now.pause = true;
     }
   }

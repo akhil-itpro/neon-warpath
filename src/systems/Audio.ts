@@ -114,6 +114,13 @@ class AudioSys {
       case 'select': this.tone('square', 520, 1040, 0.08, 0.2); this.tone('square', 1040, 2080, 0.16, 0.16); break;
       case 'warn': this.tone('sawtooth', 440, 430, 0.24, 0.3); this.tone('sawtooth', 660, 650, 0.24, 0.2); break;
       case 'overdrive': this.tone('sawtooth', 70, 1400, 0.6, 0.45); this.noise(0.6, 0.4, 300, 7000, 'bandpass'); break;
+      case 'aegis': this.tone('sine', 180, 720, 0.4, 0.32); this.tone('triangle', 360, 1440, 0.3, 0.14); break;
+      case 'phase': this.noise(0.25, 0.22, 600, 6000, 'bandpass'); this.tone('sine', 1600, 300, 0.22, 0.18); break;
+      case 'quake': this.tone('sine', 140, 32, 0.5, 0.5); this.noise(0.3, 0.3, 2200, 120); break;
+      case 'rally': [0, 4, 7].forEach((n, i) => this.tone('triangle', midi(67 + n), midi(67 + n), 0.3, 0.18, this.sfxBus, this.ctx!.currentTime + i * 0.08)); break;
+      case 'gale': this.noise(0.45, 0.22, 500, 4200, 'highpass'); this.tone('sine', 350, 1050, 0.35, 0.18); break;
+      case 'shieldHit': this.tone('sine', 1100, 400, 0.08, 0.12); break;
+      case 'ready': this.tone('triangle', 660, 1320, 0.15, 0.1); break;
       case 'death': this.tone('sawtooth', 380, 28, 0.95, 0.6); this.noise(0.6, 0.5, 2200, 80); break;
       case 'clear': [0, 4, 7, 12, 16].forEach((n, i) => this.tone('square', midi(64 + n), midi(64 + n), 0.2, 0.2, this.sfxBus, this.ctx!.currentTime + i * 0.09)); break;
       case 'combo': this.tone('triangle', 880 * r, 1760, 0.1, 0.2); break;
