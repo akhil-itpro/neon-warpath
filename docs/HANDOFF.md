@@ -2,7 +2,26 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
-## Session 14 - 2026-11-16 (Claude Code, full 12-stage campaign: C gimmicks + D new stages + B5/B7/B8 + ARCHON phase 3) — NEXT AGENT START HERE
+## Session 15 - 2026-11-16 (Codex, three campaign world backdrops) — NEXT AGENT START HERE
+
+### Completed
+- Followed the newer `docs/CODEX_ART_HANDOFF.md` while the parallel Claude session completed the campaign code. No gameplay code changed in this art batch.
+- Generated original painted-pixel backgrounds for **THE TIDAL VAULT**, **PRISM WASTES** and **THE LATTICE SPIRE** with the built-in imagegen tool. Raw outputs and exact prompts are retained in `art/source/campaign_worlds/`.
+- Added `tools/process_campaign_worlds.py`: reproducible 640x360 / 160-colour processing, mirrored to seamless 1280x360 RGB strips, plus the ignored `art/preview/campaign-worlds.png` contact sheet. Rebuild: `python -B tools/process_campaign_worlds.py`.
+- Registered `bg_tidal`, `bg_prism`, `bg_spire` in the live manifest. Boot automatically uses the PNGs instead of its procedural stand-ins. Stage tints, scenery shading, layout, collision and mechanics are unchanged.
+- Updated the art pipeline and marked the three-background request complete in the art handoff.
+
+### Verified
+- `npm.cmd run check` and `npm.cmd run build` pass. The production build contains all three images.
+- **9/9 focused smoke scenarios pass with no browser errors:** `gim-water`, `gim-pylon`, `gim-chase`, plus `x-tidal`, `x-prism`, `x-spire` and their boss scenarios. Inspected all 30 gameplay screenshots (contact sheet plus full-size mechanic and boss views) and the processed art contact sheet. Platforms, actors and projectiles remain distinguishable from the new scenery. This session did not rerun the full 68-scenario suite.
+- Confirmed one registration per key, 1280x360 RGB output and exact matching pixel columns at both the centre and wrapping seams.
+
+### Unverified and next
+- These are flattened scrolling backdrops, not separate parallax layers. Their mirrored repetition follows the existing background pipeline.
+- Normal-health balance, human playthroughs, gamepad feel and audio remain unverified; the art checks do not establish beatability. Session 14's gameplay limitations still apply.
+- **Next art priority: HALCYON's own art** (section 2 of `docs/CODEX_ART_HANDOFF.md`), then cage/pylon/slot props and portraits. ROOK still needs the owner's review before expanding that rig method to every operator.
+
+## Session 14 - 2026-11-16 (Claude Code, full 12-stage campaign: C gimmicks + D new stages + B5/B7/B8 + ARCHON phase 3)
 
 ### Owner said
 "Continue till you finish this game; if needed write a handoff for Codex for any images or other assets and artwork."

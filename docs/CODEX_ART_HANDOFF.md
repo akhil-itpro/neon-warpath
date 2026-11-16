@@ -20,7 +20,10 @@ The code picks the real art automatically once the key exists (stand-ins are onl
 
 ## 1. Three world backdrops (highest impact)
 
-Currently drawn in code (`Boot.makeBackdrops`, skipped automatically when a PNG with the same key exists).
+**Completed 2026-11-16 (Codex):** all three PNGs are live. Immutable sources and exact prompts are in
+`art/source/campaign_worlds/`; rebuild with `python -B tools/process_campaign_worlds.py`. The outputs are
+1280 x 360 RGB mirrored strips, following the existing world pipeline. Separate parallax layers remain optional.
+`Boot.makeBackdrops` retains procedural fallbacks for missing PNGs. **Next art priority: HALCYON (section 2).**
 
 | Key | World | Look | Smoke to check |
 |---|---|---|---|

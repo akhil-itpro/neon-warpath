@@ -1,5 +1,14 @@
 # Art pipeline — how new art gets into the game
 
+## Campaign world backdrops (2026-11-16)
+
+The live 12-stage campaign now uses painted backgrounds for Tidal Vault, Prism Wastes and Lattice Spire.
+Immutable built-in imagegen sources and exact prompts: `art/source/campaign_worlds/`. Rebuild only these with
+`python -B tools/process_campaign_worlds.py`; it exports `public/assets/bg_tidal.png`, `bg_prism.png` and
+`bg_spire.png` and preserves other manifest registrations. Like the existing world pipeline, each image is
+reduced to 640x360 / 160 colours and mirrored into a seamless 1280x360 strip. Preview:
+`art/preview/campaign-worlds.png`. These are flattened backdrops; separate parallax layers remain future work.
+
 ## Current animation milestone (Session 12)
 
 ROOK now uses one purpose-drawn eight-piece atlas, not separately generated movement frames or the old rectangle-cut arm. Source, exact built-in imagegen prompt and rebuild notes: `art/source/rigs/README.md`. Rebuild with `python -B tools/process_rook_rig.py`; geometry lives in `src/data/rigs.ts`. The source is immutable. VIPER/TITAN keep intact full-body frames, with the legacy arm cutter disabled, until the owner reviews ROOK (HANDOFF Session 11).
