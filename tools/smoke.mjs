@@ -92,6 +92,29 @@ const SCENARIOS = [
     ['assert', 'window.__artEnemies.every(e => Math.abs(e.scaleX - (e.def.fallback.scale ?? 1)) < 0.001)'],
     ['eval', 'window.__artTimer.remove()'],
   ] },
+  { name: 'art-machines', url: '?stage=city&god=1', steps: [
+    ['wait', 2800],
+    ['eval', `var g = window.__game.scene.getScene('Game');
+      for (const e of g.enemies) g.removeEnemy(e);
+      const machines = [
+        g.spawnEnemy('turret', 255, 320, 'add'),
+        g.spawnEnemy('drone', 200, 140, 'add'),
+        g.spawnEnemy('jet', 130, 105, 'add')
+      ];
+      machines[2].body.reset(130, 105);
+      window.__machineArtOk = machines.every(e => {
+        e.awake = true;
+        e.t = 5000;
+        e.tick(180);
+        const animated = e.texture.key === e.def.art + '_1';
+        e.t = 0;
+        e.tick(1);
+        e.tick = () => {};
+        e.body.setVelocity(0, 0);
+        return animated && e.texture.key === e.def.art + '_atk';
+      });`],
+    ['assert', 'window.__machineArtOk'], ['shot'],
+  ] },
   { name: 'title', url: '', steps: [['wait', 1200], ['shot'], ['tap', 'ArrowRight'], ['wait', 300], ['shot'], ['tap', 'Enter'],
     ['until', 'window.__game.scene.isActive("Briefing")'], ['wait', 1500], ['shot'],
     ['assert', 'window.__run.op.id === "viper" /* VIPER-only briefing lines */'],
@@ -446,17 +469,20 @@ const SCENARIOS = [
   { name: 'art-hooks', url: '?stage=1&god=1', steps: [
     ['wait', 800],
     ['eval', `var g = window.__game.scene.getScene('Game');
-      var far = g.textures.createCanvas('bg_city_far', 1280, 360), c = far.getContext(); c.fillStyle = '#243050';
-      for (var i = 0; i < 16; i++) c.fillRect(i * 80 + 10, 120 + (i * 37) % 90, 44, 240); far.refresh();
-      var atk = g.textures.createCanvas('drone_atk', 68, 36), d = atk.getContext(); d.fillStyle = '#ff3030'; d.fillRect(8, 6, 52, 24); atk.refresh();
-      g.scene.restart();`],
-    ['wait', 1500],
-    ['assert', 'var g = window.__game.scene.getScene("Game"); g.layers.length === 1 && g.layers[0].img.displayTexture.key === "bg_city_far"'],
+      if (!g.textures.exists('bg_city_far')) {
+        const far = g.textures.createCanvas('bg_city_far', 1280, 360);
+        const ctx = far.getContext();
+        ctx.fillStyle = '#243050';
+        for (let i = 0; i < 16; i++) ctx.fillRect(i * 80 + 10, 120 + (i * 37) % 90, 44, 240);
+        far.refresh();
+        g.scene.restart();
+      }`],
+    ['until', 'window.__game.scene.getScene("Game").layers.some(layer => layer.img.displayTexture.key === "bg_city_far")'],
     ['eval', 'var g = window.__game.scene.getScene("Game"); for (const e of [...g.enemies]) g.removeEnemy(e); window.__d = g.spawnEnemy("drone", g.player.x + 150, 150, ""); window.__d.awake = true; window.__d.t = 0;'],
     ['until', 'window.__d.texture.key === "drone_atk"'], ['shot'],
-    ['wait', 900], ['assert', 'window.__d.dead || window.__d.texture.key === "drone" /* back to the normal picture after the shot */'],
+    ['until', 'window.__d.dead || /^drone_[0-3]$/.test(window.__d.texture.key)'],
     ['eval', 'window.__tp(900, 300)'], ['wait', 600], ['shot'],
-    ['assert', 'var g = window.__game.scene.getScene("Game"); g.layers[0].img.tilePositionX > g.bg.tilePositionX /* nearer layer scrolls faster */'],
+    ['assert', 'var g = window.__game.scene.getScene("Game"); g.layers.find(layer => layer.img.displayTexture.key === "bg_city_far").img.tilePositionX > g.bg.tilePositionX'],
   ] },
   { name: 'flow-retry', url: '?stage=1', steps: [
     ['wait', 800], ['eval', 'window.__run.score = 1000; var g = window.__game.scene.getScene("Game"); g.player.invuln = 0; g.hurtPlayer(10000, g.player.x - 20)'],

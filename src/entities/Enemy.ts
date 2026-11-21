@@ -311,6 +311,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       }
       case 'turret': {
         this.face();
+        this.walkAnim(dt, true);
         if (this.t <= 0 && this.onScreen() && Math.abs(dx) < (d.range ?? 380) && !p.dead) {
           this.t = (d.fireRate ?? 2500) * R.FloatBetween(0.9, 1.15);
           const mx = () => this.x + this.dir * 32 * this.scale, my = () => this.y - 41 * this.scale;
@@ -323,9 +324,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         break;
       }
       case 'jet': {
+        this.walkAnim(dt, true);
         this.body.setVelocityX(this.dir * d.speed);
         if (this.t <= 0 && Math.abs(dx) < 250) {
           this.t = 200;
+          this.atkUntil = now + this.t;
           this.shoot(this.x, this.y + 14, Math.PI / 2 - this.dir * 0.7, 120, 14, { tex: 'bomb', gravity: true, blast: 30, color: 0xffffff, life: 3000 });
         }
         const mid = this.gs.cameras.main.midPoint.x;
