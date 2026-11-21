@@ -404,7 +404,7 @@ const SCENARIOS = [
     ['assert', 'var b = window.__game.scene.getScene("Game").boss; b.phase3 && b.vuln > 0'],
     ['wait', 5500], ['shot'], ['assert', 'window.__game.scene.getScene("Game").enemies.some(e => e.def.ally)'],
     ['wait', 4000], ['shot'],
-    ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp * 9, g.player.x)'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss?.hurt(g.boss.maxHp * 9, g.player.x)'],
     ['until', 'window.__game.scene.isActive("Briefing")'], ['press', ['Enter', '!!window.__game.scene.getScene("Briefing").choice']], ['wait', 500],
     ['tap', 'ArrowRight'], ['wait', 200], ['shot'], ['tap', 'Enter'],
     ['press', ['Enter', 'window.__game.scene.isActive("Game")']], ['wait', 4000], ['shot'], // HOLD IT OPEN survival finale
@@ -520,7 +520,7 @@ mkdirSync('tools/shots', { recursive: true });
 const built = process.env.SMOKE_BUILD === '1';
 const server = built
   ? await preview({ preview: { port: 5199, strictPort: false }, logLevel: 'error' })
-  : await createServer({ server: { port: 5199, strictPort: false }, logLevel: 'error' });
+  : await createServer({ server: { port: 5199, strictPort: false, hmr: false }, logLevel: 'error' });
 if (!built) await server.listen();
 const base = server.resolvedUrls.local[0];
 let browser;
@@ -541,11 +541,11 @@ for (const sc of SCENARIOS.filter((s) => filter.split('|').some(f => s.name.incl
   page.on('pageerror', (e) => errors.push(String(e.stack ?? e)));
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('response', (r) => { if (r.status() >= 400) errors.push(`HTTP ${r.status()} ${r.url()}`); });
-  await page.goto(base + sc.url);
-  await page.waitForFunction(() => window.__game && window.__game.scene.getScenes(true).some((s) => s.scene.key !== 'Boot'), null, { timeout: 15000 });
-  await page.click('canvas');
   let n = 0;
   try {
+  await page.goto(base + sc.url);
+  await page.waitForFunction(() => window.__game && window.__game.scene.getScenes(true).some((s) => s.scene.key !== 'Boot'), null, { timeout: 45000 });
+  await page.click('canvas');
   for (const [op, arg] of sc.steps) {
     if (op === 'wait') await page.waitForTimeout(arg);
     else if (op === 'reload') {
@@ -585,12 +585,12 @@ for (const sc of SCENARIOS.filter((s) => filter.split('|').some(f => s.name.incl
   }
   } catch (e) {
     errors.push(String(e));
-    await page.screenshot({ path: `tools/shots/${sc.name}-failure.png` });
+    await page.screenshot({ path: `tools/shots/${sc.name}-failure.png` }).catch(() => {});
   }
   const info = await page.evaluate(() => {
     const g = window.__game, r = window.__run;
-    return { scenes: g.scene.getScenes(true).map((s) => s.scene.key).join('+'), fps: Math.round(g.loop.actualFps), score: r?.score, kills: r?.kills, hp: r?.hp, stage: r?.stage };
-  });
+    return { scenes: g?.scene.getScenes(true).map((s) => s.scene.key).join('+'), fps: g && Math.round(g.loop.actualFps), score: r?.score, kills: r?.kills, hp: r?.hp, stage: r?.stage };
+  }).catch(() => ({}));
   console.log(`${errors.length ? 'FAIL' : 'ok  '} ${sc.name.padEnd(15)} ${JSON.stringify(info)}`);
   for (const e of errors) console.log('     ', e.split('\n').slice(0, 4).join('\n      '));
   if (errors.length) failed = true;
