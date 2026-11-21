@@ -85,13 +85,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   private setSize2([w, h]: [number, number]) {
-    if (this.body.height === h) return;
+    if (this.body.sourceHeight === h && this.body.sourceWidth === w) return;
     this.body.setSize(w, h, false);
     this.body.setOffset((FRAME_W - w) / 2, FRAME_H - h);
   }
 
   get onGround() { return this.body.blocked.down || this.body.touching.down; }
-  get low() { return this.body.height === LOW[1]; }
+  get low() { return this.body.sourceHeight === LOW[1]; }
   get centerY() { return this.y - this.body.height / 2; }
   get ability() { return this.abilityTime > 0 ? run.op.ability : null; }
 

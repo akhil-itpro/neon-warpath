@@ -255,7 +255,7 @@ const SCENARIOS = [
     ['wait', 3000],
     ['eval', `var g = window.__game.scene.getScene('Game'); for (const e of g.enemies) g.removeEnemy(e); g.player.body.reset(300, 320);`],
     ['wait', 400], ['shot'],
-    ['assert', `var p = window.__game.scene.getScene('Game').player; p.rig && !p.visible && p.rig.root.visible && p.rig.root.list.length === 8 && p.body.width === 18 && p.body.height === 56`],
+    ['assert', `var p = window.__game.scene.getScene('Game').player; p.rig && !p.visible && p.rig.root.visible && p.rig.root.list.length === 8 && p.body.sourceWidth === 18 && p.body.sourceHeight === 56`],
     ['mouse', [1100, 120]], ['wait', 400], ['shot'],
     ['assert', `window.__game.scene.getScene('Game').player.rig.parts.arm.rotation < -0.5`],
     ['mdown'], ['wait', 300], ['mup'],
@@ -270,8 +270,8 @@ const SCENARIOS = [
     ['down', 'KeyS'],
     ['until', `var p = window.__game.scene.getScene('Game').player; p.low && p.rig.parts.head.y > -35 && p.body.height === 32`],
     ['shot'],
-    ['up', 'KeyS'], ['tap', 'ShiftLeft'], ['wait', 30],
-    ['assert', `var p = window.__game.scene.getScene('Game').player; p.sliding > 0 && p.invuln > 0`],
+    ['up', 'KeyS'], ['down', 'ShiftLeft'],
+    ['until', `var p = window.__game.scene.getScene('Game').player; p.sliding > 0 && p.invuln > 0`], ['up', 'ShiftLeft'],
     ['shot'], ['wait', 450],
     ['eval', `var g = window.__game.scene.getScene('Game'); g.player.flashWhite(); g.fx.hitstop(100)`],
     ['assert', `Object.values(window.__game.scene.getScene('Game').player.rig.parts).every(p => p.tintFill)`], ['wait', 25], ['shot'],
@@ -321,6 +321,14 @@ const SCENARIOS = [
     ['wait', 2800], ['eval', 'var g = window.__game.scene.getScene("Game"); for (const e of g.enemies) g.removeEnemy(e); window.__tp(3300, 300)'],
     ['wait', 3200], ['shot'], // on the train: wind lines + gantries
     ['assert', 'window.__game.scene.getScene("Game").gimmicks.gantries.length >= 1'],
+    ['down', 'KeyS'], ['until', 'window.__game.scene.getScene("Game").player.low'],
+    ['assert', `var g = window.__game.scene.getScene("Game"), p = g.player, gantry = g.gimmicks.gantries[0];
+      const hp = window.__run.hp;
+      p.setScale(1.07, 0.9); p.body.updateFromGameObject(); // landing squash
+      p.invuln = 0; gantry.x = p.x; g.gimmicks.tick(0);
+      const ducked = p.body.height !== 32 && p.low && window.__run.hp === hp;
+      gantry.x = p.x - 100;
+      ducked`], ['up', 'KeyS'],
     ['eval', 'var g = window.__game.scene.getScene("Game"); window.__tp(4790, 300)'], ['down', 'KeyD'], ['wait', 300], ['up', 'KeyD'],
     ['until', 'window.__game.scene.getScene("Hud").choosing'], ['wait', 400], ['shot'],
     ['assert', 'window.__game.scene.getScene("Game").physics.world.timeScale === 5'],
