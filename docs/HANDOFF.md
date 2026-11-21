@@ -2,6 +2,13 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
+## Session 23 - 2026-11-21 (GitHub repository launch)
+
+- Created the private [NEON WARPATH repository](https://github.com/akhil-itpro/neon-warpath) under `akhil-itpro`, with a description and project topics. Configured it as `origin` for the existing `main` branch and its history. The repository has no hosted game link.
+- Reworked the README for players and developers, with campaign highlights, controls, setup, project status, architecture, and credits. The new operator selection and Neon Casino screenshots in `docs/screenshots/` were captured from the current production build. No gameplay or source assets changed.
+- `npm run check`, `npm run build`, `npm run smoke -- title` against the development and production builds, and `npm ci` plus `npm run build` in a fresh checkout passed. Reviewed both README screenshots and checked their paths, the documentation links, and GitHub Markdown rendering. The full campaign suite was last run in Session 22.
+- Next game validation remains a continuous human campaign playthrough, a physical controller check, and audio mix feedback. A hosted game build is still pending a separate publishing decision.
+
 ## Session 22 - 2026-11-21 (campaign completion and combat review)
 
 - Keyboard and gamepad auto-aim favor a hostile in the firing cone over nearby crates, pylons and brood eggs. Free aim still goes where the player points. A landing animation could briefly make a crouched operator take a hit from a Railyard gantry. Ducking now uses the underlying stance.
