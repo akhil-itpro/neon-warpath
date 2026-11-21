@@ -6,6 +6,7 @@ import argparse
 import json
 from pathlib import Path
 
+import numpy as np
 from PIL import Image, ImageOps
 
 from process_campaign_finish import cutout
@@ -24,7 +25,7 @@ def seamless(half):
 
 def parallax(source):
     half = Image.new('RGBA', (640, 360))
-    height = min(360, round(640 * source.height / source.width))
+    height = min(240, round(640 * source.height / source.width))
     strip = source.resize((640, height), Image.Resampling.LANCZOS)
     strip.putalpha(strip.getchannel('A').point(lambda a: round(a * 0.82) if a >= 32 else 0))
     half.alpha_composite(strip, (0, half.height - height))
@@ -32,7 +33,9 @@ def parallax(source):
 
 
 def tiles(source, stage_id):
-    middle = source.height // 2
+    coverage = np.count_nonzero(np.asarray(source)[..., 3] >= 160, axis=1)
+    middle = min(range(source.height // 3, source.height * 3 // 4),
+                 key=lambda y: (coverage[y - 1] + coverage[y], abs(y - source.height // 2)))
     samples = [cutout(source.crop(rect)) for rect in (
         (0, 0, source.width, middle), (0, middle, source.width, source.height))]
     if any(not sample.width or not sample.height for sample in samples):
@@ -40,7 +43,7 @@ def tiles(source, stage_id):
     for kind, size, sample in zip(('ground', 'plat'), ((32, 40), (16, 12)), samples):
         # The whole material cross-section contributes to each repeat. Mirroring
         # the repeat keeps both the top edge and the underside continuous.
-        half = sample.resize(size, Image.Resampling.LANCZOS)
+        half = ImageOps.fit(sample, size, Image.Resampling.LANCZOS)
         result = Image.new('RGB', size, '#11131c')
         result.paste(half, (0, 0), half)
         yield f'{kind}_{stage_id}', seamless(result)

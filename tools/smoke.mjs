@@ -488,24 +488,19 @@ const SCENARIOS = [
     ['until', 'window.__game.scene.getScene("Game").canRetry'], ['tap', 'Enter'], ['wait', 1000],
     ['assert', 'var g = window.__game.scene.getScene("Game"); g.state === "play" && g.time.timeScale === 1 && g.tweens.timeScale === 1 && g.physics.world.timeScale === 1'],
   ] },
-  // art hooks Codex relies on (docs/CODEX_ART_HANDOFF.md jobs 3 and 5): parallax layers and the `<art>_atk` attack picture
+  // Shipped city layers and combat art, loaded through the normal manifest.
   { name: 'art-hooks', url: '?stage=1&god=1', steps: [
     ['wait', 800],
-    ['eval', `var g = window.__game.scene.getScene('Game');
-      if (!g.textures.exists('bg_city_far')) {
-        const far = g.textures.createCanvas('bg_city_far', 1280, 360);
-        const ctx = far.getContext();
-        ctx.fillStyle = '#243050';
-        for (let i = 0; i < 16; i++) ctx.fillRect(i * 80 + 10, 120 + (i * 37) % 90, 44, 240);
-        far.refresh();
-        g.scene.restart();
-      }`],
-    ['until', 'window.__game.scene.getScene("Game").layers.some(layer => layer.img.displayTexture.key === "bg_city_far")'],
+    ['assert', `var g = window.__game.scene.getScene('Game');
+      g.layers.map(layer => layer.img.displayTexture.key).join(',') === 'bg_city_far,bg_city_near' &&
+      g.textures.get('ground_city').getSourceImage().width === 64 &&
+      g.textures.get('plat_city').getSourceImage() instanceof HTMLImageElement`],
     ['eval', 'var g = window.__game.scene.getScene("Game"); for (const e of [...g.enemies]) g.removeEnemy(e); window.__d = g.spawnEnemy("drone", g.player.x + 150, 150, ""); window.__d.awake = true; window.__d.t = 0;'],
     ['until', 'window.__d.texture.key === "drone_atk"'], ['shot'],
     ['until', 'window.__d.dead || /^drone_[0-3]$/.test(window.__d.texture.key)'],
     ['eval', 'window.__tp(900, 300)'], ['wait', 600], ['shot'],
-    ['assert', 'var g = window.__game.scene.getScene("Game"); g.layers.find(layer => layer.img.displayTexture.key === "bg_city_far").img.tilePositionX > g.bg.tilePositionX'],
+    ['assert', `var g = window.__game.scene.getScene('Game'), [far, near] = g.layers;
+      near.img.tilePositionX > far.img.tilePositionX && far.img.tilePositionX > g.bg.tilePositionX`],
   ] },
   { name: 'flow-retry', url: '?stage=1', steps: [
     ['wait', 800], ['eval', 'window.__run.score = 1000; var g = window.__game.scene.getScene("Game"); g.player.invuln = 0; g.hurtPlayer(10000, g.player.x - 20)'],
