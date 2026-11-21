@@ -29,7 +29,8 @@ if (!browser) { console.error('No Chrome or Edge found'); process.exit(2); }
 const HUGE = 100000;
 const state = `(() => { const g = window.__game.scene.getScene('Game'); const r = window.__run;
   return { scene: window.__game.scene.getScenes(true).map((s) => s.scene.key).join('+'), x: g?.player?.x ?? 0, w: g?.stage?.width ?? 1,
-    boss: !!g?.boss, bossHp: g?.boss ? g.boss.hp / g.boss.maxHp : 1, hp: r.hp, state: g?.state, foe: (() => { let best = null, bd = 1e9; const cam = g?.cameras.main; for (const e of g?.enemies ?? []) { if (e.dead || e.def.ally || e.def.faction === 'prop' || !cam || Math.abs(e.x - cam.midPoint.x) > 320) continue; const d = Math.abs(e.x - g.player.x); if (d < bd) { bd = d; best = { sx: (e.x - cam.scrollX) * 1.5, sy: (e.body.center.y - cam.scrollY) * 1.5, dx: e.x - g.player.x }; } } return best; })(), choosing: g?.choosing, locked: g?.locked }; })()`;
+    boss: !!g?.boss, bossHp: g?.boss ? g.boss.hp / g.boss.maxHp : 1, hp: r.hp, state: g?.state, foe: (() => { let best = null, bd = 1e9; const cam = g?.cameras.main; for (const e of g?.enemies ?? []) { if (e.dead || e.def.ally || e.def.faction === 'prop' || !cam || Math.abs(e.x - cam.midPoint.x) > 320) continue; const d = Math.abs(e.x - g.player.x); if (d < bd) { bd = d; best = { sx: (e.x - cam.scrollX) * 1.5, sy: (e.body.center.y - cam.scrollY) * 1.5, dx: e.x - g.player.x }; } } return best; })(),
+    canRetry: g?.canRetry, choosing: g?.choosing, locked: g?.locked }; })()`;
 
 async function probe(id, boss) {
   const page = await browser.newPage({ viewport: { width: 960, height: 540 } });
@@ -50,7 +51,19 @@ async function probe(id, boss) {
     await page.waitForTimeout(150);
     s = await page.evaluate(state);
     if (!s.scene.includes('Game') || s.state === 'clear') { result = 'clear'; break; }
-    if (s.state === 'dead') { await page.keyboard.press('Enter', { delay: 40 }); await page.waitForTimeout(400); continue; }
+    if (s.state === 'dead') {
+      if (!s.canRetry) continue;
+      // The held mouse button and Enter share the same fire action, so release
+      // it before requesting a fresh press on the retry screen.
+      await page.mouse.up();
+      await page.keyboard.up(dir);
+      await page.waitForTimeout(120);
+      await page.keyboard.press('Enter', { delay: 100 });
+      await page.waitForTimeout(400);
+      await page.keyboard.down(dir);
+      await page.mouse.down();
+      continue;
+    }
     if (!boss && s.boss) { result = 'reached boss'; break; }
     if (s.boss && !bossSeen) bossSeen = Date.now();
     k++;
