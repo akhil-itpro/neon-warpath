@@ -25,6 +25,8 @@ export class PerkScene extends Phaser.Scene {
     saveCampaign('Perk');
     this.done = false; this.sel = 1; this.cards = [];
     this.controls = new Controls(this);
+    // A held skip button from the briefing must be released before it selects an upgrade.
+    this.controls.poll();
     const next = STAGES[run.stage];
     this.add.tileSprite(0, 0, W, H, next.bg).setOrigin(0).setTint(0x30344a);
     this.txt(W / 2, 40, 'FIELD UPGRADE', 24, '#ffd040');

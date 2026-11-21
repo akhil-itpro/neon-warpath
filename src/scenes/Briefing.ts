@@ -3,7 +3,7 @@ import { W, H, FONT } from '../config';
 import { run } from '../systems/Run';
 import { STAGES } from '../data/stages';
 import { STORY, type Choice, type ChoiceOption, type Line } from '../data/story';
-import { applyChoice, condOk, filterLines, portraitKey, speakerColor, speakerName } from '../systems/Story';
+import { applyChoice, condOk, filterLines, lineOk, portraitKey, speakerColor, speakerName } from '../systems/Story';
 import { audio } from '../systems/Audio';
 import { Controls } from '../systems/Controls';
 import { saveCampaign } from '../systems/CampaignSave';
@@ -55,7 +55,7 @@ export class BriefingScene extends Phaser.Scene {
     this.steps = [
       ...filterLines(after?.lines ?? []).map((line) => ({ line })),
       ...(after?.choice ? [...filterLines(after.choice.prompt).map((line) => ({ line })), { choice: after.choice }] : []),
-      ...(final ? [] : filterLines(STORY[st.id]?.briefing ?? []).map((line) => ({ line }))),
+      ...(final ? [] : (STORY[st.id]?.briefing ?? []).map((line) => ({ line }))),
     ];
     if (!this.steps.length) { this.scene.start(this.next); return; }
 
@@ -87,7 +87,8 @@ export class BriefingScene extends Phaser.Scene {
 
   /** Moves to the next step: a line (typed out) or a choice (cards). */
   private advance() {
-    const step = this.steps.shift();
+    let step = this.steps.shift();
+    while (step && 'line' in step && !lineOk(step.line)) step = this.steps.shift();
     if (!step) return this.finish();
     if ('choice' in step) return this.showChoice(step.choice);
     const l = step.line;

@@ -404,6 +404,10 @@ const SCENARIOS = [
     ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp * 9, g.player.x)'],
     ['until', 'window.__game.scene.isActive("Briefing")'], ['press', ['Enter', '!!window.__game.scene.getScene("Briefing").choice']], ['wait', 500], ['shot'],
     ['tap', 'Enter'], ['wait', 300], ['assert', 'window.__run.flags.halcyon_saved === true'],
+    ['press', ['Enter', `window.__game.scene.getScene('Briefing').line?.text.includes('I know its shield')`]],
+    ['down', 'KeyJ'], ['until', 'window.__game.scene.isActive("Perk")'], ['wait', 800],
+    ['assert', 'window.__game.scene.isActive("Perk") && window.__run.perks.length === 0'],
+    ['up', 'KeyJ'], ['tap', 'Enter'], ['until', 'window.__game.scene.isActive("Game")'],
   ] },
   { name: 'story-final', url: '?stage=cathedral&boss=1&god=1&weapon=smg', steps: [
     ['eval', 'Object.assign(window.__run.flags, { heard_oracle: true, halcyon_saved: true, quill_rescued: true, varkesh_freed: true, nest_truce: true, sovereign_spared: true })'],
