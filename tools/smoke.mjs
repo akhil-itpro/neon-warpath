@@ -49,14 +49,32 @@ const SCENARIOS = [
     ]),
     ['shot'],
   ] },
-  ...['viper', 'titan'].map((operator, index) => ({ name: `art-${operator}`, url: `?stage=1&god=1&op=${index + 1}`, steps: [
-    ['wait', 2800], ['assert', `window.__game.scene.getScene("Game").player.texture.key === "${operator}_idle"`], ['shot'],
-    ['down', 'KeyJ'], ['down', 'KeyD'], ['wait', 400], ['assert', `window.__game.scene.getScene("Game").player.texture.key.startsWith("${operator}_run")`], ['shot'],
-    ['up', 'KeyD'], ['tap', 'Space'], ['wait', 120], ['assert', `window.__game.scene.getScene("Game").player.texture.key === "${operator}_jump"`], ['shot'],
-    ['wait', 1000], ['down', 'KeyS'], ['wait', 200], ['assert', `window.__game.scene.getScene("Game").player.texture.key === "${operator}_crouch"`], ['shot'],
-    ['up', 'KeyS'], ['tap', 'ShiftLeft'], ['wait', 30], ['assert', `window.__game.scene.getScene("Game").player.texture.key === "${operator}_slide"`], ['shot'],
-    ['up', 'KeyJ'], ['wait', 500], ['down', 'KeyA'], ['wait', 180], ['up', 'KeyA'], ['wait', 300],
-    ['assert', 'window.__game.scene.getScene("Game").player.flipX'], ['shot'],
+  ...['viper', 'titan', 'serrik', 'quill'].map((operator, index) => ({ name: `art-${operator}`, url: `?stage=1&god=1&op=${index + 1}`, steps: [
+    ['wait', 2800],
+    ['eval', `var g = window.__game.scene.getScene('Game');
+      for (const e of g.enemies) g.removeEnemy(e);
+      g.player.body.reset(300, 320);`],
+    ['until', `window.__game.scene.getScene('Game').player.onGround`],
+    ['assert', `var p = window.__game.scene.getScene('Game').player;
+      !p.visible && p.rig.root.visible && p.rig.root.list.length === 8 &&
+      p.rig.parts.head.texture.key === '${operator}_rig_head' && p.body.height === 56`],
+    ['shot'],
+    ['down', 'KeyD'], ['until', `Math.abs(window.__game.scene.getScene('Game').player.rig.phase) > 0.15`], ['up', 'KeyD'],
+    ['down', 'Space'], ['until', `!window.__game.scene.getScene('Game').player.onGround`], ['up', 'Space'],
+    ['until', `window.__game.scene.getScene('Game').player.onGround`],
+    ['down', 'KeyS'], ['until', `var p = window.__game.scene.getScene('Game').player; p.low && p.rig.parts.head.y > -35`],
+    ['shot'], ['up', 'KeyS'],
+    ['eval', `var g = window.__game.scene.getScene('Game'); g.events.on('postupdate', function observeSlide() {
+      if (g.player.sliding > 0 && g.player.invuln > 0) {
+        window.__sawSlide = true;
+        g.events.off('postupdate', observeSlide);
+      }
+    });`],
+    ['tap', 'ShiftLeft'], ['until', 'window.__sawSlide'],
+    ['until', `window.__game.scene.getScene('Game').player.sliding <= 0`],
+    ['mouse', [200, 160]],
+    ['until', `var p = window.__game.scene.getScene('Game').player; p.dir === -1 && p.muzzle().x < p.x && p.muzzle().y < p.centerY`],
+    ['shot'],
   ] })),
   { name: 'art-enemies', url: '?stage=furnace&god=1', steps: [
     ['wait', 2800],
@@ -166,8 +184,9 @@ const SCENARIOS = [
     ]),
   ] },
   // Mouse aim: shots follow the crosshair, the hero faces it, and releasing the button stops the gun.
-  // Legacy arm cutter is disabled; whole-body poses and free-aim shooting remain intact.
-  { name: 'arm-rig', url: '?stage=city&god=1&weapon=smg&op=1', steps: [
+  // Remove one puppet piece to exercise the intact whole-body fallback.
+  { name: 'arm-rig-fallback', url: '?stage=city&god=1&weapon=smg&op=1', steps: [
+    ['eval', `var g = window.__game.scene.getScene('Game'); g.textures.remove('viper_rig_arm'); g.scene.restart()`],
     ['wait', 2800],
     ['eval', `var g = window.__game.scene.getScene('Game'); for (const e of g.enemies) g.removeEnemy(e); g.player.x = 300; g.player.body.setVelocity(0, 0);`],
     ['assert', `var p = window.__game.scene.getScene('Game').player; p.texture.key === 'viper_idle' && p.arm === null && p.rig === null`],
@@ -479,7 +498,10 @@ for (const sc of SCENARIOS.filter((s) => filter.split('|').some(f => s.name.incl
     else if (op === 'mdown') await page.mouse.down();
     else if (op === 'mup') await page.mouse.up();
     else if (op === 'eval') await page.evaluate(arg);
-    else if (op === 'until') await page.waitForFunction(arg, null, { timeout: 20000 });
+    else if (op === 'until') {
+      try { await page.waitForFunction(arg, null, { timeout: 20000 }); }
+      catch (error) { throw new Error(`Condition did not pass: ${arg}\n${error}`); }
+    }
     else if (op === 'press') { // tap a key every 250 ms until a condition holds (dialogue, menus)
       const [key, cond] = arg, end = Date.now() + 30000;
       while (!await page.evaluate(cond)) { if (Date.now() > end) throw new Error(`press timed out: ${cond}`); await page.keyboard.press(key, { delay: 40 }); await page.waitForTimeout(250); }

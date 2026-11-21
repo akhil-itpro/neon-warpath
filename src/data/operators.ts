@@ -2,7 +2,7 @@
 // `<art>_crouch` (same layout as the hero sheet). Operators whose sheet is not in public/assets yet
 // borrow ROOK's frames with a tint, so they are playable today and upgrade when art lands.
 
-import { ROOK_RIG, type RigDef } from './rigs';
+import { OPERATOR_RIGS, type RigDef } from './rigs';
 import { ABILITIES, type AbilityDef } from './abilities';
 
 export interface OperatorDef {
@@ -25,9 +25,9 @@ export interface OperatorDef {
 }
 
 export const OPERATORS: OperatorDef[] = [
-  { id: 'rook', name: 'ROOK', role: 'ASSAULT', blurb: 'Ex-special forces. Balanced. Never misses.', art: 'hero', rig: ROOK_RIG, tint: 0xffffff, hp: 100, speed: 170, dmg: 1, rate: 1, jump: 440, weapon: 'pistol', ability: ABILITIES.aegis },
-  { id: 'viper', name: 'VIPER', role: 'INFILTRATOR', blurb: 'Syndicate defector. Fastest gun alive.', art: 'viper', tint: 0xff9ad0, hp: 80, speed: 200, dmg: 0.9, rate: 1.3, jump: 470, weapon: 'pistol', ability: ABILITIES.phase },
-  { id: 'titan', name: 'TITAN', role: 'HEAVY', blurb: 'Walking tank. Hits like a freight train.', art: 'titan', tint: 0xffc070, hp: 140, speed: 145, dmg: 1.35, rate: 0.85, jump: 420, weapon: 'pistol', ability: ABILITIES.quake },
-  { id: 'serrik', name: 'SERRIK', role: 'VARKESH VANGUARD', blurb: 'Freed soldier. Pays every debt in full.', art: 'serrik', tint: 0x90e0a0, hp: 115, speed: 160, dmg: 1.1, rate: 0.95, jump: 440, weapon: 'pistol', ability: ABILITIES.rally, unlock: 'serrik', unlockHint: 'OPEN THE FREIGHT CARS (STAGE 3)' },
-  { id: 'quill', name: 'QUILL', role: 'CORVANE SCOUT', blurb: 'Chatty, nervous, brave when it matters.', art: 'quill', tint: 0xa0d0ff, hp: 90, speed: 185, dmg: 0.95, rate: 1.1, jump: 475, weapon: 'pistol', ability: ABILITIES.gale, unlock: 'quill', unlockHint: 'FREE THE CAGED BIRD (STAGE 9)' },
+  { id: 'rook', name: 'ROOK', role: 'ASSAULT', blurb: 'Ex-special forces. Balanced. Never misses.', art: 'hero', rig: OPERATOR_RIGS.rook, tint: 0xffffff, hp: 100, speed: 170, dmg: 1, rate: 1, jump: 440, weapon: 'pistol', ability: ABILITIES.aegis },
+  { id: 'viper', name: 'VIPER', role: 'INFILTRATOR', blurb: 'Syndicate defector. Fastest gun alive.', art: 'viper', rig: OPERATOR_RIGS.viper, tint: 0xff9ad0, hp: 80, speed: 200, dmg: 0.9, rate: 1.3, jump: 470, weapon: 'pistol', ability: ABILITIES.phase },
+  { id: 'titan', name: 'TITAN', role: 'HEAVY', blurb: 'Walking tank. Hits like a freight train.', art: 'titan', rig: OPERATOR_RIGS.titan, tint: 0xffc070, hp: 140, speed: 145, dmg: 1.35, rate: 0.85, jump: 420, weapon: 'pistol', ability: ABILITIES.quake },
+  { id: 'serrik', name: 'SERRIK', role: 'VARKESH VANGUARD', blurb: 'Freed soldier. Pays every debt in full.', art: 'serrik', rig: OPERATOR_RIGS.serrik, tint: 0x90e0a0, hp: 115, speed: 160, dmg: 1.1, rate: 0.95, jump: 440, weapon: 'pistol', ability: ABILITIES.rally, unlock: 'serrik', unlockHint: 'OPEN THE FREIGHT CARS (STAGE 3)' },
+  { id: 'quill', name: 'QUILL', role: 'CORVANE SCOUT', blurb: 'Chatty, nervous, brave when it matters.', art: 'quill', rig: OPERATOR_RIGS.quill, tint: 0xa0d0ff, hp: 90, speed: 185, dmg: 0.95, rate: 1.1, jump: 475, weapon: 'pistol', ability: ABILITIES.gale, unlock: 'quill', unlockHint: 'FREE THE CAGED BIRD (STAGE 9)' },
 ];

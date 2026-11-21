@@ -1,6 +1,6 @@
 # CODEX ART + ANIMATION HANDOFF
 
-Rewritten 2026-11-16 (Claude Code, Session 19). Read `CLAUDE.md` and the top entry of `docs/HANDOFF.md` first.
+Rewritten 2026-11-16 (Session 19). Read `CLAUDE.md` and the top entry of `docs/HANDOFF.md` first.
 
 The game is complete in code: 12 stages, 12 bosses, 5 operators, story, saves, options, difficulty levels.
 What still makes it look unfinished is **animation** and **how well the characters stand out**. Everything
@@ -37,13 +37,13 @@ Style line to end every sprite prompt with:
 
 > Detailed 16-bit pixel art, strict side view, 2D action game sprite, hard pixel edges, no anti-aliasing blur, strong cool rim light on the top and back edges, saturated readable colours that stand out against a dark night background, near-black outline, flat solid magenta #FF00FF background, no glow, no cast shadow, no text, no grid lines, generous empty space between poses, nothing touching or overlapping.
 
-## Job 1. Make ROOK readable (one small image, big effect)
+## Job 1. Make ROOK readable (integrated)
 
 ROOK's parts are charcoal navy on dark streets, so the player loses sight of their own character. The code
 now puts a soft light behind him, but the sprite itself should carry more colour. Regenerate the eight-part
 atlas with the **same layout and proportions**, brighter.
 
-- Source of truth for layout: `art/source/rigs/README.md` (the exact prompt is there) and `tools/process_rook_rig.py`.
+- Source of truth for layout: `art/source/rigs/README.md` and `tools/process_operator_rigs.py`.
 - Output keys (unchanged): `rook_rig_head`, `_torso`, `_arm`, `_support`, `_thigh`, `_shin`, `_far_thigh`, `_far_shin`.
 - Keep every part the same size and pivot so `src/data/rigs.ts` needs no change. If a part's size changes, re-measure its pivot.
 
@@ -53,15 +53,13 @@ Prompt: use the ROOK prompt in `art/source/rigs/README.md` and replace the colou
 
 Check: `npm.cmd run smoke -- rook-rig` and `rules-hints`. ROOK must be clearly visible at a glance in `tools/shots/rules-hints-0.png`.
 
-## Job 2. Eight-part puppets for VIPER, TITAN, SERRIK, QUILL
+## Job 2. Eight-part puppets for VIPER, TITAN, SERRIK, QUILL (integrated)
 
 Same method as ROOK, one atlas per operator, 4 columns x 2 rows, 1536x1024, transparent or magenta background.
 Cells in order: head, torso (no head, arms or legs), aiming arm with gun (pointing right, horizontal), far
 support arm, front thigh, front shin with boot, far thigh (darker), far shin with boot (darker).
 
-Then: add `<OP>_RIG` to `src/data/rigs.ts` (copy `ROOK_RIG`, measure pivots, leg lengths and the barrel
-point), set `rig: <OP>_RIG` on the operator in `src/data/operators.ts`, and process with a copy of
-`tools/process_rook_rig.py`. The Title screen and the player pick the puppet up automatically.
+The operator registry points to `OPERATOR_RIGS` in `src/data/rigs.ts`, which defines the joint layout and each weapon's barrel point. Rebuild with `python -B tools/process_operator_rigs.py`. The Title screen and gameplay share the same sprites.
 
 Prompt template (fill the brackets):
 

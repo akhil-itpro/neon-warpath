@@ -2,7 +2,9 @@
 
 `rook_parts.png` is the original built-in imagegen atlas from 2026-11-15. The game uses the brighter revision `rook_parts_bright.png`, generated from that reference. Its exact prompt is in `rook_parts_bright_prompt.txt`. Both originals have alpha and are kept intact.
 
-Rebuild: `python -B tools/process_rook_rig.py`. This hardens alpha, extracts each cell's connected opaque piece, fits the calibrated game-pixel dimensions, applies the existing sprite contrast lift and registers eight textures.
+VIPER, TITAN, SERRIK and QUILL each have their own eight-piece atlas and matching prompt in this folder. Their runtime parts use the same joint layout, with barrel locations measured separately.
+
+Rebuild all five with `python -B tools/process_operator_rigs.py`, or add an operator ID to rebuild one. The script hardens alpha, extracts each cell's connected opaque piece, scales the pieces to game pixels, applies the existing sprite contrast lift and registers the textures.
 
 Part origins, leg lengths, foot targets and the barrel point are in `src/data/rigs.ts`. Rendering/animation is in `src/systems/CharacterRig.ts`; Player retains physics and combat. Missing parts fall back to the intact original sheet. Title uses the same puppet.
 

@@ -25,9 +25,9 @@ Immutable built-in imagegen sources and exact prompts: `art/source/campaign_worl
 reduced to 640x360 / 160 colours and mirrored into a seamless 1280x360 strip. Preview:
 `art/preview/campaign-worlds.png`. These are flattened backdrops; separate parallax layers remain future work.
 
-## Current animation milestone (Session 12)
+## Operator animation (Sessions 12 and 20)
 
-ROOK now uses one purpose-drawn eight-piece atlas, not separately generated movement frames or the old rectangle-cut arm. Source, exact built-in imagegen prompt and rebuild notes: `art/source/rigs/README.md`. Rebuild with `python -B tools/process_rook_rig.py`; geometry lives in `src/data/rigs.ts`. The source is immutable. VIPER/TITAN keep intact full-body frames, with the legacy arm cutter disabled, until the owner reviews ROOK (HANDOFF Session 11).
+All five operators use purpose-drawn eight-piece atlases. Sources, exact built-in imagegen prompts and rebuild notes are in `art/source/rigs/`. Rebuild with `python -B tools/process_operator_rigs.py`. Geometry lives in `src/data/rigs.ts`. Intact full-body frames serve as a fallback if a part is missing.
 
 All live main and expansion hostile sprites now have near-black outlines. Operators have a muted cool rim. Rebuilds use shared outline constants in `tools/process_assets.py`; `tools/integrate_expansion.py` imports them. ROOK's parts use the same contrast lift as other live sprites. No palette unification or enemy rigs have been completed yet.
 

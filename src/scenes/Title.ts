@@ -97,7 +97,7 @@ export class TitleScene extends Phaser.Scene {
     const locked = this.locked(op);
     this.hero.setTexture(has ? `${op.art}_idle` : 'hero_idle').setTint(locked ? 0x101018 : has ? 0xffffff : op.tint);
     this.rig?.destroy();
-    this.rig = op.rig && CharacterRig.available(this, op.rig) ? new CharacterRig(this, op.rig) : null;
+    this.rig = !locked && op.rig && CharacterRig.available(this, op.rig) ? new CharacterRig(this, op.rig) : null;
     this.hero.setVisible(!this.rig);
     this.updateRig(0);
     this.info[0].setText(locked ? `${op.name} - LOCKED` : op.name);
