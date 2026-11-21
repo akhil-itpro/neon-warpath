@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file is the project reference for Codex and other coding agents working on NEON WARPATH.
 
 **Read `docs/HANDOFF.md` first** — it holds the current state, what is verified vs. unverified, and the next tasks. Update it at the end of every session. `AGENTS.md` points other AI agents (Codex etc.) here; keep this file the single source of truth.
 

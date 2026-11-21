@@ -1,6 +1,6 @@
 # AGENTS.md (for Codex and any other AI coding agent)
 
-This project is developed by Claude Code and Codex in turns (from Session 19 the owner uses Codex most of the time). Work the same way:
+Codex leads development of NEON WARPATH from Session 20 onward. Use the existing project documentation and handoff:
 
 1. Read `CLAUDE.md` (commands, architecture, gotchas) — it is the source of truth for how this repo works.
 2. Read `docs/HANDOFF.md` (current state, verified vs. unverified, prioritised next tasks).

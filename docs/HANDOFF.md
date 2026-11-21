@@ -2,7 +2,42 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
-## Session 19 - 2026-11-16 (Claude Code, difficulty fix + bug hunt + Codex art handoff) - CODEX: START HERE
+## Session 20 - 2026-11-21 (Codex takes over development)
+
+Codex took over development and completed the seven art jobs and browser packaging for the existing 12-stage campaign.
+
+### Integrated
+
+- ROOK has brighter steel-blue armor and teal accents. The new atlas preserves the eight original runtime part sizes and aiming pivots.
+- VIPER, TITAN, SERRIK and QUILL now use eight-piece rigs for movement and aim. Locked operators keep their silhouette on the title screen. The built-in imagegen originals and exact prompts live under `art/source/rigs/`. Rebuild all five with `python -B tools/process_operator_rigs.py`.
+- All 19 designs in art job 3 have four movement poses and an attack pose. Turrets scan and jets show their open bomb bays during a drop. All seven older bosses show combat states, including visible weak points during exposure. Rebuild the sheets with `python -B tools/process_combat_art.py`.
+- Cathedral blinkers are now temporary footholds above the permanent route. The Spire keeps its side-scrolling chase, and the story guide describes the route that ships.
+- All 12 stages have their own far parallax artwork. Neon Midnight also has a near rooftop layer. The sources and prompts are under `art/source/release_stages/`.
+- Each stage has its own painted floor and platform tiles. The store kit contains a cover, banner, icon, and four screenshots captured from the production build.
+
+### Release files
+
+- `tools/shots/neon-warpath-release.zip` contains the 445 production files, with `index.html` at the archive root. The archive integrity check passed and all 433 registered textures are present.
+- `art/store/` contains the upload artwork and four 1280×720 screenshots. Original generated images and prompts are under `art/source/`. See `docs/ART_PIPELINE.md` for rebuild commands.
+
+### Verified
+
+- Typecheck passed. Browser smoke covered ROOK and all four new rigs, title selection, the missing-part fallback, and the opening tutorial. Inspected the in-game opening, operator poses and title screen at 1280×720.
+- The full browser smoke suite passed all 96 scenarios on the finished gameplay code at `dd77dd9`, including all 12 stage transitions and the credits. The final production build was checked separately with the new stage art installed. The full log is `tools/smoke-session20.log`.
+- Normal balance bot cleared city stage and boss with zero deaths. After fixing the probe to release its held fire button before retrying, it reached the Abyss boss with one death and cleared the boss in its separate attempt with zero deaths.
+- The Normal sidearm bot hit the Prism stage time cap after two deaths. The rerun using an SMG and the shield skill reached the boss in 118 seconds with zero deaths. The separate Prism boss attempt cleared with zero deaths.
+- Browser checks passed for the original and animated enemy roster, the Cathedral platform cycle and survival finale, the Spire chase, and VULTURE's attack and vulnerability multipliers.
+- Separate Normal boss attempts with the starting sidearm cleared VULTURE, the Teacup Tyrant, Warden and ARCHON with zero deaths, the Drowned Queen with one, and the Static Oracle with two. The sidearm bot timed out on Glass Widow after six deaths. With an SMG and the shield skill it cleared Glass Widow after three deaths.
+- The parallax PNGs for all 12 stages have the expected dimensions, transparent upper areas and matching side edges. The City, Fungal, Tidal, Spire and Cathedral checks passed with the new depth layers loaded.
+- All 24 floor and platform tiles match the intended pixel dimensions and repeat at the side edges. The production build passed the City, Casino, Abyss, Tidal and Cathedral browser checks and the live terrain and parallax check.
+- The production build booted at a nested path, loaded its bundled font and icon, and entered the first stage with normal armor. Verified local preview at `http://127.0.0.1:4173/`.
+- Rebuilding operator, combat, stage and store art from the saved originals produced byte-for-byte matches.
+
+### Open validation
+
+- Normal human playthrough and physical gamepad verification are still open.
+
+## Session 19 - 2026-11-16 (Claude Code, difficulty fix + bug hunt + art handoff)
 
 ### Owner said
 "Look at the game, fix bugs and design defects. If the game is bad, give handoffs and art and animation prompts for Codex; I will now use Codex for this game sometimes. The game is very difficult; I think it needs Call of Duty style healing or a button to press when enemies are not around. Make the game practical, make sure the graphics are good, commit."
