@@ -9,7 +9,7 @@ below already has a stand-in, so nothing is blocked. Work top to bottom; each nu
 Jobs finished earlier (do not redo): three world backdrops (`bg_tidal`, `bg_prism`, `bg_spire`), HALCYON's
 eight poses, the cage / pylon / slot machine props, twelve painted portraits, ROOK's eight-part rig.
 
-## The honest state of the art (looked at in game, Session 19)
+## Art review before the Session 20 finishing pass
 
 | Part | State | Verdict |
 |---|---|---|
@@ -75,7 +75,7 @@ Prompt template (fill the brackets):
 Check: `npm.cmd run smoke -- art-viper`, `art-titan`, `title`, `kit-`. Look at the run in motion (add a
 preview GIF like `tools/preview_rook_rig.py`).
 
-## Job 3. Give every one-picture enemy a walk or fly cycle and an attack pose
+## Job 3. Give every one-picture enemy a walk or fly cycle and an attack pose (integrated)
 
 The code needs **no change** for this. For any enemy:
 
@@ -113,7 +113,7 @@ Prompt template:
 
 Check: `npm.cmd run smoke -- art-enemies` plus the stage that uses the enemy (`casino`, `x-engine`, `x-tidal`, `gim-dark`…). Do three or four enemies per commit.
 
-## Job 4. Four state pictures for the seven older bosses
+## Job 4. Four state pictures for the seven older bosses (integrated)
 
 The four newest bosses already switch between `<art>_idle`, `<art>_windup`, `<art>_attack`, `<art>_exposed`
 (`Enemy.stateArt`). Do the same for the older seven. Then add `states: true` to the boss in
@@ -136,7 +136,7 @@ Prompt template:
 
 Check: `npm.cmd run smoke -- city-boss`, `casino`, `furnace-boss`, `gim-dark`, `x-`, `cathedral-boss`, `story-final`.
 
-## Job 5. Parallax layers (depth)
+## Job 5. Parallax layers (integrated)
 
 The code already supports this, no change needed. For any stage id, add either or both of:
 
@@ -154,7 +154,7 @@ Prompt template:
 Do `city` first (far: distant towers and antenna masts; near: rooftop water tanks, railings, neon sign frames),
 look at `npm.cmd run smoke -- city`, then the other eleven. Stage ids and looks: `docs/STORY.md` section 3.
 
-## Job 6. Painted floor and girder tiles
+## Job 6. Painted floor and girder tiles (integrated)
 
 No code change needed: a PNG in the manifest replaces the code-drawn tile.
 
@@ -163,7 +163,7 @@ No code change needed: a PNG in the manifest replaces the code-drawn tile.
 
 Prompt: `A seamless horizontally tiling floor tile strip for a 2D pixel art action game, [WORLD] theme, side view cross-section: a bright worn top edge then dark layered structure below, 16-bit pixel art, no perspective, no text.` Cut one clean repeat from it.
 
-## Job 7. Store and title art (needed to publish)
+## Job 7. Store and title art (integrated)
 
 | File | Size | Content |
 |---|---|---|

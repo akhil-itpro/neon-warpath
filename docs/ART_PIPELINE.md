@@ -1,5 +1,26 @@
 # Art pipeline — how new art gets into the game
 
+## Combat animation (Session 20)
+
+Built-in imagegen sheets and exact prompts live under `art/source/combat/`. Run
+`python -B tools/process_combat_art.py` for all 19 enemy cycles and seven boss sets, or append art keys
+to rebuild a subset. Each sheet uses one scale across poses and keeps the still sprite's runtime
+canvas size. The script crops near the empty gutters, applies the shared near-black outline and
+builds contact sheets under `art/preview/combat/`. Browser checks include `art-machines`, `x-roster`
+and `art-bosses`.
+
+## Stage and store art (Session 20)
+
+The built-in imagegen masters and exact prompts for stage depth and terrain live under
+`art/source/release_stages/`. Run `python -B tools/process_stage_art.py` to rebuild all
+13 transparent parallax layers and 24 terrain tiles. The strips mirror at the repeat boundaries
+and the terrain tiles retain the walkable edge at their top. `art-hooks` verifies the installed
+city layers, floor and platform textures in the browser.
+
+`art/source/store/` holds the original cover, banner and icon along with their exact prompts.
+`python -B tools/process_store_art.py` exports the required sizes to `art/store/` and the browser
+icon to `public/favicon.png`. Store screenshots are unedited 1280×720 production captures.
+
 ## Campaign finishing art (Session 17)
 
 Built-in imagegen originals and exact prompts live in `art/source/campaign_finish/`.

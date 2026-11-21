@@ -1,6 +1,6 @@
-# NEON WARPATH (working title)
+# NEON WARPATH
 
-Pixel-art run-and-gun action game. TypeScript + Phaser 3 + Vite.
+Pixel-art run-and-gun with a 12-stage campaign, five playable operators and three endings. TypeScript + Phaser 3 + Vite.
 
 ## Play it
 1. Install Node.js (already installed on the dev machine).
@@ -20,6 +20,8 @@ Press **O** on the title or pause screen for difficulty, music/effects volume, c
 ## Build and verification
 
 `npm run check` checks types. `npm run smoke` exercises the campaign and saves screenshots in `tools/shots/`. `npm run build` creates the web build in `dist/`. Serve it with `npm run preview`; opening `index.html` directly as a local file is not supported.
+
+The upload package is `tools/shots/neon-warpath-release.zip`. It contains the production files with `index.html` at the archive root. The cover, banner, icon and screenshots are in `art/store/`.
 
 ## Docs
 - `docs/HANDOFF.md` — current state and next steps (start here)
