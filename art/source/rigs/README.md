@@ -1,8 +1,8 @@
 # ROOK separated-parts master
 
-`rook_parts.png` is one original atlas generated with the built-in image_gen tool on 2026-11-15. Keep it unchanged. Actual alpha is present; the dark display behind the sheet is transparent. The eight isolated pieces replace the inconsistent frame-by-frame redraws for ROOK only. VIPER and TITAN retain intact whole-body frames pending owner review.
+`rook_parts.png` is the original built-in imagegen atlas from 2026-11-15. The game uses the brighter revision `rook_parts_bright.png`, generated from that reference. Its exact prompt is in `rook_parts_bright_prompt.txt`. Both originals have alpha and are kept intact.
 
-Rebuild: `python -B tools/process_rook_rig.py`. This hardens alpha, extracts each cell's connected opaque piece, scales it to game pixels, applies the existing sprite contrast lift and registers eight textures. No whole-body sprite is cut apart.
+Rebuild: `python -B tools/process_rook_rig.py`. This hardens alpha, extracts each cell's connected opaque piece, fits the calibrated game-pixel dimensions, applies the existing sprite contrast lift and registers eight textures.
 
 Part origins, leg lengths, foot targets and the barrel point are in `src/data/rigs.ts`. Rendering/animation is in `src/systems/CharacterRig.ts`; Player retains physics and combat. Missing parts fall back to the intact original sheet. Title uses the same puppet.
 
