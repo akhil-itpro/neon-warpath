@@ -112,9 +112,9 @@ export class Gimmicks {
 
     // ---- darkness: a soft hole of light around the player, everything else dimmed (telegraphs draw above it)
     if (st.dark) {
-      const a = 0.86, d = DEPTH.fx - 1;
-      const hole = scene.add.image(0, 0, 'darkhole').setScrollFactor(0).setDepth(d).setAlpha(a);
-      const rects = [0, 1, 2, 3].map(() => scene.add.rectangle(0, 0, 1, 1, 0x000000, a).setOrigin(0).setScrollFactor(0).setDepth(d));
+      const d = DEPTH.fx - 1;
+      const hole = scene.add.image(0, 0, 'darkhole').setScrollFactor(0).setDepth(d);
+      const rects = [0, 1, 2, 3].map(() => scene.add.rectangle(0, 0, 1, 1, 0x000000).setOrigin(0).setScrollFactor(0).setDepth(d));
       this.dark = { hole, rects, r: st.dark };
     }
 
@@ -315,7 +315,9 @@ export class Gimmicks {
       const want = gs.bossActive ? 200 : truce ? 170 : this.dark.r;
       const r = (this.dark.r += (want - this.dark.r) * 0.05) + Math.sin(now / 140) * 2;
       const cx = R.Clamp(p.x - cam.scrollX, 0, W), cy = R.Clamp(p.centerY - cam.scrollY, 0, H);
-      this.dark.hole.setPosition(cx, cy).setDisplaySize(r * 2, r * 2);
+      const opacity = gs.bossActive || gs.state === 'clear' ? 0.45 : 0.86;
+      this.dark.hole.setPosition(cx, cy).setDisplaySize(r * 2, r * 2).setAlpha(opacity);
+      for (const rect of this.dark.rects) rect.setAlpha(opacity);
       const [top, bot, left, right] = this.dark.rects;
       top.setPosition(-10, -10).setSize(W + 20, Math.max(0, cy - r + 10));
       bot.setPosition(-10, cy + r).setSize(W + 20, Math.max(0, H - cy - r + 10));
