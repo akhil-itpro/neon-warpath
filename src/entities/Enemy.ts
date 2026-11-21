@@ -95,8 +95,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.redirect = now + 5000; this.t = Math.min(this.t, 350);
       return;
     }
-    if (this.def.states) dmg *= this.artState === 'exposed' ? 1.4 : this.artState === 'attack' ? 0.75 : 1;
     if (this.vuln > now) dmg *= 2;
+    else if (this.def.states) dmg *= this.artState === 'exposed' ? 1.4 : this.artState === 'attack' ? 0.75 : 1;
     if (this.def.shield && Math.sign(srcX - this.x) === this.dir) { // shield faces the shooter
       dmg *= this.def.shield;
       this.gs.fx.spark(this.x + this.dir * 16, this.cy, 0x9fd0ff, 4);
@@ -446,13 +446,17 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private stateArt() {
     const now = this.gs.time.now;
     if (this.mode !== this.lastMode) { if (this.mode === 'busy') this.busyAt = now; this.lastMode = this.mode; }
+    const ai = this.def.ai;
     let st = 'idle';
-    if (this.def.ai === 'boss_seer') {
-      if (this.mode === 'idle') st = 'exposed';
-      else if (this.mode === 'busy') st = now - this.busyAt < 500 ? 'windup' : 'attack';
-    } else if (this.mode === 'wind' || (this.mode === 'leap' && this.sub === 0)) st = 'windup';
+    if (this.vuln > now || (this.mode === 'busy' && this.exposed)) st = 'exposed';
+    else if (this.mode === 'hover' || (this.mode === 'idle' && ai !== 'boss_stomper')) st = 'exposed';
+    else if (this.mode === 'swoop') st = this.sub < 2 ? 'windup' : this.sub === 2 ? 'attack' : 'exposed';
+    else if (this.mode === 'wind' || (this.mode === 'leap' && this.sub === 0)) st = 'windup';
     else if (this.mode === 'charge' || this.mode === 'leap') st = 'attack';
-    else if (this.mode === 'busy') st = this.exposed ? 'exposed' : 'attack';
+    else if (this.mode === 'busy') {
+      const windup = ai === 'boss_heli' || ai === 'boss_warden' ? 300 : ai === 'boss_seer' ? 500 : 450;
+      st = now - this.busyAt < windup ? 'windup' : 'attack';
+    }
     this.artState = st;
     const key = `${this.def.art}_${st}`;
     if (this.texture.key !== key && this.scene.textures.exists(key)) this.setTexture(key);

@@ -115,6 +115,29 @@ const SCENARIOS = [
       });`],
     ['assert', 'window.__machineArtOk'], ['shot'],
   ] },
+  { name: 'art-bosses', url: '?stage=city&boss=1&god=1', steps: [
+    ['assert', `var g = window.__game.scene.getScene('Game');
+      ['vulture', 'boss_tyrant', 'warden', 'boss_widow', 'boss_jelly', 'boss_oracle', 'archon'].every(key =>
+        ['idle', 'windup', 'attack', 'exposed'].every(pose => {
+          const still = g.textures.get(key).getSourceImage();
+          const frame = g.textures.get(key + '_' + pose).getSourceImage();
+          return frame.width === still.width && frame.height === still.height;
+        }))`],
+    ['down', 'KeyD'], ['until', `!!window.__game.scene.getScene('Game').boss`], ['up', 'KeyD'],
+    ['eval', `var g = window.__game.scene.getScene('Game'), b = g.boss;
+      window.__bossArtDamage = {};
+      g.events.on('postupdate', function observeBoss() {
+        const state = b.artState;
+        if (state === 'idle' || state in window.__bossArtDamage || b.texture.key !== 'vulture_' + state) return;
+        const hp = b.hp;
+        b.hurt(10, g.player.x);
+        window.__bossArtDamage[state] = hp - b.hp;
+        if (Object.keys(window.__bossArtDamage).length === 3) g.events.off('postupdate', observeBoss);
+      });`],
+    ['until', 'Object.keys(window.__bossArtDamage).length === 3'],
+    ['assert', 'window.__bossArtDamage.windup === 10 && window.__bossArtDamage.attack === 7.5 && window.__bossArtDamage.exposed === 14'],
+    ['shot'],
+  ] },
   { name: 'title', url: '', steps: [['wait', 1200], ['shot'], ['tap', 'ArrowRight'], ['wait', 300], ['shot'], ['tap', 'Enter'],
     ['until', 'window.__game.scene.isActive("Briefing")'], ['wait', 1500], ['shot'],
     ['assert', 'window.__run.op.id === "viper" /* VIPER-only briefing lines */'],
@@ -131,7 +154,7 @@ const SCENARIOS = [
   ] },
   { name: 'story-ledger', url: '?stage=casino&boss=1&god=1', steps: [
     ['down', 'KeyD'], ['until', '!!window.__game.scene.getScene("Game").boss'], ['up', 'KeyD'],
-    ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp, g.player.x)'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp * 2, g.player.x)'],
     ['until', 'window.__game.scene.isActive("Briefing")'],
     ['press', ['Enter', '!!window.__game.scene.getScene("Briefing").choice']], ['wait', 500], ['shot'],
     ['tap', 'ArrowRight'], ['wait', 200], ['shot'], ['tap', 'Enter'], ['wait', 300],
@@ -151,9 +174,9 @@ const SCENARIOS = [
   { name: 'story-end', url: '?stage=cathedral&boss=1&god=1', steps: [
     ['eval', 'Object.assign(window.__run.flags, { heard_oracle: true }); window.__run.choices.push("YOU HEARD THE TRUTH ABOUT HALCYON.")'],
     ['down', 'KeyD'], ['until', '!!window.__game.scene.getScene("Game").boss'], ['up', 'KeyD'],
-    ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp * 0.55, g.player.x)'], ['wait', 1500], ['shot'],
+    ['eval', 'var b = window.__game.scene.getScene("Game").boss; b.hp = b.maxHp * 0.45'], ['wait', 1500], ['shot'],
     ['assert', 'window.__run.heard.includes("cathedral:boss50")'],
-    ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp, g.player.x)'],
+    ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.maxHp * 2, g.player.x)'],
     ['until', 'window.__game.scene.isActive("Briefing")'], ['press', ['Enter', 'window.__game.scene.isActive("End")']], ['wait', 1500], ['shot'],
     ['assert', 'window.__run.flags.rift_choice === "collapse" /* Tide Pearl missing: HOLD is locked */'],
   ] },
@@ -176,7 +199,7 @@ const SCENARIOS = [
       ['wait', 500], ['down', 'KeyD'], ['until', '!!window.__game.scene.getScene("Game").boss'], ['up', 'KeyD'],
       ['eval', 'var g = window.__game.scene.getScene("Game"); g.player.x = g.bounds.left + 90'], ['down', 'KeyJ'], // stand on the left, firing right
       ['wait', 2500], ['shot'], ['wait', 5000], ['shot'], ['wait', 6000], ['shot'],
-      ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.hp - g.boss.maxHp * 0.4, g.player.x)'], // push into the rage phase
+      ['eval', 'var b = window.__game.scene.getScene("Game").boss; if (b && !b.dead) b.hp = Math.min(b.hp, b.maxHp * 0.4)'], // enter the rage phase
       ['wait', 7000], ['shot'], ['wait', 7000], ['shot'],
       ['assert', 'var g = window.__game.scene.getScene("Game"); g.state !== "dead" && (!g.boss || g.boss.dead || (g.boss.hp < g.boss.maxHp * 0.6 && g.boss.x > g.bounds.left - 10 && g.boss.x < g.bounds.right + 10 && g.boss.y > 0 && g.boss.y < 330))'],
     ] },
@@ -377,7 +400,7 @@ const SCENARIOS = [
   { name: 'story-final', url: '?stage=cathedral&boss=1&god=1&weapon=smg', steps: [
     ['eval', 'Object.assign(window.__run.flags, { heard_oracle: true, halcyon_saved: true, quill_rescued: true, varkesh_freed: true, nest_truce: true, sovereign_spared: true })'],
     ['down', 'KeyD'], ['until', '!!window.__game.scene.getScene("Game").boss'], ['up', 'KeyD'],
-    ['eval', 'var g = window.__game.scene.getScene("Game"); g.boss.hurt(g.boss.hp - g.boss.maxHp * 0.3, g.player.x)'], ['wait', 3000], ['shot'],
+    ['eval', 'var b = window.__game.scene.getScene("Game").boss; b.hp = b.maxHp * 0.3'], ['wait', 3000], ['shot'],
     ['assert', 'var b = window.__game.scene.getScene("Game").boss; b.phase3 && b.vuln > 0'],
     ['wait', 5500], ['shot'], ['assert', 'window.__game.scene.getScene("Game").enemies.some(e => e.def.ally)'],
     ['wait', 4000], ['shot'],

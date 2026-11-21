@@ -4,13 +4,15 @@
 // that a stage is beatable.
 //   npm run balance              all stages
 //   npm run balance -- tidal     only stage ids containing "tidal"
+//   node tools/balance.mjs 'city|casino' boss   only these boss fights
 // HP is set very high so the bot never dies; "dmg" is what a normal player would have lost (ROOK has 100).
 import { createServer } from 'vite';
 import { chromium } from 'playwright-core';
 import { mkdirSync } from 'node:fs';
 mkdirSync('tools/shots', { recursive: true });
 
-const filter = process.argv[2] ?? '';
+const filters = (process.argv[2] ?? '').split('|');
+const parts = process.argv[3] === 'boss' ? [true] : [false, true];
 // REAL=1 npm run balance : normal armor and the real difficulty rules (self-repair, mercy); the bot retries when it
 // dies and the report counts deaths instead of damage. DIFF=0|1|2 picks EASY / NORMAL / HARD (default NORMAL).
 const REAL = process.env.REAL === '1', DIFF = Number(process.env.DIFF ?? 1);
@@ -86,8 +88,8 @@ async function probe(id, boss) {
 }
 
 const rows = [];
-for (const id of IDS.filter((i) => i.includes(filter))) {
-  for (const boss of [false, true]) {
+for (const id of IDS.filter((i) => filters.some(filter => i.includes(filter)))) {
+  for (const boss of parts) {
     try { const r = await probe(id, boss); rows.push(r); console.log(JSON.stringify(r)); }
     catch (e) { console.log(JSON.stringify({ id, part: boss ? 'boss' : 'stage', error: String(e).slice(0, 200) })); }
   }

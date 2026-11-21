@@ -18,21 +18,25 @@ SOURCE = ROOT / 'art/source/combat'
 OUT = ROOT / 'public/assets'
 PREVIEW = ROOT / 'art/preview/combat'
 ENEMY_POSES = ('0', '1', '2', '3', 'atk')
-CENTERED = {'bell_drone', 'lantern_moth', 'umbrella_jelly', 'drone', 'jet'}
+BOSS_POSES = ('idle', 'windup', 'attack', 'exposed')
+BOSSES = {'vulture', 'boss_tyrant', 'warden', 'boss_widow', 'boss_jelly', 'boss_oracle', 'archon'}
+CENTERED = {'bell_drone', 'lantern_moth', 'umbrella_jelly', 'drone', 'jet',
+            'vulture', 'boss_jelly', 'boss_oracle', 'archon'}
 
 
 def process(key):
+    poses = BOSS_POSES if key in BOSSES else ENEMY_POSES
     with Image.open(OUT / f'{key}.png') as original:
         canvas_width, canvas_height = original.size
     with Image.open(SOURCE / f'{key}.png') as sheet:
         sheet = sheet.convert('RGBA')
         coverage = np.count_nonzero(np.asarray(sheet)[..., 3] >= 160, axis=0)
-        cell_width = sheet.width / len(ENEMY_POSES)
+        cell_width = sheet.width / len(poses)
         edges = [0]
         # Prefer an empty gutter near each nominal boundary. Raised weapons
         # sometimes extend a few pixels beyond the generated cell.
         radius = round(cell_width / 6)
-        for i in range(1, len(ENEMY_POSES)):
+        for i in range(1, len(poses)):
             middle = round(i * cell_width)
             edges.append(min(range(middle - radius, middle + radius + 1),
                              key=lambda x: (coverage[x - 1] + coverage[x], abs(x - middle))))
@@ -45,7 +49,7 @@ def process(key):
                 (canvas_height - 2) / max(frame.height for frame in crops))
     keys = []
     preview = Image.new('RGB', (canvas_width * len(crops) * 2, canvas_height * 2), '#252936')
-    for index, (pose, frame) in enumerate(zip(ENEMY_POSES, crops)):
+    for index, (pose, frame) in enumerate(zip(poses, crops)):
         sprite = Image.fromarray(outline(shrink(np.asarray(frame), scale), ENEMY_OUTLINE))
         sprite = sprite.quantize(colors=96, method=Image.Quantize.FASTOCTREE,
                                  dither=Image.Dither.NONE).convert('RGBA')
