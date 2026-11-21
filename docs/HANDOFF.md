@@ -2,6 +2,25 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
+## Session 22 - 2026-11-21 (campaign completion and combat review)
+
+- Keyboard and gamepad auto-aim favor a hostile in the firing cone over nearby crates, pylons and brood eggs. Free aim still goes where the player points. A landing animation could briefly make a crouched operator take a hit from a Railyard gantry. Ducking now uses the underlying stance.
+- Saving Halcyon now lets him speak during the following briefing. Holding the briefing skip button leaves the field upgrade available for a fresh selection. The ending calls a matching high score PERSONAL BEST and suppresses the label at zero.
+- A fractional operator index in a damaged profile could prevent the title screen from opening. Invalid individual profile fields now fall back to defaults while valid unlocks survive.
+- Glass Widow now has 1,700 health and 15 contact damage. The Fungal boss arena gets more ambient light, so players can read a charge from the other side of the arena. The approach still uses the narrow pool of light.
+- Browser release is `tools/shots/neon-warpath-release-v3.zip`. All 445 files were compared with the final production build. The preview is at `http://127.0.0.1:4173/`.
+
+### Verification
+
+- All 101 browser scenarios passed across the suite runs and focused retests. Four simultaneous software-rendered browsers produced loading timeouts and missed timing checks, so the remaining cases were run in two hardware-rendered browsers. The ROOK pose test was corrected to check the standing hitbox independently of the landing animation and to observe the slide while the key is down. Logs are under `tools/smoke-session22-*.log`.
+- Type check and production build passed. Production browser checks covered hostile-first aiming, the rescue reply, upgrade selection, crouching under a gantry during landing, the Fungal fight and the credits. Reviewed screenshots of all 12 boss arenas, mission results and story screens.
+- Normal difficulty, ROOK, starting sidearm and Aegis, no perks or unlimited health. Using ordinary movement, aim and fire inputs, the bot reached the City boss in 63 seconds with zero deaths. Separate boss attempts cleared Vulture in 22 and 25 seconds without dying. Glass Widow went from a 150-second timeout with five deaths to a 52-second clear with one death. This is a comparison of individual attempts.
+- A Normal final-boss start reached ASHES and the credits through input, clearing ARCHON in 33 seconds with zero deaths. Separate story-state checks covered DAWN and OPEN DOOR. Stage-transition smoke cases use forced boss defeats and do not measure combat balance.
+
+### Still open
+
+- A continuous human campaign playthrough and a physical controller session remain the next checks for pacing, sound and control feel.
+
 ## Session 21 - 2026-11-21 (weapon switching and mission debriefs)
 
 The owner played the previous build and said it felt fine. They asked for weapon switching, more polish and a bug hunt.
