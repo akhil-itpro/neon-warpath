@@ -2,6 +2,24 @@
 
 Update this file at the end of every working session (any AI agent). Newest session first.
 
+## Session 21 - 2026-11-21 (weapon switching and mission debriefs)
+
+The owner played the previous build and said it felt fine. They asked for weapon switching, more polish and a bug hunt.
+
+- Press 1–3 to select a weapon, or Tab / D-pad Up to cycle usable slots. The sidearm and two pickups carry their own ammo through retries, stage transitions and saves. Matching pickups refill their slot. A new weapon uses an empty or spent slot first. When both pickups still have ammo, it replaces the equipped pickup, or slot 3 when the sidearm is equipped.
+- Mission debriefs now show S–C grades, elapsed play time, kills, best combo, deaths, and the mission's score bonus. Results count across retries and resumes. Older saves restore their carried weapon and start collecting mission-specific statistics when resumed.
+- The area-clear bonus is included in the checkpoint when it is earned. Ammo is protected when the projectile pool is full or the mission is already clear. Left mouse fire and right mouse slide can be held together, and middle click no longer fires. Radio boxes fit long messages and the crosshair clears during story choices. Invalid debug weapon links and fractional debug stage links now fall back safely.
+- The updated browser build is `tools/shots/neon-warpath-release-v2.zip`. The production preview is at `http://127.0.0.1:4173/`.
+
+### Verified
+
+- Typecheck and production build passed. Production browser checks covered weapon selection, ammo and retry behavior, older campaign saves, the mission debrief, and mouse input. Inspected the new HUD and debrief screenshots in `tools/shots/`. The ZIP passed an integrity check against the production files.
+- All 100 browser smoke scenarios passed across the three partitions and focused reruns. Four initial cases hit Chromium network-change errors. An UPDRAFT assertion missed the launch frame under parallel load and now observes the launch during the game update. All five passed on repeat. Logs are under `tools/smoke-session21-*.log`.
+
+### Open validation
+
+- The D-pad binding has browser input coverage. A physical gamepad check and a human balance run with the expanded loadout are still open.
+
 ## Session 20 - 2026-11-21 (Codex takes over development)
 
 Codex took over development and completed the seven art jobs and browser packaging for the existing 12-stage campaign.

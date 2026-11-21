@@ -19,7 +19,8 @@ export const RELEASE_SCENARIOS = [
     ['tap', 'Digit1'], ['until', 'window.__run.loadout.active === 0'],
     ['down', 'Tab'], ['until', 'window.__run.loadout.active === 1'], ['wait', 180],
     ['assert', 'window.__run.loadout.active === 1'], ['up', 'Tab'],
-    ['down', 'KeyJ'], ['until', 'window.__run.loadout.slots[1].ammo < 999'], ['up', 'KeyJ'],
+    ['eval', 'window.__ripperAmmo = window.__run.loadout.slots[1].ammo'],
+    ['down', 'KeyJ'], ['until', 'window.__run.loadout.slots[1].ammo < window.__ripperAmmo'], ['up', 'KeyJ'],
     ['assert', 'window.__run.loadout.slots[2].ammo === 28'],
     ['tap', 'Escape'], ['until', 'window.__game.scene.isPaused("Game")'], ['tap', 'Digit3'],
     ['assert', 'window.__run.loadout.active === 1'], ['tap', 'Escape'],
@@ -33,7 +34,7 @@ export const RELEASE_SCENARIOS = [
     ['assert', 'window.__run.loadout.active === 0 && window.__run.loadout.slots[2].ammo === 0'],
     ['tap', 'Digit3'], ['assert', 'window.__run.loadout.active === 0'],
     collectShotgun, ['until', 'window.__run.loadout.slots[2].ammo === 28'],
-    ['assert', 'window.__run.loadout.active === 0 && window.__run.loadout.slots[1].ammo < 999'],
+    ['assert', 'window.__run.loadout.active === 0 && window.__run.loadout.slots[1].ammo < window.__ripperAmmo'],
     ['tap', 'Digit2'], ['until', 'window.__run.loadout.active === 1'],
     ['eval', `var g = ${game}; window.__beforeRetry = JSON.stringify(window.__run.loadout);
       g.player.invuln = 0; g.hurtPlayer(10000, g.player.x - 20);`],
@@ -69,8 +70,9 @@ export const RELEASE_SCENARIOS = [
     ['down', 'KeyD'], ['until', `!!${game}.boss`], ['up', 'KeyD'],
     ['assert', `var g = ${game}, r = window.__run;
       r.stageStats = { elapsed: 90000, kills: 12, bestCombo: 3, deaths: 2 }; r.maxCombo = 20;
+      const ammo = r.loadout.slots[1].ammo;
       g.boss.hurt(g.boss.maxHp * 9, g.player.x); g.playerFire();
-      r.loadout.slots[1].ammo === 999`],
+      r.loadout.slots[1].ammo === ammo`],
     ['until', `var hud = window.__game.scene.getScene('Hud'); hud.overlay.alpha > 0.98 &&
       hud.overlay.list.some(t => t.text === 'BONUS  +2250')`],
     ['assert', `var lines = window.__game.scene.getScene('Hud').overlay.list.map(t => t.text);
