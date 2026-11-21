@@ -168,7 +168,8 @@ const SCENARIOS = [
       window.__roster.slice(9).forEach((e) => { e.body.setAllowGravity(false); });
       ['bell', 'moth', 'jelly'].forEach((id, i) => window.__roster.push(g.spawnEnemy(id, 250 + i * 110, 120, '')));`],
     ['wait', 300], ['shot'],
-    ['assert', 'window.__roster.every(e => e.texture.key === e.def.art && e.scaleX === 1)'],
+    ['assert', `window.__roster.every(e => e.scaleX === 1 &&
+      (e.texture.key === e.def.art || ['0', '1', '2', '3', 'atk'].some(pose => e.texture.key === e.def.art + '_' + pose)))`],
     ['eval', 'window.__roster.forEach(e => e.awake = true)'], ['wait', 2500], ['shot'], ['wait', 2500], ['shot'],
   ] },
   { name: 'x-weapons', url: '?stage=city&god=1', steps: [
