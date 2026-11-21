@@ -64,7 +64,7 @@ Each act is 3 stages and ends on a story turn. Stages marked **NEW** need buildi
 | 9 | ORBITAL GARDEN | exists | STATIC ORACLE | Low gravity, high jumps; a hidden cage holds QUILL | **C5 The Oracle**, optional **Rescue Quill** |
 | **ACT IV — THE RIFT** |||||
 | 10 | PRISM WASTES (the world on the other side of the Rift) | **NEW** (Vitreon + Lithurn + VITREON PRISM REGENT art exist; world art needed) | VITREON PRISM REGENT | Light beams: crystals reflect enemy lasers; shoot crystals to redirect beams into enemies | — |
-| 11 | THE LATTICE SPIRE | **NEW** (needs world art + HALCYON sheet) | HALCYON (rival duel) | Vertical climb: the screen scrolls up, data floor deletes itself below you | **C6 Halcyon** |
+| 11 | THE LATTICE SPIRE | Campaign | HALCYON (rival duel) | Side-scrolling chase across moving and vanishing data platforms, with the floor erasing behind you | **C6 Halcyon** |
 | 12 | SERVER CATHEDRAL | exists | ARCHON (new 3rd phase) | Platforms materialise from data and vanish on a beat | **C7 The Rift** (final) |
 
 Why this order: the city's surface (crime) → underneath it (ARCHON's industry) → the extremes it reaches (sea, sky) → the source (the Rift, Halcyon, the core). Every existing stage is kept. The five new stages use art Codex already made (Frontier and species libraries), so only three world backdrops and the HALCYON character are truly new art.
@@ -364,7 +364,7 @@ Format: **Briefing** (before the stage) · **Comms** (during, with trigger) · *
 - defeat — JUNO: Signal's clear. The Spire's right ahead. And there's a life sign. Human.
 
 #### Stage 11 — THE LATTICE SPIRE (NEW)
-*Gimmick:* vertical climb; the floor is deleted from below at a steady speed (the camera scrolls up); data blocks you can stand on for 2s.
+*Gimmick:* run across the Spire while the floor erases itself behind you. Moving platforms and data blocks that alternate every 2.4 seconds offer routes above the floor.
 *Enemies:* elite troopers, Corvane (if `quill_rescued` they are absent), Asterids. Boss: HALCYON, a mirror operator using the player's own moveset (slide, jump, dash, a weapon that changes each phase).
 
 **Briefing**

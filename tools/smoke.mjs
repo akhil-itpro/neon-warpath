@@ -302,6 +302,18 @@ const SCENARIOS = [
     ['wait', 3000], ['shot'],
   ] },
   { name: 'gim-dark', url: '?stage=fungal&god=1', steps: [['wait', 3000], ['down', 'KeyD'], ['wait', 2500], ['up', 'KeyD'], ['shot']] },
+  { name: 'gim-cathedral-blink', url: '?stage=cathedral&god=1', steps: [
+    ['wait', 2700],
+    ['eval', `window.__tp(1320, 165)`],
+    ['assert', `var g = window.__game.scene.getScene('Game');
+      g.stage.blinkers.every(([x, y, n]) =>
+        !g.stage.platforms.some(([left, top, length]) => Math.abs(top - y) < 12 &&
+          x < left + length * 32 && left < x + n * 32))`],
+    ['until', `var b = window.__game.scene.getScene('Game').gimmicks.blinkers;
+      b[0].obj.body.enable && !b[1].obj.body.enable`], ['shot'],
+    ['until', `var b = window.__game.scene.getScene('Game').gimmicks.blinkers;
+      !b[0].obj.body.enable && b[1].obj.body.enable`], ['shot'],
+  ] },
   { name: 'gim-water', url: '?stage=tidal&god=1', steps: [
     ['wait', 2800], ['eval', 'var g = window.__game.scene.getScene("Game"); for (const e of g.enemies) g.removeEnemy(e); g.gimmicks.floods[0].clock = 6500'],
     ['wait', 1500], ['shot'],

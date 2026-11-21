@@ -242,7 +242,7 @@ export const STAGES: StageDef[] = [
     music: { bpm: 126, root: 40, bass: [0, 7, 12, 7, 0, 7, 12, 7, 3, 10, 15, 10, 5, 12, 17, 12], lead: [19, N, 24, N, 22, N, 19, 17, N, 15, N, 17, 19, N, 12, N], prog: [0, 3, 5, -2] },
   },
   {
-    id: 'spire', name: 'THE LATTICE SPIRE', tagline: 'The floor deletes itself. Keep climbing.',
+    id: 'spire', name: 'THE LATTICE SPIRE', tagline: 'The floor deletes itself. Keep moving.',
     bg: 'bg_spire', bgTint: 0xa8a4c8, accent: 0xa0a0ff, weather: 'data', hazard: 'volt', width: 5600,
     platforms: [[420, 250, 3], [660, 195, 3], [1700, 250, 4], [2500, 245, 4], [3500, 250, 4], [4300, 245, 4], [5060, 240, 3], [5360, 240, 3]],
     hazards: [],
@@ -273,7 +273,7 @@ export const STAGES: StageDef[] = [
     ],
     boss: 'archon', bossIntro: 'ARCHON IS AWAKE',
     shards: [['cathedral-1', 980, 240], ['cathedral-2', 1448, 165], ['cathedral-3', 3544, 165]],
-    blinkers: [[1200, 250, 3, 0], [1400, 190, 3, 1], [1600, 250, 3, 0], [3300, 250, 3, 1], [3480, 190, 4, 0], [3700, 250, 3, 1]],
+    blinkers: [[1270, 203, 3, 0], [1460, 140, 3, 1], [1540, 205, 3, 0], [3360, 203, 3, 1], [3530, 140, 4, 0], [3640, 205, 3, 1]],
     music: { bpm: 150, root: 37, bass: [0, 12, 0, 12, 0, 12, 1, 13, 0, 12, 0, 12, 5, 17, 3, 15], lead: [12, N, 13, N, 12, N, 17, 15, N, 13, N, 12, N, 8, 10, N], prog: [0, 0, 1, -2] },
   },
 ];
