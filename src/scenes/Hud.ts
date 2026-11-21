@@ -1,7 +1,9 @@
 import Phaser from 'phaser';
 import { W, H, FONT } from '../config';
-import { run } from '../systems/Run';
+import { run, type StageStats } from '../systems/Run';
 import { WEAPONS } from '../data/weapons';
+import { missionGrade } from '../data/missionGrades';
+import { equipped } from '../systems/Loadout';
 import { audio } from '../systems/Audio';
 import { Controls } from '../systems/Controls';
 import { settings, difficulty } from '../systems/Settings';
@@ -27,6 +29,7 @@ export class HudScene extends Phaser.Scene {
   private g!: Phaser.GameObjects.Graphics;
   private score!: Phaser.GameObjects.Text;
   private weapon!: Phaser.GameObjects.Text;
+  private weaponSlots!: Phaser.GameObjects.Text[];
   private comboTxt!: Phaser.GameObjects.Text;
   private rankTxt!: Phaser.GameObjects.Text;
   private odTxt!: Phaser.GameObjects.Text;
@@ -44,6 +47,8 @@ export class HudScene extends Phaser.Scene {
   private cross!: Phaser.GameObjects.Image;
   // comms (radio chatter): queued story lines with a portrait and typewriter text; never pauses the game
   private comm!: Phaser.GameObjects.Container;
+  private commFrame!: Phaser.GameObjects.Graphics;
+  private commHeight = 58;
   private commPic!: Phaser.GameObjects.Image;
   private commName!: Phaser.GameObjects.Text;
   private commText!: Phaser.GameObjects.Text;
@@ -84,7 +89,8 @@ export class HudScene extends Phaser.Scene {
     this.hintBox = this.add.container(W / 2 + 22, 78, [this.add.rectangle(0, 0, 524, 16, 0x05060a, 0.72), this.hintTxt]).setDepth(40).setAlpha(0);
     this.txt(12, 8, run.op.name, 8, '#9fe8ff');
     this.weapon = this.txt(12, 40, '');
-    this.odTxt = this.txt(12, 52, '', 8, '#ffd040');
+    this.weaponSlots = run.loadout.slots.map((_, index) => this.txt(12 + index * 55, 54, ''));
+    this.odTxt = this.txt(12, 120, '', 8, '#ffd040');
     this.abilityTxt = this.txt(12, 100, '', 8, '#9fe8ff');
     this.score = this.txt(W - 12, 8, '', 8).setOrigin(1, 0);
     this.comboTxt = this.txt(W - 12, 24, '', 16, '#ffd040').setOrigin(1, 0);
@@ -97,14 +103,12 @@ export class HudScene extends Phaser.Scene {
     // comms panel, bottom-left above the boss bar
     this.commQ = []; this.commLine = null; this.commShown = 0; this.commHold = 0;
     const cx = 200; // top band, clear of the HP bar and score: the hero stands bottom-left, so comms must not sit there
-    const box = this.add.graphics();
-    box.fillStyle(0x05060a, 0.86).fillRect(0, 0, 316, 58);
-    box.lineStyle(1, 0x40e0ff, 0.7).strokeRect(0.5, 0.5, 315, 57);
-    box.fillStyle(0x40e0ff, 0.15).fillRect(1, 1, 314, 2);
+    this.commFrame = this.add.graphics();
+    this.frameComms(58);
     this.commPic = this.add.image(5, 5, 'portrait_juno').setOrigin(0);
     this.commName = this.txt(60, 6, '', 8, '#9fe8ff');
     this.commText = this.add.text(60, 20, '', { fontFamily: FONT, fontSize: '8px', color: '#ffffff', stroke: '#000000', strokeThickness: 2, wordWrap: { width: 250 }, lineSpacing: 4 });
-    this.comm = this.add.container(cx, -70, [box, this.commPic, this.commName, this.commText]).setDepth(50);
+    this.comm = this.add.container(cx, -70, [this.commFrame, this.commPic, this.commName, this.commText]).setDepth(50);
     // data shards found in this stage
     const st = gsStage(this);
     this.shardIcon = this.add.image(16, 72, 'shard').setScale(0.75).setVisible(!!st?.shards?.length);
@@ -119,7 +123,7 @@ export class HudScene extends Phaser.Scene {
     const gs = this.gs;
     this.controls.poll();
     // Mouse aim: the system arrow is swapped for a crosshair while fighting, and comes back on pause / death / tally screens.
-    const aiming = Controls.mouseAim && !this.paused && gs.state === 'play';
+    const aiming = Controls.mouseAim && !this.paused && !gs.choosing && gs.state === 'play';
     const ptr = this.controls.pointer;
     this.cross.setVisible(aiming).setPosition(Math.round(ptr.x), Math.round(ptr.y)).setTint(run.od >= 100 ? 0xffd040 : 0xffffff);
     this.input.setDefaultCursor(aiming ? 'none' : 'default');
@@ -183,8 +187,18 @@ export class HudScene extends Phaser.Scene {
       g.fillStyle(lowAir ? 0xff4040 : 0x60c8ff).fillRect(44, 86, air, 4);
     }
 
-    const w = WEAPONS[run.weapon];
-    this.weapon.setText(`${w.name} ${w.ammo ? run.ammo : ''}`).setColor(Phaser.Display.Color.IntegerToColor(w.color).rgba);
+    const active = equipped(run.loadout);
+    const w = WEAPONS[active.id];
+    this.weapon.setText(w.name).setColor(Phaser.Display.Color.IntegerToColor(w.color).rgba);
+    this.weaponSlots.forEach((label, index) => {
+      const slot = run.loadout.slots[index];
+      const selected = run.loadout.active === index;
+      const ammo = index === 0 ? 'INF' : slot && slot.ammo > 999 ? '999+' : slot?.ammo ?? '-';
+      g.fillStyle(selected ? 0x14617b : 0x080d18, 0.85).fillRect(label.x - 2, 51, 52, 14);
+      if (selected) g.fillStyle(w.color, 1).fillRect(label.x - 2, 64, 52, 1);
+      label.setText(`${index + 1} ${ammo}`)
+        .setColor(selected ? '#ffffff' : index === 0 || slot?.ammo ? '#a7c9db' : '#8490a8');
+    });
 
     this.shownScore += Math.ceil((run.score - this.shownScore) * 0.2);
     this.score.setText(`SCORE ${String(this.shownScore).padStart(7, '0')}`);
@@ -206,9 +220,18 @@ export class HudScene extends Phaser.Scene {
 
     if (this.goTxt.visible) this.goTxt.setAlpha(Math.floor(this.time.now / 220) % 2 ? 1 : 0.2);
     this.tickComms(delta);
+    this.hintBox.setY(this.comm.y + this.commHeight > 70 ? 138 : 78);
   }
 
   // ---- comms
+  private frameComms(height: number) {
+    this.commHeight = height;
+    const frame = this.commFrame.clear();
+    frame.fillStyle(0x05060a, 0.86).fillRect(0, 0, 316, height);
+    frame.lineStyle(1, 0x40e0ff, 0.7).strokeRect(0.5, 0.5, 315, height - 1);
+    frame.fillStyle(0x40e0ff, 0.15).fillRect(1, 1, 314, 2);
+  }
+
   comms(lines: Line[]) {
     this.commQ.push(...lines);
     if (!this.commLine) this.nextComm();
@@ -220,11 +243,13 @@ export class HudScene extends Phaser.Scene {
     const l = this.commQ.shift();
     this.commLine = l ?? null;
     this.tweens.killTweensOf(this.comm);
-    if (!l) { this.tweens.add({ targets: this.comm, y: -70, duration: 220, ease: 'Quad.in' }); return; }
+    if (!l) { this.tweens.add({ targets: this.comm, y: -this.commHeight - 8, duration: 220, ease: 'Quad.in' }); return; }
     this.commShown = 0;
     this.commHold = 1700 + l.text.length * 35;
     this.commPic.setTexture(portraitKey(l.who)).setDisplaySize(48, 48); // painted 64px portraits shrink to fit
     this.commName.setText(speakerName(l.who)).setColor(speakerColor(l.who));
+    this.commText.setText(l.text);
+    this.frameComms(Math.max(58, Math.ceil(this.commText.y + this.commText.height) + 5));
     this.commText.setText('').setColor(l.who === 'archon' ? '#ffb0b8' : l.who === 'myrrhkin' || l.who === 'oracle' ? '#e0c8ff' : '#ffffff');
     this.tweens.add({ targets: this.comm, y: 4, duration: 200, ease: 'Quad.out' });
     audio.sfx(l.who === 'archon' ? 'static' : 'radio');
@@ -417,20 +442,38 @@ export class HudScene extends Phaser.Scene {
     ]));
   }
 
-  tally(name: string, secs: number, kills: number, combo: number, bonus: number) {
-    this.panel([
-      [`${name} CLEARED`, 16, '#80ffb0'],
-      [`TIME  ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`, 8, '#ffffff'],
-      [`KILLS  ${kills}`, 8, '#ffffff'],
-      [`BEST COMBO  ${combo}`, 8, '#ffd040'],
-      [`BONUS  +${bonus}`, 8, '#ffd040'],
+  tally(name: string, secs: number, stats: StageStats, bonus: number) {
+    this.panel([]);
+    const grade = missionGrade(stats.deaths);
+    const accent = Phaser.Display.Color.HexStringToColor(grade.color).color;
+    const x = W / 2 - 216, y = H / 2 - 88;
+    const card = this.add.graphics();
+    card.fillStyle(0x0a101c, 0.98).fillRect(x, y, 432, 176);
+    card.lineStyle(1, accent, 0.75).strokeRect(x + 0.5, y + 0.5, 431, 175);
+    card.fillStyle(accent, 0.65).fillRect(x, y, 432, 2);
+    card.fillStyle(accent, 0.13).fillRect(x + 350, y + 13, 66, 66);
+    card.fillStyle(0x85a2bd, 0.28).fillRect(x + 16, y + 86, 400, 1).fillRect(x + 16, y + 135, 400, 1);
+    this.overlay.add([
+      card,
+      this.txt(x + 16, y + 16, grade.label, 8, grade.color),
+      this.txt(x + 16, y + 43, name, 12),
+      this.txt(x + 383, y + 22, 'RANK', 8, grade.color).setOrigin(0.5, 0),
+      this.txt(x + 383, y + 43, grade.rank, 24, grade.color).setOrigin(0.5, 0),
+      this.txt(x + 16, y + 150, `DEATHS  ${stats.deaths}`, 8, '#a7b8cf'),
+      this.txt(x + 416, y + 148, `BONUS  +${bonus}`, 10, '#ffd780').setOrigin(1, 0),
     ]);
+    const time = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
+    const metrics = [['TIME', time], ['KILLS', stats.kills], ['BEST COMBO', stats.bestCombo]] as const;
+    metrics.forEach(([label, value], index) => {
+      const left = x + 16 + index * 134;
+      this.overlay.add([this.txt(left, y + 96, label, 8, '#a7b8cf'), this.txt(left, y + 112, String(value), 12)]);
+    });
   }
 
   setPaused(on: boolean) {
     this.paused = on;
     if (on) {
-      this.panel([['PAUSED', 24, '#ffffff'], ['A/D MOVE   SPACE / PAD A DOUBLE JUMP', 8, '#c0c8d8'], ['MOUSE FIRE / J AUTO-AIM   SHIFT SLIDE', 8, '#c0c8d8'], [`E / PAD LT: ${run.op.ability.name}`, 8, '#9fe8ff'], [run.op.ability.desc, 8, '#c0c8d8'], ['Q / PAD Y OVERDRIVE   M MUTE', 8, '#c0c8d8'], [`O / Y: OPTIONS (DIFFICULTY: ${difficulty().name})   T: SAVE + TITLE`, 8, '#9fe8ff'], ['ESC: RESUME', 8, '#9fe8ff']]);
+      this.panel([['PAUSED', 24, '#ffffff'], ['A/D MOVE   SPACE / PAD A DOUBLE JUMP', 8, '#c0c8d8'], ['MOUSE FIRE / J AUTO-AIM   SHIFT SLIDE', 8, '#c0c8d8'], ['1 / 2 / 3 SELECT WEAPON   TAB / D-PAD UP CYCLE', 8, '#9fe8ff'], [`E / PAD LT: ${run.op.ability.name}`, 8, '#9fe8ff'], [run.op.ability.desc, 8, '#c0c8d8'], ['Q / PAD Y OVERDRIVE   M MUTE', 8, '#c0c8d8'], [`O / Y: OPTIONS (DIFFICULTY: ${difficulty().name})   T: SAVE + TITLE`, 8, '#9fe8ff'], ['ESC: RESUME', 8, '#9fe8ff']]);
     } else {
       this.overlay.setVisible(false);
       this.scene.resume('Game');

@@ -64,6 +64,8 @@ All numbers: `src/systems/Settings.ts` (`DIFFICULTIES`). Tune there first, enemy
 - Crouch: ducks under high shots and the gunship's low pass.
 - Down+Jump drops through girders.
 - Weapons: SIDEARM (infinite), RIPPER smg, BREACHER shotgun, RAILSPIKE piercing, HELLFIRE rockets.
+- Carry two pickups alongside the sidearm. Press 1–3 to choose a slot or Tab / D-pad Up to cycle usable slots. Ammo belongs to each slot and carries through retries. Matching pickups top up that weapon. A spent slot can be reused.
+- The mission debrief grades clears by deaths and uses that stage's cumulative time and combat streak for its bonus.
 
 ## Operators
 | Name | Role | Notes | Art |

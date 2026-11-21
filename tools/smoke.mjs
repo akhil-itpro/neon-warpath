@@ -2,6 +2,7 @@
 // for a few seconds with held inputs, saves screenshots to tools/shots/, and fails on any runtime error.
 //   npm run smoke            run everything
 //   npm run smoke -- city    only scenarios whose name contains "city"
+//   SMOKE_SHARD=2/3 npm run smoke   run the second of three independent partitions
 import { createServer, preview } from 'vite';
 import { chromium } from 'playwright-core';
 import { mkdirSync } from 'node:fs';
@@ -9,6 +10,13 @@ import { KIT_SCENARIOS } from './kit-scenarios.mjs';
 import { RELEASE_SCENARIOS } from './release-scenarios.mjs';
 
 const filter = process.argv[2] ?? '';
+const shardSpec = process.env.SMOKE_SHARD ?? '1/1';
+const shardMatch = /^(\d+)\/(\d+)$/.exec(shardSpec);
+const shard = Number(shardMatch?.[1]);
+const shardCount = Number(shardMatch?.[2]);
+if (!Number.isSafeInteger(shard) || !Number.isSafeInteger(shardCount) || shard < 1 || shard > shardCount || shardCount > 100) {
+  throw new Error('SMOKE_SHARD must be a partition like 1/3.');
+}
 const SCENARIOS = [
   ...KIT_SCENARIOS,
   ...RELEASE_SCENARIOS,
@@ -45,7 +53,7 @@ const SCENARIOS = [
     ...[0, 1, 2, 3].flatMap(i => [
       ['eval', `var g = window.__game.scene.getScene('Game'); var pk = window.__weaponDrops[${i}]; pk.body.reset(g.player.x, g.player.centerY);`],
       ['wait', 100],
-      ['assert', `window.__weaponDrops[${i}].taken && window.__run.weapon === window.__weaponDrops[${i}].wid && window.__run.ammo > 0`],
+      ['assert', `var l = window.__run.loadout; window.__weaponDrops[${i}].taken && l.slots[l.active].id === window.__weaponDrops[${i}].wid && l.slots[l.active].ammo > 0`],
     ]),
     ['shot'],
   ] },
@@ -225,7 +233,7 @@ const SCENARIOS = [
         for (const e of g.enemies) g.removeEnemy(e);
         g.player.x = 120; g.player.body.setVelocity(0, 0);
         window.__targets = [0, 1, 2].map((i) => { const e = g.spawnEnemy('trooper', 260 + i * 50, 320, ''); return e; });
-        r.weapon = '${w}'; r.ammo = 999; window.__kills = r.kills;`],
+        r.loadout.slots[1] = { id: '${w}', ammo: 999 }; r.loadout.active = 1; window.__kills = r.kills;`],
       ['down', 'KeyJ'], ['wait', 700], ['shot'], ['wait', 2600], ['up', 'KeyJ'],
       ['assert', `window.__targets.some(e => e.hp < e.maxHp) /* ${w} must damage */`],
     ]),
@@ -513,9 +521,10 @@ const SCENARIOS = [
 
 mkdirSync('tools/shots', { recursive: true });
 const built = process.env.SMOKE_BUILD === '1';
+const port = 5198 + shard;
 const server = built
-  ? await preview({ preview: { port: 5199, strictPort: false }, logLevel: 'error' })
-  : await createServer({ server: { port: 5199, strictPort: false, hmr: false }, logLevel: 'error' });
+  ? await preview({ preview: { port, strictPort: false }, logLevel: 'error' })
+  : await createServer({ server: { port, strictPort: false, hmr: false }, logLevel: 'error' });
 if (!built) await server.listen();
 const base = server.resolvedUrls.local[0];
 let browser;
@@ -525,7 +534,8 @@ for (const channel of ['chrome', 'msedge']) {
 if (!browser) { console.error('No Chrome or Edge found'); process.exit(2); }
 
 let failed = false;
-for (const sc of SCENARIOS.filter((s) => filter.split('|').some(f => s.name.includes(f)))) {
+const scenarios = SCENARIOS.filter(s => filter.split('|').some(f => s.name.includes(f)));
+for (const sc of scenarios.filter((_, index) => index % shardCount === shard - 1)) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   const errors = [];
   // teleport helper for scenarios: skips arenas already passed so the camera lock does not pull the player back
@@ -552,8 +562,8 @@ for (const sc of SCENARIOS.filter((s) => filter.split('|').some(f => s.name.incl
     else if (op === 'up') await page.keyboard.up(arg);
     else if (op === 'tap') await page.keyboard.press(arg, { delay: 60 });
     else if (op === 'mouse') await page.mouse.move(arg[0], arg[1], { steps: 4 });
-    else if (op === 'mdown') await page.mouse.down();
-    else if (op === 'mup') await page.mouse.up();
+    else if (op === 'mdown') await page.mouse.down(arg ? { button: arg } : undefined);
+    else if (op === 'mup') await page.mouse.up(arg ? { button: arg } : undefined);
     else if (op === 'eval') await page.evaluate(arg);
     else if (op === 'until') {
       try { await page.waitForFunction(arg, null, { timeout: 20000 }); }

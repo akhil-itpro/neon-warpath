@@ -3,7 +3,8 @@ import { W, H, GROUND_Y, DEPTH } from '../config';
 import { STAGES, StageDef, Encounter } from '../data/stages';
 import { ENEMIES } from '../data/enemies';
 import { WEAPONS, DROP_WEAPONS } from '../data/weapons';
-import { run, save, persist } from '../systems/Run';
+import { collectWeapon, cycleWeapon, equipped, selectWeapon } from '../systems/Loadout';
+import { run, save, persist, newStageStats } from '../systems/Run';
 import { audio } from '../systems/Audio';
 import { Controls } from '../systems/Controls';
 import { Fx } from '../systems/Fx';
@@ -43,8 +44,6 @@ export class GameScene extends Phaser.Scene {
   mult = 1;
   boss: Enemy | null = null;
   bossActive = false;
-  stageKills = 0;
-  stageTime = 0;
   canRetry = false;
   aim: { x: number; y: number } | null = null; // world point under the mouse crosshair; null = keyboard/gamepad auto-aim
   gimmicks!: Gimmicks;
@@ -106,7 +105,7 @@ export class GameScene extends Phaser.Scene {
     this.state = 'play'; this.combo = 0; this.comboT = 0; this.mult = 1;
     this.aim = null;
     this.boss = null; this.bossActive = false; this.locked = false; this.canRetry = false;
-    this.stageKills = 0; this.stageTime = 0; this.wave = 0; this.waveGap = 0;
+    this.wave = 0; this.waveGap = 0;
     this.sinceHurt = 0; this.regenAcc = 0; this.regenerating = false;
     this.physics.world.resume();
     this.physics.world.timeScale = 1;
@@ -339,6 +338,12 @@ export class GameScene extends Phaser.Scene {
     if (c.pressed('mute')) { audio.setMuted(!audio.muted); save.muted = audio.muted; persist(); }
     if (c.pressed('pause') && this.state === 'play') { this.hud.setPaused?.(true); this.scene.pause(); return; }
     if (this.state === 'dead' && this.canRetry && (c.pressed('fire') || c.pressed('jump'))) return this.retry();
+    if (this.state === 'play' && !this.choosing) {
+      const slot = c.weaponSlot;
+      const changed = slot >= 0 ? selectWeapon(run.loadout, slot)
+        : c.pressed('nextWeapon') && cycleWeapon(run.loadout);
+      if (changed) audio.sfx('ui');
+    }
     if (this.fx.frozen(delta)) return;
     const dt = Math.min(delta, 34) * (this.choosing ? 0.2 : 1);
     const cam = this.cameras.main;
@@ -366,10 +371,10 @@ export class GameScene extends Phaser.Scene {
     this.tickShots();
 
     if (this.state !== 'play') return;
-    this.stageTime += dt;
+    run.stageStats.elapsed += dt;
     if (this.comboT > 0) { this.comboT -= dt; if (this.comboT <= 0) { this.combo = 0; this.mult = 1; } }
     if (!this.choosing) this.tickRegen(dt);
-    while (this.hints.length && this.stageTime >= this.hints[0][0]) this.hud.hint?.(this.hints.shift()![1]);
+    while (this.hints.length && run.stageStats.elapsed >= this.hints[0][0]) this.hud.hint?.(this.hints.shift()![1]);
     if (this.hold) return this.tickHold(dt);
     this.tickEncounter(dt);
     this.tickStory(dt);
@@ -437,12 +442,12 @@ export class GameScene extends Phaser.Scene {
     run.checkpoint = this.encIndex;
     run.checkpointX = this.player.x;
     run.strikes = 0;
-    saveCampaign('Game');
     this.bounds = { left: 0, right: st.width };
     cam.setBounds(0, 0, st.width, H);
     this.hud.go?.();
     audio.sfx('select');
     this.addScore(500 * this.mult, this.player.x, this.player.y - 80, 'AREA CLEAR');
+    saveCampaign('Game');
   }
 
   private spawnWave(ids: string[]) {
@@ -495,10 +500,14 @@ export class GameScene extends Phaser.Scene {
 
   // ================================================================= shooting
   playerFire() {
-    const p = this.player, s = run.stats, w = WEAPONS[run.weapon];
+    if (this.state !== 'play' || this.choosing || this.player.dead) return;
+    const slot = equipped(run.loadout);
+    const p = this.player, s = run.stats, w = WEAPONS[slot.id];
+    const m = p.muzzle();
+    const firstShot = this.pShots.get(m.x, m.y) as Shot | null;
+    if (!firstShot) return;
     const od = p.overdrive > 0;
     p.fireCd = w.rate / s.rate / (od ? 1.8 : 1) / (p.ability?.rate ?? 1);
-    const m = p.muzzle();
     let base = p.dir > 0 ? 0 : Math.PI;
     const aim = this.aim;
     if (aim) {
@@ -519,7 +528,7 @@ export class GameScene extends Phaser.Scene {
     p.noteShot(base);
     const spread = R.DegToRad(w.spread);
     for (let i = 0; i < w.pellets; i++) {
-      const shot = this.pShots.get(m.x, m.y) as Shot | null;
+      const shot = i === 0 ? firstShot : this.pShots.get(m.x, m.y) as Shot | null;
       if (!shot) break;
       const a = base + (w.pellets > 1 ? R.Linear(-spread / 2, spread / 2, i / (w.pellets - 1)) : R.FloatBetween(-spread / 2, spread / 2));
       shot.fire(w.tex, m.x, m.y, a - (w.gravity ? 0.2 : 0) * (Math.cos(a) < 0 ? -1 : 1), w.speed * R.FloatBetween(0.95, 1.05), w.dmg * s.dmg * (od ? 1.5 : 1) * (p.ability?.damage ?? 1), od ? 0xffd040 : w.color, { pierce: w.pierce, blast: w.explosive, smoke: w.id === 'rocket', life: w.life ?? (w.pellets > 1 ? 420 : 950), scale: w.scale, gravity: w.gravity, chain: w.chain, chill: w.chill, pull: w.pull, rehit: w.rehit });
@@ -529,8 +538,8 @@ export class GameScene extends Phaser.Scene {
     this.fx.shake(w.kick * 0.45);
     p.body.velocity.x -= p.dir * w.kick * 14;
     audio.sfx(w.sfx);
-    if (w.ammo > 0 && --run.ammo <= 0) {
-      run.weapon = run.op.weapon;
+    if (w.ammo > 0 && --slot.ammo === 0) {
+      selectWeapon(run.loadout, 0);
       this.fx.popup(p.x, p.y - 80, 'AMMO OUT', '#ff8060');
     }
   }
@@ -673,6 +682,7 @@ export class GameScene extends Phaser.Scene {
       run.hp = 0;
       this.state = 'dead';
       run.deaths++;
+      run.stageStats.deaths++;
       p.die();
       audio.sfx('death');
       audio.playMusic(null);
@@ -687,8 +697,6 @@ export class GameScene extends Phaser.Scene {
     run.score = Math.floor(run.score * 0.8);
     run.strikes++;
     run.hp = run.stats.maxHp;
-    run.weapon = run.op.weapon;
-    run.ammo = 0;
     this.scene.restart({ retry: true, hold: this.hold });
   }
 
@@ -736,7 +744,8 @@ export class GameScene extends Phaser.Scene {
     if (m > this.mult) { audio.sfx('combo'); this.hud.comboUp?.(); }
     this.mult = m;
     run.maxCombo = Math.max(run.maxCombo, this.combo);
-    run.kills++; this.stageKills++;
+    run.stageStats.bestCombo = Math.max(run.stageStats.bestCombo, this.combo);
+    run.kills++; run.stageStats.kills++;
     this.addScore(d.score * this.mult, x, y - 14);
     const s = run.stats;
     if (this.player.overdrive <= 0) run.od = Math.min(100, run.od + (d.heavy ? 12 : 6) * s.odGain);
@@ -797,12 +806,14 @@ export class GameScene extends Phaser.Scene {
   }
 
   private stageClear() {
-    const secs = Math.round(this.stageTime / 1000);
-    const bonus = Math.max(0, 3000 - secs * 10) + run.maxCombo * 50;
+    const stats = run.stageStats;
+    const secs = Math.floor(stats.elapsed / 1000);
+    const bonus = Math.max(0, 3000 - secs * 10) + stats.bestCombo * 50;
     run.score += bonus;
-    this.hud.tally?.(this.stage.name, secs, this.stageKills, run.maxCombo, bonus);
+    this.hud.tally?.(this.stage.name, secs, stats, bonus);
     this.time.delayedCall(4200, () => {
       run.stage++;
+      run.stageStats = newStageStats();
       run.checkpoint = 0;
       run.checkpointX = 80;
       run.strikes = 0;
@@ -953,7 +964,10 @@ export class GameScene extends Phaser.Scene {
     pk.setDepth(DEPTH.shot).setBounce(0.45).setDragX(120).setVelocity(R.Between(-110, 110), R.Between(-260, -120));
     if (kind === 'chip') pk.setTint(this.stage.accent);
     if (kind === 'weapon') {
-      pk.wid = R.RND.pick(DROP_WEAPONS.filter((w) => w !== run.weapon));
+      pk.wid = R.RND.pick(DROP_WEAPONS.filter(id => {
+        const carried = run.loadout.slots.find(slot => slot?.id === id);
+        return !carried || carried.ammo < Math.round(WEAPONS[id].ammo * run.stats.ammo);
+      }));
       const weapon = WEAPONS[pk.wid!];
       if (weapon.pickupArt && this.textures.exists(weapon.pickupArt)) {
         // Keep the original crate's collision footprint while showing the wider weapon.
@@ -988,7 +1002,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   private onPickup(pk: Pickup) {
-    if (pk.taken || this.player.dead || pk.age < 150) return;
+    if (pk.taken || this.player.dead || pk.age < 150 || this.choosing ||
+        (pk.kind === 'weapon' && this.state !== 'play')) return;
     pk.taken = true;
     pk.disableBody(true, true);
     pk.glow?.setVisible(false);
@@ -1004,9 +1019,12 @@ export class GameScene extends Phaser.Scene {
       audio.sfx('health');
     } else {
       const w = WEAPONS[pk.wid!];
-      run.weapon = w.id;
-      run.ammo = Math.round(w.ammo * s.ammo);
-      this.fx.popup(p.x, p.y - 80, w.name, '#ffffff', 16);
+      const first = !run.loadout.slots[1] && !run.loadout.slots[2];
+      const { added, replaced } = collectWeapon(run.loadout, w.id, Math.round(w.ammo * s.ammo));
+      const label = added === null ? w.name : added > 0 ? `+${added} ${w.name} AMMO` : `${w.name} AMMO FULL`;
+      this.fx.popup(p.x, p.y - 80, label, '#ffffff', added === null ? 16 : 8);
+      if (replaced) this.fx.popup(p.x, p.y - 100, `REPLACED ${WEAPONS[replaced].name}`, '#ffe9a0');
+      if (first) this.hud.hint?.('1 / 2 / 3 SELECT WEAPON   TAB / D-PAD UP CYCLE', 4000);
       this.fx.ring(p.x, p.centerY, w.color, 1.4);
       audio.sfx('weapon');
     }

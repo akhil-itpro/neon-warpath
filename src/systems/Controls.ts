@@ -11,6 +11,10 @@ const BINDS = {
   slide: [K.SHIFT, K.K, K.C],
   overdrive: [K.Q, K.L, K.V],
   ability: [K.E, K.F],
+  weapon1: [K.ONE, K.NUMPAD_ONE],
+  weapon2: [K.TWO, K.NUMPAD_TWO],
+  weapon3: [K.THREE, K.NUMPAD_THREE],
+  nextWeapon: [K.TAB],
   pause: [K.ESC, K.P],
   mute: [K.M],
   settings: [K.O],
@@ -54,7 +58,8 @@ export class Controls {
     if (this.now.fire) Controls.mouseAim = false;
     if (ptr.isDown || ptr.x !== this.lastX || ptr.y !== this.lastY) Controls.mouseAim = true;
     this.lastX = ptr.x; this.lastY = ptr.y;
-    if (ptr.isDown) { if (ptr.rightButtonDown()) this.now.slide = true; else this.now.fire = true; }
+    if (ptr.leftButtonDown()) this.now.fire = true;
+    if (ptr.rightButtonDown()) this.now.slide = true;
     this.stick = null;
     if (pad) {
       const sx = pad.leftStick.x, sy = pad.leftStick.y;
@@ -65,6 +70,7 @@ export class Controls {
       if (pad.down || sy > 0.6) this.now.down = true;
       if (pad.down || sy > 0.6) this.now.menuDown = true;
       if (pad.up || sy < -0.6) this.now.menuUp = true;
+      if (pad.up) this.now.nextWeapon = true;
       if (pad.A) this.now.jump = true;
       if (pad.X || pad.R2 > 0.3) { this.now.fire = true; Controls.mouseAim = false; }
       if (pad.B || pad.R1) this.now.slide = true;
@@ -88,5 +94,6 @@ export class Controls {
 
   held(a: Action) { return this.now[a]; }
   pressed(a: Action) { return this.now[a] && !this.prev[a]; }
+  get weaponSlot() { return (['weapon1', 'weapon2', 'weapon3'] as const).findIndex(action => this.pressed(action)); }
   get axis() { return (this.now.right ? 1 : 0) - (this.now.left ? 1 : 0); }
 }

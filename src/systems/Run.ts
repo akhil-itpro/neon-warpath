@@ -1,5 +1,6 @@
 // State for one playthrough (survives scene changes) + persistent save data.
 import { OPERATORS, OperatorDef } from '../data/operators';
+import { createLoadout, type Loadout } from './Loadout';
 
 export interface Stats {
   maxHp: number;
@@ -38,13 +39,16 @@ export const PERKS: PerkDef[] = [
   { id: 'sprinter', name: 'ADRENAL PUMP', desc: '+12% move speed', apply: (s) => { s.speed *= 1.12; } },
 ];
 
+export const newStageStats = () => ({ elapsed: 0, kills: 0, bestCombo: 0, deaths: 0 });
+export type StageStats = ReturnType<typeof newStageStats>;
+
 export interface RunState {
   op: OperatorDef;
   stage: number;
+  stageStats: StageStats;
   score: number;
   hp: number;
-  weapon: string;
-  ammo: number;
+  loadout: Loadout;
   od: number; // 0..100
   perks: string[];
   stats: Stats;
@@ -68,7 +72,7 @@ export let run: RunState;
 export function newRun(opIndex: number) {
   const op = OPERATORS[opIndex] ?? OPERATORS[0];
   run = {
-    op, stage: 0, score: 0, hp: op.hp, weapon: op.weapon, ammo: 0, od: 0, perks: [],
+    op, stage: 0, stageStats: newStageStats(), score: 0, hp: op.hp, loadout: createLoadout(op.weapon), od: 0, perks: [],
     stats: { maxHp: op.hp, dmg: op.dmg, rate: op.rate, speed: op.speed, jump: op.jump, airJumps: 1, lifesteal: 0, slideCd: 650, odGain: 1, blast: 0, ammo: 1, magnet: 90, armor: 1 },
     kills: 0, maxCombo: 0, deaths: 0, checkpoint: 0, checkpointX: 80, strikes: 0,
     flags: {}, shards: [], eggsShot: 0, bonusCards: 0, heard: [], choices: [],

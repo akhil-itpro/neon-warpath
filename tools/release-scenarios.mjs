@@ -3,7 +3,89 @@ const deploy = [
   ['down', 'KeyJ'], ['until', 'window.__game.scene.isActive("Game")'], ['up', 'KeyJ'], ['wait', 1500],
 ];
 
+const game = "window.__game.scene.getScene('Game')";
+const armoryReady = ['eval', `var g = ${game}; for (const e of g.enemies) g.removeEnemy(e);`];
+const collectShotgun = ['eval', `var g = ${game}, p = g.player;
+  g.dropPickup('weapon', p.x, p.centerY);
+  var item = g.pickups.at(-1);
+  item.wid = 'shotgun'; item.age = 200; item.setVelocity(0, 0); item.body.setAllowGravity(false);`];
+
 export const RELEASE_SCENARIOS = [
+  { name: 'armory-switch', url: '?stage=city&weapon=smg&god=1', steps: [
+    ['wait', 1000], armoryReady, collectShotgun,
+    ['until', 'window.__run.loadout.active === 2'],
+    ['assert', 'window.__run.loadout.slots[1].id === "smg" && window.__run.loadout.slots[2].id === "shotgun"'],
+    ['shot'],
+    ['tap', 'Digit1'], ['until', 'window.__run.loadout.active === 0'],
+    ['down', 'Tab'], ['until', 'window.__run.loadout.active === 1'], ['wait', 180],
+    ['assert', 'window.__run.loadout.active === 1'], ['up', 'Tab'],
+    ['down', 'KeyJ'], ['until', 'window.__run.loadout.slots[1].ammo < 999'], ['up', 'KeyJ'],
+    ['assert', 'window.__run.loadout.slots[2].ammo === 28'],
+    ['tap', 'Escape'], ['until', 'window.__game.scene.isPaused("Game")'], ['tap', 'Digit3'],
+    ['assert', 'window.__run.loadout.active === 1'], ['tap', 'Escape'],
+    ['tap', 'Digit3'], ['until', 'window.__run.loadout.active === 2'],
+    ['assert', `var g = ${game}, l = window.__run.loadout, get = g.pShots.get, cd = g.player.fireCd;
+      g.pShots.get = () => null;
+      g.playerFire();
+      g.pShots.get = get;
+      l.slots[2].ammo === 28 && cd === g.player.fireCd`],
+    ['eval', `window.__run.loadout.slots[2].ammo = 1; ${game}.playerFire();`],
+    ['assert', 'window.__run.loadout.active === 0 && window.__run.loadout.slots[2].ammo === 0'],
+    ['tap', 'Digit3'], ['assert', 'window.__run.loadout.active === 0'],
+    collectShotgun, ['until', 'window.__run.loadout.slots[2].ammo === 28'],
+    ['assert', 'window.__run.loadout.active === 0 && window.__run.loadout.slots[1].ammo < 999'],
+    ['tap', 'Digit2'], ['until', 'window.__run.loadout.active === 1'],
+    ['eval', `var g = ${game}; window.__beforeRetry = JSON.stringify(window.__run.loadout);
+      g.player.invuln = 0; g.hurtPlayer(10000, g.player.x - 20);`],
+    ['until', `${game}.canRetry`], ['tap', 'Enter'],
+    ['until', `${game}.state === 'play'`],
+    ['assert', 'JSON.stringify(window.__run.loadout) === window.__beforeRetry && window.__run.stageStats.deaths === 1'],
+    ['shot'],
+  ] },
+  { name: 'armory-save', url: '', steps: [
+    ...deploy, armoryReady,
+    ['eval', `var key = 'neon-warpath-campaign-v1', snap = JSON.parse(localStorage.getItem(key));
+      delete snap.state.loadout; delete snap.state.stageStats;
+      snap.state.weapon = 'rail'; snap.state.ammo = 7;
+      localStorage.setItem(key, JSON.stringify(snap));`],
+    ['reload'], ['tap', 'KeyR'], ['until', 'window.__game.scene.isActive("Game")'],
+    ['assert', `var l = window.__run.loadout; l.active === 1 && l.slots[1].id === 'rail' &&
+      l.slots[1].ammo === 7 && l.slots[2] === null && window.__run.stageStats.deaths === 0`],
+    armoryReady, collectShotgun, ['until', 'window.__run.loadout.active === 2'],
+    ['tap', 'Digit1'], ['until', 'window.__run.loadout.active === 0'],
+    ['eval', `var g = ${game}, r = window.__run;
+      r.stageStats = { elapsed: 11000, kills: 9, bestCombo: 4, deaths: 1 };
+      g.locked = true; g.wave = g.encounters[g.encIndex].waves.length; g.waveGap = 0; g.tickEncounter(16);`],
+    ['assert', `var snap = JSON.parse(localStorage.getItem('neon-warpath-campaign-v1'));
+      snap.state.checkpoint === 1 && snap.state.score === window.__run.score && snap.state.score === 500`],
+    ['tap', 'Escape'], ['until', 'window.__game.scene.isPaused("Game")'], ['tap', 'KeyT'],
+    ['until', 'window.__game.scene.isActive("Title")'],
+    ['reload'], ['tap', 'KeyR'], ['until', 'window.__game.scene.isActive("Game")'],
+    ['assert', `var r = window.__run, l = r.loadout; l.active === 0 && l.slots[1].ammo === 7 &&
+      l.slots[2].id === 'shotgun' && l.slots[2].ammo === 28 &&
+      r.stageStats.elapsed >= 11000 && r.stageStats.kills === 9 && r.stageStats.bestCombo === 4 && r.stageStats.deaths === 1`],
+  ] },
+  { name: 'mission-results', url: '?stage=city&boss=1&weapon=smg&god=1', steps: [
+    ['down', 'KeyD'], ['until', `!!${game}.boss`], ['up', 'KeyD'],
+    ['assert', `var g = ${game}, r = window.__run;
+      r.stageStats = { elapsed: 90000, kills: 12, bestCombo: 3, deaths: 2 }; r.maxCombo = 20;
+      g.boss.hurt(g.boss.maxHp * 9, g.player.x); g.playerFire();
+      r.loadout.slots[1].ammo === 999`],
+    ['until', `var hud = window.__game.scene.getScene('Hud'); hud.overlay.alpha > 0.98 &&
+      hud.overlay.list.some(t => t.text === 'BONUS  +2250')`],
+    ['assert', `var lines = window.__game.scene.getScene('Hud').overlay.list.map(t => t.text);
+      ['B', '1:30', '12', '3', 'DEATHS  2'].every(value => lines.includes(value))`],
+    ['shot'], ['until', 'window.__game.scene.isActive("Briefing")'],
+    ['assert', 'window.__run.stageStats.elapsed === 0 && window.__run.stageStats.deaths === 0 && window.__run.loadout.slots[1].id === "smg"'],
+  ] },
+  { name: 'armory-mouse-buttons', url: '?stage=1.75&weapon=unknown', steps: [
+    ['wait', 1000], armoryReady,
+    ['assert', `${game}.stage.id === 'city' && window.__run.loadout.active === 0 && window.__run.loadout.slots[1] === null`],
+    ['mdown', 'middle'], ['wait', 100], ['assert', `!${game}.controls.held('fire')`], ['mup', 'middle'],
+    ['mdown', 'left'], ['mdown', 'right'],
+    ['until', `var c = ${game}.controls; c.held('fire') && c.held('slide')`],
+    ['mup', 'right'], ['mup', 'left'],
+  ] },
   { name: 'release-storage-denied', url: '', steps: [
     ...deploy,
     ['eval', `window.__stored = localStorage.getItem('neon-warpath-campaign-v1'); window.__setItem = Storage.prototype.setItem; Storage.prototype.setItem = () => { throw new Error('Storage denied'); };`],
@@ -24,12 +106,12 @@ export const RELEASE_SCENARIOS = [
     ['wait', 1500],
     ['assert', `(async () => {
       const {Controls} = await import('/src/systems/Controls.ts');
-      const g = window.__game.scene.getScene('Game'), pad = {leftStick: {x:0,y:0}, buttons:[], L2:1, A:true};
+      const g = window.__game.scene.getScene('Game'), pad = {leftStick: {x:0,y:0}, buttons:[], L2:1, A:true, up:true};
       const c = new Controls({input: {keyboard:g.input.keyboard, activePointer:g.input.activePointer, gamepad:{pad1:pad}}});
-      c.poll(); const first = c.pressed('ability') && c.pressed('jump');
-      c.poll(); const held = !c.pressed('ability');
-      pad.L2 = 0; c.poll(); pad.L2 = 1; c.poll();
-      return first && held && c.pressed('ability');
+      c.poll(); const first = c.pressed('ability') && c.pressed('jump') && c.pressed('nextWeapon');
+      c.poll(); const held = !c.pressed('ability') && !c.pressed('nextWeapon');
+      pad.L2 = 0; pad.up = false; c.poll(); pad.L2 = 1; pad.up = true; c.poll();
+      return first && held && c.pressed('ability') && c.pressed('nextWeapon');
     })()`],
   ] },
   { name: 'release-options', url: '', steps: [

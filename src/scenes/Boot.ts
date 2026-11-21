@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { newRun, run } from '../systems/Run';
 import { STAGES } from '../data/stages';
+import { DROP_WEAPONS } from '../data/weapons';
+import { collectWeapon } from '../systems/Loadout';
 
 // Loads every PNG listed in public/assets/manifest.json (written by tools/process_assets.py)
 // and draws all the small procedural textures (bullets, glows, tiles, crates, the ARCHON core).
@@ -25,12 +27,13 @@ export class BootScene extends Phaser.Scene {
     if (q.has('stage')) {
       newRun(Number(q.get('op') ?? 0));
       const byId = STAGES.findIndex((s) => s.id === q.get('stage')); // ?stage=fungal or ?stage=4
-      run.stage = byId >= 0 ? byId : Phaser.Math.Clamp((Number(q.get('stage')) || 1) - 1, 0, STAGES.length - 1);
+      run.stage = byId >= 0 ? byId : Phaser.Math.Clamp(Math.trunc(Number(q.get('stage')) || 1) - 1, 0, STAGES.length - 1);
       const st = STAGES[run.stage];
       if (q.has('boss')) { run.checkpoint = st.encounters.length; run.checkpointX = st.width - 560; }
       if (q.has('god')) { run.stats.maxHp = 9999; run.hp = 9999; }
       if (q.get('regen') === '0') (window as any).__noRegen = true;
-      if (q.has('weapon')) { run.weapon = q.get('weapon')!; run.ammo = 999; }
+      const weapon = q.get('weapon');
+      if (weapon && DROP_WEAPONS.includes(weapon)) collectWeapon(run.loadout, weapon, 999);
       if (q.has('hold')) { run.flags.rift_choice = 'hold'; this.scene.start('Game', { hold: true }); return; } // &hold=1 : the HOLD IT OPEN finale
       this.scene.start('Game');
       return;

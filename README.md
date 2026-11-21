@@ -9,6 +9,10 @@ Pixel-art run-and-gun with a 12-stage campaign, five playable operators and thre
 
 Controls: A/D move · Space double jump · S crouch · J fire · Shift slide · Q overdrive · Esc pause · M mute.
 
+**Weapons.** Press **1**, **2**, or **3** to select a slot. **Tab** and **D-pad Up** cycle through usable weapons. Slot 1 is the infinite-ammo sidearm. Slots 2 and 3 hold pickups and keep their own ammo between switches, retries, and saves. Matching pickups refill their slot. A new weapon fills an empty or spent slot first. When both pickups still have ammo, it replaces the selected pickup, or slot 3 if the sidearm is selected.
+
+Every stage ends with a mission debrief showing your grade, time, kills, best combo, and score bonus. Checkpoint retries count toward the stage's results.
+
 **Staying alive:** your armor repairs itself when you avoid damage for a few seconds (like a modern shooter), sliding makes you untouchable, and every death at the same spot makes you a little tougher until you get past it. Press **O** on the title or pause screen to pick EASY, NORMAL or HARD.
 
 Every character has a rechargeable skill. ROOK has a three-second shield; VIPER phases, TITAN blasts, SERRIK heals and QUILL launches into a glide. Gamepad: A double jump, LT skill, Y overdrive.
@@ -21,7 +25,7 @@ Press **O** on the title or pause screen for difficulty, music/effects volume, c
 
 `npm run check` checks types. `npm run smoke` exercises the campaign and saves screenshots in `tools/shots/`. `npm run build` creates the web build in `dist/`. Serve it with `npm run preview`; opening `index.html` directly as a local file is not supported.
 
-The upload package is `tools/shots/neon-warpath-release.zip`. It contains the production files with `index.html` at the archive root. The cover, banner, icon and screenshots are in `art/store/`.
+The current upload package is `tools/shots/neon-warpath-release-v2.zip`. It contains the production files with `index.html` at the archive root. The cover, banner, icon and screenshots are in `art/store/`.
 
 ## Docs
 - `docs/HANDOFF.md` — current state and next steps (start here)

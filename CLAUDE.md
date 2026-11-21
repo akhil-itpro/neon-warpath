@@ -45,6 +45,8 @@ Python deps for the asset pipeline: `pip install pillow numpy scipy "rembg[cpu]"
 
 **`run` (`src/systems/Run.ts`)** is the single mutable state of a playthrough (score, hp, weapon, perks, stats, checkpoint) and survives scene restarts. `save` is the localStorage record.
 
+`src/systems/Loadout.ts` owns weapon slots, per-slot ammo and single-weapon save migration. Mission statistics live in `run.stageStats` so a checkpoint retry or resume keeps the current mission totals. The split smoke runs use `SMOKE_SHARD=1/3`, `2/3` and `3/3` for the same suite.
+
 **Art fallback convention (important).** Enemies and operators name a preferred texture (`art`). If `public/assets` has `<art>_0.png…` (animation) or `<art>.png` it is used; otherwise a tinted stand-in sprite. So gangsters/zombies/aliens/demons/extra operators are already playable with stand-ins and upgrade automatically once real art is processed. Operators need `<art>_run0..3, _idle, _jump, _slide, _crouch`. See `docs/ART_PIPELINE.md`.
 
 **Asset pipeline.** Raw AI sheets live in `art/source/` (never edit them). `tools/process_assets.py` removes backgrounds (chroma key if flat colour, else `rembg` per grid cell), finds sprites, downsizes to game pixels, bakes a 1px team-coloured outline, and writes `public/assets/*.png` + `manifest.json`. New sheets need a `MANIFEST` entry in that script. The single-pose expansion library (`art/library/expansion`) is brought in by `python tools/integrate_expansion.py` instead (its `JOBS` table sets in-game sizes); the Frontier and species libraries by `python tools/integrate_campaign.py` (copies + outline swap). Outstanding art requests for Codex: `docs/CODEX_ART_HANDOFF.md`. Enemy source sprites face LEFT, hero faces RIGHT.
