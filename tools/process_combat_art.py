@@ -25,7 +25,18 @@ def process(key):
     with Image.open(OUT / f'{key}.png') as original:
         canvas_width, canvas_height = original.size
     with Image.open(SOURCE / f'{key}.png') as sheet:
-        edges = [round(i * sheet.width / len(ENEMY_POSES)) for i in range(len(ENEMY_POSES) + 1)]
+        sheet = sheet.convert('RGBA')
+        coverage = np.count_nonzero(np.asarray(sheet)[..., 3] >= 160, axis=0)
+        cell_width = sheet.width / len(ENEMY_POSES)
+        edges = [0]
+        # Prefer an empty gutter near each nominal boundary. Raised weapons
+        # sometimes extend a few pixels beyond the generated cell.
+        radius = round(cell_width / 6)
+        for i in range(1, len(ENEMY_POSES)):
+            middle = round(i * cell_width)
+            edges.append(min(range(middle - radius, middle + radius + 1),
+                             key=lambda x: (coverage[x - 1] + coverage[x], abs(x - middle))))
+        edges.append(sheet.width)
         crops = [cutout(sheet.crop((left, 0, right, sheet.height)))
                  for left, right in zip(edges, edges[1:])]
     if any(not frame.width or not frame.height for frame in crops):
