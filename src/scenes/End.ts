@@ -19,7 +19,6 @@ export class EndScene extends Phaser.Scene {
     this.ready = false;
     this.controls = new Controls(this);
     audio.playMusic(null);
-    const record = run.score >= save.best;
     save.best = Math.max(save.best, run.score);
     persist();
     this.add.tileSprite(0, 0, W, H, 'bg_cathedral').setOrigin(0).setTint(0x404860);
@@ -32,7 +31,7 @@ export class EndScene extends Phaser.Scene {
     t(76, `ENDING: ${ending.name}`, 16, ending.color);
     t(96, ending.text, 8, '#c0c8d8');
     t(124, `FINAL SCORE  ${run.score}`, 16, '#ffd040');
-    if (record) t(142, 'NEW RECORD', 8, '#ff6050');
+    if (run.score > 0 && run.score === save.best) t(142, 'PERSONAL BEST', 8, '#ff6050');
     const rank = run.deaths === 0 ? 'S' : run.deaths <= 2 ? 'A' : run.deaths <= 5 ? 'B' : 'C';
     t(162, `OPERATOR  ${run.op.name}     RANK ${rank}`, 8, rank === 'S' ? '#ffd040' : '#ffffff');
     t(176, `KILLS  ${run.kills}     BEST COMBO  ${run.maxCombo}     DEATHS  ${run.deaths}`);
