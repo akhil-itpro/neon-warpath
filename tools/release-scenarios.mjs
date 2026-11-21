@@ -88,6 +88,19 @@ export const RELEASE_SCENARIOS = [
     ['until', `var c = ${game}.controls; c.held('fire') && c.held('slide')`],
     ['mup', 'right'], ['mup', 'left'],
   ] },
+  { name: 'aim-hostiles-first', url: '?stage=city', steps: [
+    ['wait', 800], armoryReady,
+    ['assert', `var g = ${game}, p = g.player, m = p.muzzle();
+      g.aim = null; p.dir = 1;
+      const egg = g.spawnEnemy('egg', m.x + 90, m.y + 60, '');
+      const foe = g.spawnEnemy('drone', m.x + 185, m.y - 70, '');
+      const angle = e => Math.atan2(e.body.center.y - m.y, e.x - m.x);
+      g.playerFire();
+      const aimedAtFoe = Math.abs(p.shotAng - angle(foe)) < 0.001;
+      g.removeEnemy(foe);
+      g.playerFire();
+      aimedAtFoe && Math.abs(p.shotAng - angle(egg)) < 0.001`],
+  ] },
   { name: 'release-storage-denied', url: '', steps: [
     ...deploy,
     ['eval', `window.__stored = localStorage.getItem('neon-warpath-campaign-v1'); window.__setItem = Storage.prototype.setItem; Storage.prototype.setItem = () => { throw new Error('Storage denied'); };`],
@@ -148,8 +161,12 @@ export const RELEASE_SCENARIOS = [
     ['eval', `localStorage.setItem('neon-warpath-campaign-v1', '{invalid')`], ['reload'],
     ['assert', `(async () => { const s = await import('/src/systems/CampaignSave.ts'); return s.campaignSnapshot() === null; })()`],
     ['tap', 'KeyR'], ['assert', 'window.__game.scene.isActive("Title")'],
-    ['eval', `localStorage.setItem('neon-warpath-settings-v1', 'null')`], ['reload'],
-    ['assert', 'window.__game.scene.isActive("Title")'],
+    ['eval', `localStorage.setItem('neon-warpath-settings-v1', 'null');
+      localStorage.setItem('neon-warpath-save-v1', JSON.stringify({op: 1.5, best: 'invalid', unlocked:['quill']}));`], ['reload'],
+    ['assert', `window.__game.scene.getScene('Title').sel === 0`],
+    ['tap', 'Enter'], ['until', 'window.__game.scene.isActive("Briefing")'],
+    ['assert', `const profile = JSON.parse(localStorage.getItem('neon-warpath-save-v1'));
+      profile.best === 0 && profile.unlocked.includes('quill')`],
   ] },
   { name: 'release-save-flow', url: '', steps: [
     ...deploy,

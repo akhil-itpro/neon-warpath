@@ -87,6 +87,10 @@ const KEY = 'neon-warpath-save-v1';
 export const save: SaveData = (() => {
   const d: SaveData = { best: 0, cleared: 0, muted: false, op: 0, archive: [], endings: [], unlocked: [] };
   try { Object.assign(d, JSON.parse(localStorage.getItem(KEY) ?? '{}')); } catch { /* corrupt or blocked: use defaults */ }
+  if (!Number.isInteger(d.op) || !OPERATORS[d.op]) d.op = 0;
+  if (!Number.isSafeInteger(d.best) || d.best < 0) d.best = 0;
+  if (!Number.isSafeInteger(d.cleared) || d.cleared < 0) d.cleared = 0;
+  if (typeof d.muted !== 'boolean') d.muted = false;
   if (!Array.isArray(d.archive)) d.archive = [];
   if (!Array.isArray(d.endings)) d.endings = [];
   if (!Array.isArray(d.unlocked)) d.unlocked = [];

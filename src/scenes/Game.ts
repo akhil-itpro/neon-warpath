@@ -516,13 +516,17 @@ export class GameScene extends Phaser.Scene {
       base = near ? Math.atan2(aim.y - p.centerY, aim.x - p.x) : Math.atan2(aim.y - m.y, aim.x - m.x);
     }
     // Keyboard / gamepad aim assist: shots bend toward the nearest target in a forward cone.
-    let best = 420, target: Enemy | null = null;
+    const range = 420;
+    let best = Infinity, target: Enemy | null = null;
     for (const e of aim ? [] : this.enemies) {
       if (e.dead || e.def.ally || (e.x - m.x) * p.dir < 12) continue;
       const ty = e.body.center.y; // aim at the hitbox, not the picture: low wide crawlers (kharrix) were shot over
       const dist = R.Distance.Between(m.x, m.y, e.x, ty);
       const off = Math.abs(R.Angle.Wrap(Math.atan2(ty - m.y, e.x - m.x) - base));
-      if (dist < best && off < R.DegToRad(58) && Math.abs(e.x - this.cameras.main.midPoint.x) < 330) { best = dist; target = e; }
+      if (dist >= range || off >= R.DegToRad(58) || Math.abs(e.x - this.cameras.main.midPoint.x) >= 330) continue;
+      // Every hostile in range outranks scenery and brood eggs. Within each group, nearest wins.
+      const priority = dist + (e.def.faction === 'prop' || e.def.ai === 'egg' ? range : 0);
+      if (priority < best) { best = priority; target = e; }
     }
     if (target) base = Math.atan2(target.body.center.y - m.y, target.x - m.x);
     p.noteShot(base);
